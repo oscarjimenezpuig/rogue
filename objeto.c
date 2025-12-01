@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 30-11-2025
-  Ultima Modificacion: diumenge, 30 de novembre de 2025, 20:59:26
+  Ultima Modificacion: dilluns, 1 de desembre de 2025, 05:22:09
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -20,9 +20,9 @@ static void objini() {
 	}
 }
 
-u1 objnew(u4 id,u1 t) {
+u1 objnew(u2 id,u1 t) {
 	objini();
-	if(id<OBJETOS) {
+	if(id>0 && id<OBJETOS) {
 		pobjeto=objetos+id;
 		pobjeto->type=t;
 		return 1;
@@ -32,7 +32,7 @@ u1 objnew(u4 id,u1 t) {
 
 pobjeto objget(u1 id) {
 	objini();
-	return (id<OBJETOS && (objetos+id)->type!=0)?objetos+id:NULL;
+	return (id>0 && id<OBJETOS && (objetos+id)->type!=0)?objetos+id:NULL;
 }
 
 
