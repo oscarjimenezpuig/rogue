@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dilluns, 1 de desembre de 2025, 05:22:09
+  Ultima Modificacion: dilluns, 1 de desembre de 2025, 20:06:24
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -12,27 +12,26 @@
 
 /* INCLUDES */
 
-#include <string.h>
-
 #include "curse.h"
 
 /* CONSTANTES */
 
 #define OBJETOS 512 /* numero de objetos */
 
-#define ONUL 0 /* objeto nulo */
-
 #define MAPAC 189 /* dimensiones del mapa */
 #define MAPAR 45
 #define MAPAA (MAPAR*MAPAC)
+
+/* tipos de localidad */
+#define VACIO 0
+#define OBSTACULO 1
+#define TRANSITABLE 2
 
 /* TIPOS */
 
 typedef signed char s1;
 typedef unsigned short u2;
 typedef unsigned int u4;
-typedef char strs[20];
-typedef char strl[256];
 
 struct objeto_s {
 	u1 type;
@@ -42,30 +41,27 @@ struct objeto_s {
 	s1 background;
 };
 
-typedef u4 objeto;
-typedef struct objeto_s* pobjeto;
+typedef u1 objeto_t;
+typedef struct objeto_s* pobjeto_t;
 
 typedef struct {
-	u1 objeto;
-	struct {
-		u1 visible : 1;
-		u1 obstaculo : 1;
-		u1 habitacion : 4; /* si habitacion es 0, se corresponde a camino */
-	};
-} localidad;
+	u1 visible : 1;
+	u1 tipo : 2;
+	u1 habitacion : 4; /* si habitacion es 0, se corresponde a camino */
+} localidad_t;
 		
 /* VARIABLES */
 
-extern localidad mapa[MAPAA];
+extern localidad_t mapa[MAPAA];
 
 /* FUNCIONES */
 
 /* objeto.c */
 
-u1 objnew(u1 id,u1 type);
+u1 objnew(objeto_t o,u1 type);
 //definicion de un objeto nuevo
 
-pobjeto objget(u1 id);
+pobjeto_t objget(objeto_t o);
 //obtenemos el apuntador al objeto
 
 #endif /* ROGUE_H */

@@ -82,6 +82,6 @@ check:
 #MAKEFILE VARIABLE
 
 NAME = curse 
-SCRS = curse.c
+SCRS = curse.c mapa.c
 INCLUDES = -lncurses #-lX11
 
