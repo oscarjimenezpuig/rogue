@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: mar 02 dic 2025 14:30:01
+  Ultima Modificacion: dimarts, 2 de desembre de 2025, 20:39:50
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -45,7 +45,7 @@ localidad_t mapa[MAPAA];
 static void locini() {
 	/* inicia todas las localidades a obstaculo */
 	localidad_t* p=mapa;
-	while(p!=mapa+MAPAA) *p++=(localidad_t){0,VACIO,0};
+	while(p!=mapa+MAPAA) *p++=(localidad_t){VACIO,0,0,0};
 }
 
 static habitacion_t habnew(u1 n,u1 r,u1 c) {
@@ -82,8 +82,30 @@ static void habdef() {
 	}
 }
 
+#define locpos(R,C) (mapa+((C)+(R)*MAPAC))
+
+static void habinloc() {
+	/* coloca todas las habitaciones en las localidades */
+	for(int k=0;k<habitaciones;k++) {
+		habitacion_t h=habitacion[k];
+		for(int r=h.r;r<h.r+h.rs;r++) {
+			for(int c=h.c;c<h.c+h.cs;c++) {
+				localidad_t* l=locpos(r,c);
+				l->visible=0;
+				l->oscuro=h.dark;
+				l->habitacion=h.number;
+				if(r==h.r || r==h.r+h.rs-1 || c==h.c || c==h.c+h.cs-1) {
+					l->tipo=OBSTACULO;
+				} else {
+					l->tipo=TRANSITABLE;
+				}
+			}
+		}
+	}
+}
+
 #define labhab(R,C) (laberinto + ((C)+(R)*HABC))
-#define sign(I,F) ((I>F)?-1:(I<F)?1:0)
+#define sign(I,F) (((I)>(F))?-1:((I)<(F))?1:0)
 
 static void doway(int way,int ro,int co,int rf,int cf) {
 	/* une dos habitaciones con un camino */
@@ -91,27 +113,25 @@ static void doway(int way,int ro,int co,int rf,int cf) {
 	if(l->cam==0) {
 		l->cam=way;
 		int dir=0;
-		if(co!=cf) dir=1;
+		if(co!=cf) dir|=1;
 		if(ro!=rf) dir|=2;
 		if(dir) {
 			int dal=0;
 			while(((dal=rnd(1,2)) & dir)==0);
 			dir=dal;
-			int rn,cn;
-			u1 cdir=0;
+			int rn=ro;
+			int cn=co;
+			int s=0;
 			if(dir==1) {
-				rn=ro;
-				int s=sign(co,cf);
-				cn=co+s;
+				s=sign(co,cf);
+				cn+=s;
 				dir=(s==1)?EST:WST;
-				cdir=(dir==EST)?WST:EST;
 			} else if(dir==2) {
-				int s=sign(ro,rf);
-				rn=ro+s;
-				cn=co;
+				s=sign(ro,rf);
+				rn+=s;
 				dir=(s==1)?SUR:NOR;
-				cdir=(dir==SUR)?NOR:SUR;
 			}
+			int cdir=8/dir;
 			l->sal|=dir;
 			hablab_t* d=labhab(rn,cn);
 			d->sal|=cdir;
@@ -164,7 +184,10 @@ static void labini() {
 	int ri=rnd(0,HABR-1);
 	int ci=rnd(0,HABC-1);
 	int rf,cf;
-	while((rf=rnd(0,HABR-1)) && ((cf=rnd(0,HABC-1))) && (ri==rf) && (ci==cf));
+	do {
+		rf=rnd(0,HABR-1);
+		cf=rnd(0,HABC-1);
+	}while(ri==rf && ci==cf);
 	doway(1,ri,ci,rf,cf);
 }
 
@@ -173,32 +196,54 @@ static void dolab() {
 	labini();
 	int ri,ci;
 	int way=2;
-	/*
 	while(fndfree(&ri,&ci)) {
 		int rf,cf;
 		fndrndocup(&rf,&cf);
 		doway(way++,ri,ci,rf,cf);
 	}
-	*/
 }
 
-static void prtlab() {
-	/* impresion del lab dbg */
+static void locshwdbg() {
+	/* hace un debug para ver como queda el mapa */
 	ink(WHITE);
-	for(int r=0;r<HABR;r++) {
-		for(int c=0;c<HABC;c++) {
-			hablab_t* l=labhab(r,c);
-			at(r,c);
-			prints("%i",l->sal);
+	for(int f=0;f<MAPAR;f++) {
+		for(int c=0;c<MAPAC;c++) {
+			localidad_t l=mapa[c+f*MAPAC];
+			char c=0;
+			u1 t=l.tipo;
+			if(t==OBSTACULO || t==OCULTA) {
+				attr(ON,REVERSE);
+				c=' ';
+			} else if(t==TRANSITABLE) {
+				if(l.habitacion==0) c='#';
+				else c='.';
+			} else if(t==PUERTA) {
+				attr(ON,REVERSE);
+				c='?';
+			}
+			if(c) {
+				at(f,c);
+				printc(c);
+				attr(OFF,REVERSE);
+			}
 		}
 	}
+	show();
+}
+
+void map_new() {
+	locini();
+	habdef();
+	habinloc();
 }
 
 /* prueba */
 
 void begin() {
+	randomize(-1);
+	map_new();
+	locshwdbg(); //dbg
 	dolab();
-	prtlab();
 	while(!inkey('q')) listen();
 }
 
