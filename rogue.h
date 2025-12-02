@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dilluns, 1 de desembre de 2025, 20:06:24
+  Ultima Modificacion: mar 02 dic 2025 14:13:55
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -11,6 +11,8 @@
 #define ROGUE_H
 
 /* INCLUDES */
+
+#include <stdio.h> //dbg
 
 #include "curse.h"
 
