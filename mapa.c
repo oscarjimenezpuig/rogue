@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: dimarts, 2 de desembre de 2025, 20:39:50
+  Ultima Modificacion: dimecres, 3 de desembre de 2025, 21:03:33
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -54,10 +54,17 @@ static habitacion_t habnew(u1 n,u1 r,u1 c) {
 	h.number=n;
 	h.rs=rnd(MHR/2,MHR-1);
 	h.cs=rnd(MHC/2,MHC-1);
-	h.r=rnd(r*MHR,r*MHR+MHR-h.rs);
-	h.c=rnd(c*MHC,c*MHC+MHC-h.cs);
+	h.r=rnd(r*MHR,r*MHR+MHR-h.rs-1);
+	h.c=rnd(c*MHC,c*MHC+MHC-h.cs-1);
 	h.dark=(rnd(0,PHO)==0);
 	return h;
+}
+
+static void habprtdbg() {
+	for(int n=0;n<habitaciones;n++) {
+		habitacion_t h=habitacion[n];
+		printf("n=%i (%i,%i) r=%i c=%i\n",h.number,h.r,h.c,h.rs,h.cs);
+	}
 }
 
 static void habdef() {
@@ -117,7 +124,9 @@ static void doway(int way,int ro,int co,int rf,int cf) {
 		if(ro!=rf) dir|=2;
 		if(dir) {
 			int dal=0;
-			while(((dal=rnd(1,2)) & dir)==0);
+			do {
+				dal=rnd(1,2);
+			} while((dal & dir)==0);
 			dir=dal;
 			int rn=ro;
 			int cn=co;
@@ -155,26 +164,13 @@ static u1 fndfree(int* r,int* c) {
 	return 0;
 }
 
-static u1 fndrndocup(int* r,int* c) {
-	/* da una habitacion random por la que pasa un camino */
-	int fi=rnd(0,HABR-1);
-	int ci=rnd(0,HABC-1);
-	hablab_t* ini=labhab(fi,ci);
-	hablab_t* l=ini;
+static void fndrndocup(int* r,int* c) {
+	hablab_t* l=NULL;
 	do {
-		if(l->cam!=0) break;
-		else {
-			l++;
-			if(l==laberinto+HABA) l=laberinto;
-		}
-	}while(l!=ini);
-	if(l==ini) return 0;
-	else {
-		int pos=l-laberinto;
-		*r=pos/HABC;
-		*c=pos%HABC;
-		return 1;
-	}
+		*r=rnd(0,HABR-1);
+		*c=rnd(0,HABC-1);
+		l=labhab(*r,*c);
+	} while(l->cam==0);
 }
 
 static void labini() {
@@ -203,28 +199,42 @@ static void dolab() {
 	}
 }
 
+#define ntp(A,M) ((A)*(M)+((M)/2))
+
+static void makeway(u1 ro,u1 co,u1 rf,u1 cf) {
+	int pro=ntp(ro,MHR);
+	int pco=ntp(co,MHC);
+	int prf=ntp(rf,MHR);
+	int pcf=ntp(cf,MHR);
+	//TODO Programar un camino de pro,pco a prf,pcf
+	
+}
+
+
+
+
 static void locshwdbg() {
 	/* hace un debug para ver como queda el mapa */
 	ink(WHITE);
 	for(int f=0;f<MAPAR;f++) {
 		for(int c=0;c<MAPAC;c++) {
 			localidad_t l=mapa[c+f*MAPAC];
-			char c=0;
+			char chr=0;
 			u1 t=l.tipo;
 			if(t==OBSTACULO || t==OCULTA) {
-				attr(ON,REVERSE);
-				c=' ';
+				attr(REVERSE);
+				chr=' ';
 			} else if(t==TRANSITABLE) {
-				if(l.habitacion==0) c='#';
-				else c='.';
+				if(l.habitacion==0) chr='#';
+				else chr='.';
 			} else if(t==PUERTA) {
-				attr(ON,REVERSE);
-				c='?';
+				attr(REVERSE);
+				chr='?';
 			}
-			if(c) {
+			if(chr!=0) {
 				at(f,c);
-				printc(c);
-				attr(OFF,REVERSE);
+				printc(chr);
+				attr(0);
 			}
 		}
 	}
@@ -242,16 +252,8 @@ void map_new() {
 void begin() {
 	randomize(-1);
 	map_new();
+	//habprtdbg();	
 	locshwdbg(); //dbg
 	dolab();
 	while(!inkey('q')) listen();
 }
-
-
-
-
-					
-
-
-
-

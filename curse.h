@@ -2,7 +2,7 @@
 ============================================================
   Fichero: curse.h
   Creado: 27-11-2025
-  Ultima Modificacion: diumenge, 30 de novembre de 2025, 12:48:18
+  Ultima Modificacion: mié 03 dic 2025 11:11:47
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -40,8 +40,8 @@
 #define WHITE 7
 
 //on/off
-#define OFF 0
-#define ON 1
+//#define OFF 0
+//#define ON 1
 
 //mode in
 #define NORMAL 0 //En este caso hay ECHO,se espera a la introduccion de las teclas y espera al enter
@@ -63,8 +63,8 @@ void at(int r,int c);
 void atget(int* r,int* c);
 //da la posicion actual del cursor
 
-void attr(u1 status,u1 attributes);
-//define los atributos, status es on o off
+void attr(u1 attributes);
+//define los atributos
 
 void background(u1 color);
 //establecer color del fondo

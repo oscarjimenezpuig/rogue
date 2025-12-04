@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dimarts, 2 de desembre de 2025, 20:24:37
+  Ultima Modificacion: mié 03 dic 2025 10:40:04
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -20,8 +20,8 @@
 
 #define OBJETOS 512 /* numero de objetos */
 
-#define MAPAC 189 /* dimensiones del mapa */
-#define MAPAR 45
+#define MAPAC 159 /* dimensiones del mapa */
+#define MAPAR 48
 #define MAPAA (MAPAR*MAPAC)
 
 /* tipos de localidad */
