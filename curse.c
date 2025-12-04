@@ -2,7 +2,7 @@
 ============================================================
   Fichero: curse.c
   Creado: 27-11-2025
-  Ultima Modificacion: dimecres, 3 de desembre de 2025, 20:52:08
+  Ultima Modificacion: jue 04 dic 2025 12:16:54
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */

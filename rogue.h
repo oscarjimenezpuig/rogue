@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: mié 03 dic 2025 10:40:04
+  Ultima Modificacion: jue 04 dic 2025 12:25:08
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -43,16 +43,19 @@ struct objeto_s {
 	char chr;
 	s1 ink;
 	s1 background;
+	u1 attr;
+	int x,y;
+
 };
 
 typedef u1 objeto_t;
 typedef struct objeto_s* pobjeto_t;
 
 typedef struct {
-	u1 tipo : 2;
+	u1 tipo : 3;
 	u1 visible : 1;
 	u1 oscuro : 1;
-	u1 habitacion : 4; /* si habitacion es 0, se corresponde a camino */
+	u1 habitacion : 3; /* si habitacion es 0, se corresponde a camino */
 } localidad_t;
 		
 /* VARIABLES */

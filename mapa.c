@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: dimecres, 3 de desembre de 2025, 21:03:33
+  Ultima Modificacion: jue 04 dic 2025 12:17:40
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -13,11 +13,14 @@
 #define HABC 3 /* numero maximo de habitaciones en columna */
 #define HABA (HABR*HABC)
 
-#define NHM 2 /* numero de habitaciones minimas */
+#define NHMI 3 /* numero de habitaciones minimas */
+#define NHMA 7 /* numero de habitaciones maximas */
 #define PEH 2 /* posibilidad de que se forme una habitacion */
 #define PHO 4 /* posibilidad de habitacion oscura */
 #define MHR (MAPAR/HABR) /*maximo de filas que puede tener una habitacion */
 #define MHC (MAPAC/HABC) /*maximo de columnas que puede tener una habitacion */
+
+#define PWO 4 /* probabilidad de camino oculto */
 
 #define NOR 1
 #define EST 2
@@ -48,15 +51,19 @@ static void locini() {
 	while(p!=mapa+MAPAA) *p++=(localidad_t){VACIO,0,0,0};
 }
 
+#define ntp(A,M) ((A)*(M)+((M)/2))
+
 static habitacion_t habnew(u1 n,u1 r,u1 c) {
 	/* define una habitacion */
-	habitacion_t h;
-	h.number=n;
-	h.rs=rnd(MHR/2,MHR-1);
-	h.cs=rnd(MHC/2,MHC-1);
-	h.r=rnd(r*MHR,r*MHR+MHR-h.rs-1);
-	h.c=rnd(c*MHC,c*MHC+MHC-h.cs-1);
-	h.dark=(rnd(0,PHO)==0);
+	const int MLC=MHC/2;
+	const int MLR=MHR/2;
+	int rm=ntp(r,MHR);
+	int cm=ntp(c,MHC);
+	int ri=rnd(2,MLR-2);
+	int ci=rnd(2,MLC-2);
+	int lr=rnd(2,MLR-2)+ri;
+	int lc=rnd(2,MLC-2)+ci;
+	habitacion_t h={n,(rnd(0,PHO)==0),rm-ri,cm-ci,lr,lc};
 	return h;
 }
 
@@ -69,20 +76,16 @@ static void habprtdbg() {
 
 static void habdef() {
 	/* define todas las habitaciones del mapa */
-	int done[HABA];
-	while(habitaciones<NHM) {
+	u1 done[HABA];
+	u1* pd=done;
+	while(pd!=done+HABA) *pd++=0;
+	while(habitaciones<NHMI) {
 		for(int r=0;r<HABR;r++) {
 			for(int c=0;c<HABC;c++) {
-				if(rnd(0,PEH)==0) {
-					u1 free=1;
-					for(u1 c=0;c<habitaciones && free;c++) {
-						if(done[c]==c+r*HABC) free=0;
-					}
-					if(free) {
-						done[habitaciones]=c+r*HABC;
-						habitacion[habitaciones]=habnew(habitaciones+1,r,c);
-						habitaciones++;
-					}
+				if(!done[c+r*HABC] && !rnd(0,PEH) && habitaciones<NHMA){
+					habitacion[habitaciones]=habnew(habitaciones+1,r,c);
+					++habitaciones;
+					done[c+r*HABC]=1;
 				}
 			}
 		}
@@ -199,19 +202,100 @@ static void dolab() {
 	}
 }
 
-#define ntp(A,M) ((A)*(M)+((M)/2))
 
-static void makeway(u1 ro,u1 co,u1 rf,u1 cf) {
-	int pro=ntp(ro,MHR);
-	int pco=ntp(co,MHC);
-	int prf=ntp(rf,MHR);
-	int pcf=ntp(cf,MHR);
-	//TODO Programar un camino de pro,pco a prf,pcf
-	
+static void chckloc(int r,int c) {
+	localidad_t* l=locpos(r,c);
+	if(l->tipo==OBSTACULO) {
+		int hco=((rnd(0,PWO))==0);
+		l->tipo=(hco)?OCULTA:PUERTA;
+	} else if(l->tipo==VACIO) {
+		l->tipo=TRANSITABLE;
+		l->visible=0;
+		l->oscuro=1;
+		l->habitacion=0;
+	}
+}	
+
+static void makeway(u1 rri,u1 rci,u1 rrf,u1 rcf) {
+	/* hace un camino entre habitaciones */
+	int ri=ntp(rri,MHR);
+	int ci=ntp(rci,MHC);
+	int rf=ntp(rrf,MHR);
+	int cf=ntp(rcf,MHC);
+	int sr=sign(ri,rf);
+	int sc=sign(ci,cf);
+	int c=ci;
+	int r=ri;
+	chckloc(r,c);
+	if(sr!=0) {
+		do {
+			r+=sr;
+			chckloc(r,c);
+		}while(r!=rf);
+	} else if(sc!=0) {
+		do {
+			c+=sc;
+			chckloc(r,c);
+		}while(c!=cf);
+	}
 }
 
+static void makeways() {
+	/* hace todos los caminos entre las habitaciones */
+	dolab();
+	for(int r=0;r<HABR;r++) {
+		for(int c=0;c<HABC;c++) {
+			hablab_t* h=labhab(r,c);
+			if(h->sal & EST) {
+				makeway(r,c,r,c+1);
+			}
+			if(h->sal & SUR) {
+				makeway(r,c,r+1,c);
+			}
+		}
+	}
+}
 
+static u1 vecinos(int r,int c) {
+	const int AR[]={1,-1,0,0};
+	const int AC[]={0,0,1,-1};
+	const int ASIZ=4;
+	int cuenta=0;
+	for(int k=0;k<ASIZ;k++) {
+		int rr=r+AR[k];
+		int cc=c+AC[k];
+		localidad_t* l=locpos(rr,cc);
+		u1 t=l->tipo;
+		u1 nh=l->habitacion;
+		if(t==PUERTA || (t==OCULTA) || (t==TRANSITABLE && nh==0)) ++cuenta;
+	}
+	return cuenta;
+}
 
+static u1 analiza(int r,int c) {
+	localidad_t* l=locpos(r,c);
+	if(l->tipo==TRANSITABLE && l->habitacion==0) {
+		u1 vec=vecinos(r,c);
+		if(vec==1) {
+			l->tipo=VACIO;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static void huerfanas() {
+	/* elimina todos los caminos que tienen un vecino */
+	u1 cambio;
+	do {
+		cambio=0;
+		for(int r=0;r<MAPAR;r++) {
+			for(int c=0;c<MAPAC;c++) {
+				cambio+=analiza(r,c);
+			}
+		}
+	}while(cambio);
+}
 
 static void locshwdbg() {
 	/* hace un debug para ver como queda el mapa */
@@ -245,6 +329,8 @@ void map_new() {
 	locini();
 	habdef();
 	habinloc();
+	makeways();
+	huerfanas();
 }
 
 /* prueba */
@@ -254,6 +340,5 @@ void begin() {
 	map_new();
 	//habprtdbg();	
 	locshwdbg(); //dbg
-	dolab();
 	while(!inkey('q')) listen();
 }
