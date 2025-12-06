@@ -2,7 +2,7 @@
 ============================================================
   Fichero: curse.c
   Creado: 27-11-2025
-  Ultima Modificacion: jue 04 dic 2025 12:16:54
+  Ultima Modificacion: dissabte, 6 de desembre de 2025, 08:51:37
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -35,7 +35,7 @@ static struct {
 	u1 atr : 1;
 	u1 end : 1;
 	u1 min : 4;
-} _flag={0,0,0,1,NOECHO|NOCURSOR|NOENTER|NODELAY}; 
+} _flag={0,0,0,1,NORMAL}; 
 //banderas:
 //cur: cursor, col: color, atr: atributo -> indican si hay cambio
 //end: indica si ha sido finalizado el curses
@@ -49,7 +49,11 @@ static void __end() {
 		endwin();
 		_flag.end=1;
 	}
-	puts("...and ended"); //dbg
+}
+
+static void __hand_signal(int sig) {
+	endwin();
+	exit(sig);
 }
 
 static void _attron() {
@@ -83,7 +87,8 @@ static void _color() {
 #undef CDD
 
 static void _init() {
-	puts("NCURSES started...");//dbg
+	signal(SIGINT,__hand_signal);
+	signal(SIGSEGV,__hand_signal);
 	initscr();
 	noecho();
 	raw();
@@ -186,9 +191,15 @@ void dimget(int* r,int* c) {
 	*c=_columns;
 }
 
-
-void inmode(u1 flag) {
-	_flag.min=flag;
+void inmode(u1 f) {
+	_flag.min=f;
+	if((f & CURSOR)) curs_set(1);
+	else curs_set(0);
+	if((f & ECHO)) echo();
+	else noecho();
+	nodelay(stdscr,(f & DELAY)?FALSE:TRUE);
+	if((f & ENTER)) noraw();
+	else raw();
 }
 
 void ink(u1 c) {
@@ -207,29 +218,23 @@ u1 inkey(char c) {
 	return count;
 }
 
-#define nfic(A) ((_flag.min & (A))==0)
 
 u1 listen() {
-	if(nfic(NOCURSOR)) curs_set(1);
-	char c=ERR;	
 	char* p=_buffer;
-	u1 end=(nfic(NOENTER) || nfic(NODELAY))?0:1;
+	char c=0;
+	u1 entmod=(_flag.min & ENTER)?1:0;
 	do {
 		c=getch();
 		if(c!=ERR) {
-			*p++=c;
-			end=(nfic(NOENTER))?0:1;
-			if(c=='\n') end=1;
-			else if(nfic(NOECHO)) printc(c);
-			if(nfic(NOECHO) && c!='\n') printc(c);
+			if(c=='\n' && entmod) entmod=0;
+			else {
+				*p++=c;
+			}
 		}
-	}while(!end);
+	} while(entmod);
 	*p='\0';
-	if(nfic(NOCURSOR)) curs_set(0);
 	return p-_buffer;
 }
-
-#undef nfic
 
 void palette(u1 n) {
 	const int COLS[]={COLOR_BLACK,COLOR_RED,COLOR_GREEN,COLOR_YELLOW,COLOR_BLUE,COLOR_MAGENTA,COLOR_CYAN,COLOR_WHITE};

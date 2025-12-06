@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: jue 04 dic 2025 12:17:40
+  Ultima Modificacion: dissabte, 6 de desembre de 2025, 12:27:08
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -65,13 +65,6 @@ static habitacion_t habnew(u1 n,u1 r,u1 c) {
 	int lc=rnd(2,MLC-2)+ci;
 	habitacion_t h={n,(rnd(0,PHO)==0),rm-ri,cm-ci,lr,lc};
 	return h;
-}
-
-static void habprtdbg() {
-	for(int n=0;n<habitaciones;n++) {
-		habitacion_t h=habitacion[n];
-		printf("n=%i (%i,%i) r=%i c=%i\n",h.number,h.r,h.c,h.rs,h.cs);
-	}
 }
 
 static void habdef() {
@@ -297,48 +290,57 @@ static void huerfanas() {
 	}while(cambio);
 }
 
-static void locshwdbg() {
-	/* hace un debug para ver como queda el mapa */
-	ink(WHITE);
-	for(int f=0;f<MAPAR;f++) {
+static u1 tiene_camino(int r,int c) {
+	const int AR[]={1,-1,0,0};
+	const int AC[]={0,0,1,-1};
+	const int ASIZ=4;
+	for(int k=0;k<ASIZ;k++) {
+		int rr=r+AR[k];
+		int cc=c+AC[k];
+		localidad_t* l=locpos(rr,cc);
+		if(l->tipo==TRANSITABLE && l->habitacion==0) return 1;
+	}
+	return 0;
+}
+
+static void limpia_puertas() {
+	/* elimina las puertas y los ocultos que han quedado sin camino */
+	for(int r=0;r<MAPAR;r++) {
 		for(int c=0;c<MAPAC;c++) {
-			localidad_t l=mapa[c+f*MAPAC];
-			char chr=0;
-			u1 t=l.tipo;
-			if(t==OBSTACULO || t==OCULTA) {
-				attr(REVERSE);
-				chr=' ';
-			} else if(t==TRANSITABLE) {
-				if(l.habitacion==0) chr='#';
-				else chr='.';
-			} else if(t==PUERTA) {
-				attr(REVERSE);
-				chr='?';
-			}
-			if(chr!=0) {
-				at(f,c);
-				printc(chr);
-				attr(0);
+			localidad_t* l=locpos(r,c);
+			if(l->tipo==PUERTA || l->tipo==OCULTA) {
+				if(!tiene_camino(r,c)) l->tipo=OBSTACULO;
 			}
 		}
 	}
-	show();
 }
 
-void map_new() {
+void mapnew() {
 	locini();
 	habdef();
 	habinloc();
 	makeways();
 	huerfanas();
+	limpia_puertas();
 }
 
-/* prueba */
-
-void begin() {
-	randomize(-1);
-	map_new();
-	//habprtdbg();	
-	locshwdbg(); //dbg
-	while(!inkey('q')) listen();
+localidad_t* mapget(int r,int c) {
+	if(r>=0 && r<MAPAR && c>=0 && c<MAPAC) return locpos(r,c);
+	return NULL;
 }
+
+u1 maprndpos(int* r,int* c,u1 tt) {
+	const u2 TRIES=MAPAA;
+	u2 tries=TRIES;
+	while(tries--) {
+		*r=rnd(0,MAPAR-1);
+		*c=rnd(0,MAPAC-1);
+		localidad_t* l=locpos(*r,*c);
+		if(l->tipo==TRANSITABLE) {
+			if(((l->habitacion==0) && (tt & PASADIZO)) || ((l->habitacion!=0) && (tt & HABITACION))) return 1;
+		}
+	}
+	return 0;
+}
+
+

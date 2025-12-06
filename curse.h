@@ -2,7 +2,7 @@
 ============================================================
   Fichero: curse.h
   Creado: 27-11-2025
-  Ultima Modificacion: mié 03 dic 2025 11:11:47
+  Ultima Modificacion: dissabte, 6 de desembre de 2025, 07:34:56
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -44,11 +44,11 @@
 //#define ON 1
 
 //mode in
-#define NORMAL 0 //En este caso hay ECHO,se espera a la introduccion de las teclas y espera al enter
-#define NOECHO 1 //las teclas no se reproducen en pantalla
-#define NODELAY 2 //no se espera a la introduccion de teclas
-#define NOENTER 4//no espera al enter
-#define NOCURSOR 8 //quita el cursor
+#define NORMAL 0 //No hay echo, no se espera a la introduccion de teclas, no se espera al enter no hay cursor
+#define ECHO 1 //las teclas se reproducen en pantalla
+#define DELAY 2 //se espera a la introduccion de teclas
+#define ENTER 4// se espera al enter
+#define CURSOR 8 //pone el cursor
 
 //TIPOS
 typedef unsigned char u1;
