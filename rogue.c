@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.c
   Creado: 05-12-2025
-  Ultima Modificacion: dissabte, 6 de desembre de 2025, 12:24:23
+  Ultima Modificacion: dilluns, 8 de desembre de 2025, 19:26:28
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -24,7 +24,9 @@ static void rogueshow() {
 }
 
 void begin() {
-	mapnew();
+	int level=MINLEVEL;
+	mapnew(level);
+	orosnew(ORCPNI);
 	if(jugnew()) {
 		while(inkey('q')==0) {
 			rogueshow();

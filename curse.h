@@ -2,7 +2,7 @@
 ============================================================
   Fichero: curse.h
   Creado: 27-11-2025
-  Ultima Modificacion: dissabte, 6 de desembre de 2025, 07:34:56
+  Ultima Modificacion: diumenge, 7 de desembre de 2025, 19:04:47
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -38,10 +38,6 @@
 #define MAGENTA 5
 #define CYAN 6
 #define WHITE 7
-
-//on/off
-//#define OFF 0
-//#define ON 1
 
 //mode in
 #define NORMAL 0 //No hay echo, no se espera a la introduccion de teclas, no se espera al enter no hay cursor

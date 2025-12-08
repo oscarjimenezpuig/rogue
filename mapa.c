@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: dissabte, 6 de desembre de 2025, 12:27:08
+  Ultima Modificacion: dilluns, 8 de desembre de 2025, 14:40:42
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -48,7 +48,7 @@ localidad_t mapa[MAPAA];
 static void locini() {
 	/* inicia todas las localidades a obstaculo */
 	localidad_t* p=mapa;
-	while(p!=mapa+MAPAA) *p++=(localidad_t){VACIO,0,0,0};
+	while(p!=mapa+MAPAA) *p++=(localidad_t){VACIO,0,0,0,0,0};
 }
 
 #define ntp(A,M) ((A)*(M)+((M)/2))
@@ -315,13 +315,32 @@ static void limpia_puertas() {
 	}
 }
 
-void mapnew() {
+static void place_stair(s1 escalera) {
+	static int baja=-1;
+	localidad_t* l=NULL;
+	int r,c;
+	do {
+		r=rnd(0,MAPAR-1);
+		c=rnd(0,MAPAC-1);
+		l=mapget(r,c);
+	} while(l->tipo!=TRANSITABLE || l->habitacion==0 || (escalera==1 && baja==l->habitacion));
+	l->escalera=escalera;
+	if(escalera==-1) baja=l->habitacion;
+}
+
+static void coloca_escaleras(u1 l) {
+	if(l!=MAXLEVEL) place_stair(-1);
+	if(l!=MINLEVEL) place_stair(1);	
+}
+
+void mapnew(u1 level) {
 	locini();
 	habdef();
 	habinloc();
 	makeways();
 	huerfanas();
 	limpia_puertas();
+	coloca_escaleras(level);
 }
 
 localidad_t* mapget(int r,int c) {
