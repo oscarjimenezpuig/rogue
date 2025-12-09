@@ -2,12 +2,18 @@
 ============================================================
   Fichero: menu.c
   Creado: 07-12-2025
-  Ultima Modificacion: dilluns, 8 de desembre de 2025, 08:39:03
+  Ultima Modificacion: mar 09 dic 2025 11:19:17
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
 
 #include "rogue.h"
+
+/* teclado de menu */
+#define TMSU 'i' /* tecla de sube en menu */
+#define TMBA 'k' /* tecla de baja en menu */
+#define TMFI 'M' /* cerrar menu sin seleccionar */
+#define TMOK 'm' /* cerrar menu seleccionando */
 
 u1 menu(char* c,u1 os,char* o[]) {
 	u1 select=0;

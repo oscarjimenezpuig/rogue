@@ -2,14 +2,16 @@
 ============================================================
   Fichero: mensaje.c
   Creado: 06-12-2025
-  Ultima Modificacion: dilluns, 8 de desembre de 2025, 08:27:25
+  Ultima Modificacion: mar 09 dic 2025 11:19:00
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
 
 #include "rogue.h"
 
-#define EOS '\0'
+/* mensaje */
+#define STRCON "MAS" /* string que se pone al final del mensaje si tiene continuacion */
+
 
 void mensaje(char* m) {
 	int rs,cs;
