@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: mié 10 dic 2025 11:29:53
+  Ultima Modificacion: mié 10 dic 2025 15:18:20
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -32,7 +32,7 @@
 /* TIPOS */
 
 typedef unsigned int uint;
-typedef unsigned char bool_t;
+typedef unsigned char Bool;
 
 typedef struct {
 	uint chr : 7; /* caracter */
@@ -154,7 +154,7 @@ Bool jugnew();
 Bool jugact();
 /* accion del jugador determinada por el teclado */
 
-void jugshw();
+Bool jugshw();
 /* se muestra la pantalla cogiendo como centro la posicion del jugador */
 
 

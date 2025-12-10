@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: mié 10 dic 2025 11:29:39
+  Ultima Modificacion: mié 10 dic 2025 15:18:37
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -147,7 +147,7 @@ Bool jugact() {
 }
 
 Bool jugshw() {
-	localidad_t* l=NULL
+	localidad_t* l=NULL;
 	if(jugador && (l=mapget(jugador->r,jugador->c))) {
 		int jr=jugador->r;
 		int jc=jugador->c;
