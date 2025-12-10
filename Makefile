@@ -82,6 +82,6 @@ check:
 #MAKEFILE VARIABLE
 
 NAME = curse 
-SCRS = curse.c mensaje.c menu.c mapa.c pantalla.c objeto.c npc.c jugador.c item.c oro.c rogue.c
+SCRS = curse.c mensaje.c menu.c mapa.c pantalla.c objeto.c
 INCLUDES = -lncurses #-lX11
 

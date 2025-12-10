@@ -1,0 +1,165 @@
+/*
+============================================================
+  Fichero: objeto.c
+  Creado: 09-12-2025
+  Ultima Modificacion: dimecres, 10 de desembre de 2025, 05:26:15
+  oSCAR jIMENEZ pUIG                                       
+============================================================
+*/
+
+#include "rogue.h"
+
+#define OBJETOS 64 /* numero de objetos maximos en un nivel */
+
+objeto_t* jugador=NULL;
+
+static objeto_t objeto[OBJETOS];
+static uint objetos=0;
+
+objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
+	objeto_t* new=NULL;
+	if(objetos<OBJETOS) {
+		new=objeto+objetos++;
+		char* p=n;
+		char* q=new->nom;
+		while(*p!=EOS && p-n<SLEN) *q++=*p++;
+		*q=EOS;
+		new->atr=a;
+		new->r=new->c=-1;
+		if(npc) {
+			new->npc=1;
+			if(jug) {
+				jugador=new;
+				new->jug=new->mov=1;
+				new->mov=1;
+			} else new->jug=new->mov=0;
+			new->fue=new->hab=new->vel=new->cap=new->cve=0;
+			new->oro=0;
+		} else {
+			new->ior=new->arm=new->lla=new->ani=new->ves=0;
+			new->con=NULL;
+		}
+	}
+	return new;
+}
+
+Bool objinipos(objeto_t* o,int r,int c) {
+	if(o) {
+		localidad_t* l=mapget(r,c);
+		if(l && l->trs==1) {
+			for(int k=0;k<objetos;k++) {
+				objeto_t* oe=objeto+k;
+				if(oe!=o && o->r==r && o->c==c) return FALSE;
+			}
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+uint objfnd(objeto_t* o[],Condicion c) {
+	objeto_t* p=objeto;
+	objeto_t** po=o;
+	while(p!=objeto+objetos) {
+		if(c(p)) {
+			*po=p;
+			po++;
+		}
+		p++;
+	}
+	return po-o;
+}
+
+static objeto_t* npce=NULL;
+
+static Bool isnpcinp(objeto_t* o) {
+	/* condicion de busqueda de npc en una posicion */
+	return (o->npc && o->r==npce->r && o->c==npce->c);
+}
+
+static Bool isinv(objeto_t* o) {
+	/* objetos poseidos por npce */
+	return (o->npc==0 && o->con==npce);
+}
+
+Bool objmov(objeto_t* o,int dr,int dc) {
+	if(o && o->npc && o->mov) {
+		localidad_t* l=mapget(o->r,o->c);
+		if(l) {
+			int nr=o->r+(dr>0)?1:-1;
+			int nc=o->c+(dc>0)?1:-1;
+			localidad_t* nl=mapget(nr,nc);
+			if(nl && nl->trs==1) {
+				npce=o;
+				objeto_t* npc[objetos];
+				uint npcs=objfnd(npc,isnpcinp);
+				if(npcs==0) {
+					o->r=nr;
+					o->c=nc;
+					return TRUE;
+				}
+			}
+		}
+	}
+	return FALSE;
+}
+
+uint objinv(objeto_t* o,objeto_t* c[]) {
+	if(o && o->npc) {
+		npce=o;
+		return objfnd(c,isinv);
+	}
+	return 0;
+}
+
+#define men(O,A) if((O)==jugador) mensaje(A)
+
+Bool objcog(objeto_t* o,objeto_t* itm) {
+	if(o && o->npc) {
+		objeto_t* inv[objetos];
+		uint cinv=objinv(o,inv);
+		if(cinv<o->cap) {
+			if(itm && itm->npc==0 && (itm->oro || itm->arm || itm->lla || itm->ani) && itm->r==o->r && itm->c==o->c && itm->con==NULL) {
+				itm->r=itm->c=-1;
+				if(itm->ior) {
+					char str[256];
+					sprintf(str,"Coges %i monedas de oro...",itm->cor);
+					men(o,str);
+					o->oro+=itm->cor;
+				} else {
+					men(o,"Lo coges...");
+					itm->con=o;
+				}
+				return TRUE;
+			}
+		} else {
+			men(o,"Llevas demasiadas cosas...");
+		}
+	}
+	men(o,"No puedes cogerlo...");
+	return FALSE;
+}
+
+Bool objdej(objeto_t* o,objeto_t* itm) {
+	if(o && o->npc) {
+		localidad_t* l=mapget(o->r,o->c);
+		if(l && itm && itm->npc==0 && itm->con==o) {
+			itm->con=NULL;
+			itm->r=o->r;
+			itm->c=o->c;
+			men(o,"Lo dejas...");
+			return TRUE;
+		}
+	}
+	men(o,"No puedes dejarlo...");
+	return FALSE;
+}
+
+
+
+
+
+
+
+
+	

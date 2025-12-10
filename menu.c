@@ -2,7 +2,7 @@
 ============================================================
   Fichero: menu.c
   Creado: 07-12-2025
-  Ultima Modificacion: mar 09 dic 2025 11:19:17
+  Ultima Modificacion: dimarts, 9 de desembre de 2025, 18:37:08
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -15,8 +15,8 @@
 #define TMFI 'M' /* cerrar menu sin seleccionar */
 #define TMOK 'm' /* cerrar menu seleccionando */
 
-u1 menu(char* c,u1 os,char* o[]) {
-	u1 select=0;
+uint menu(char* c,uint os,char* o[]) {
+	uint select=0;
 	inmode(DELAY);
 presenta:
 	cls();

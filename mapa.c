@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: mar 09 dic 2025 14:33:23
+  Ultima Modificacion: dimarts, 9 de desembre de 2025, 18:33:24
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -261,8 +261,8 @@ static u1 vecinos(int r,int c) {
 		int rr=r+DDS[k];
 		int cc=c+DDS[SIZ-k-1];
 		localidad_t* l=locpos(rr,cc);
-		u1 t=l->tipo;
-		u1 nh=l->habitacion;
+		u1 t=l->trs;
+		u1 nh=l->hab;
 		if(t==2 || (t==3) || (t==1 && nh==0)) ++cuenta;
 	}
 	return cuenta;
@@ -270,7 +270,7 @@ static u1 vecinos(int r,int c) {
 
 static u1 analiza(int r,int c) {
 	localidad_t* l=locpos(r,c);
-	if(l->tipo==1 && l->habitacion==0) {
+	if(l->trs==1 && l->hab==0) {
 		u1 vec=vecinos(r,c);
 		if(vec==1) {
 			l->obs=l->trs=0;
@@ -300,7 +300,7 @@ static u1 tiene_camino(int r,int c) {
 		int rr=r+DDS[k];
 		int cc=c+DDS[SIZ-k-1];
 		localidad_t* l=locpos(rr,cc);
-		if(l->trs==1 && l->habitacion==0) return 1;
+		if(l->trs==1 && l->hab==0) return 1;
 	}
 	return 0;
 }
@@ -320,7 +320,7 @@ static void limpia_puertas() {
 	}
 }
 
-static void place_stair(s1 escalera) {
+static void coloca_escalera(int escalera) {
 	static int baja=-1;
 	localidad_t* l=NULL;
 	int r,c;
@@ -328,24 +328,24 @@ static void place_stair(s1 escalera) {
 		r=rnd(0,MAPAR-1);
 		c=rnd(0,MAPAC-1);
 		l=mapget(r,c);
-	} while(l->trs=1 || l->habitacion==0 || (escalera==1 && baja==l->habitacion));
+	} while(l->trs==1 || l->hab==0 || (escalera==1 && baja==l->hab));
 	l->esc=escalera;
 	if(escalera==-1) baja=l->hab;
 }
 
-static void coloca_escaleras(u1 l) {
-	if(l!=MAXLEVEL) place_stair(-1);
-	if(l!=MINLEVEL) place_stair(1);	
+static void coloca_escaleras(Bool u,Bool d) {
+	if(d) coloca_escalera(-1);
+	if(u) coloca_escalera(1);	
 }
 
-void mapnew(u1 level) {
+void mapnew(Bool u,Bool d) {
 	locini();
 	habdef();
 	habinloc();
 	makeways();
 	huerfanas();
 	limpia_puertas();
-	coloca_escaleras(level);
+	coloca_escaleras(u,d);
 }
 
 localidad_t* mapget(int r,int c) {
@@ -353,16 +353,14 @@ localidad_t* mapget(int r,int c) {
 	return NULL;
 }
 
-u1 maprndpos(int* r,int* c,u1 tt) {
-	const u2 TRIES=MAPAA;
-	u2 tries=TRIES;
+u1 maprndpos(int* r,int* c,Bool p) {
+	const uint TRIES=MAPAA;
+	uint tries=TRIES;
 	while(tries--) {
 		*r=rnd(0,MAPAR-1);
 		*c=rnd(0,MAPAC-1);
 		localidad_t* l=locpos(*r,*c);
-		if(l->tipo==TRANSITABLE) {
-			if(((l->habitacion==0) && (tt & PASADIZO)) || ((l->habitacion!=0) && (tt & HABITACION))) return 1;
-		}
+		if(l->trs && (l->hab!=0 || p)) return 1;
 	}
 	return 0;
 }
