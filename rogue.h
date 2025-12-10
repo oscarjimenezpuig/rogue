@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dimecres, 10 de desembre de 2025, 05:20:04
+  Ultima Modificacion: mié 10 dic 2025 11:29:53
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -24,24 +24,15 @@
 #define TRUE 1
 #define FALSE 0
 
-/* teclado */
-#define TARR 'i' /* arriba */
-#define TABJ 'k' /* abajo */
-#define TIZQ 'j' /* izquierda */
-#define TDER 'l' /* derecha */
-#define TCOG 'c' /* coger */
-#define TDEJ 'd' /* dejar */
-#define TINV 'I' /* inventario */
-#define TQUT 'Q' /* tecla finalizar juego */
-#define TABR 'a' /* abrir una puerta */
-#define TFRZ 'f' /* forzar la puerta */
-
 /* MACROS */
+
+#define MAX(A,B) ((A)>(B))?(A):(B)
+#define MIN(A,B) ((A)>(B))?(B):(A)
 
 /* TIPOS */
 
 typedef unsigned int uint;
-typedef unsigned char Bool;
+typedef unsigned char bool_t;
 
 typedef struct {
 	uint chr : 7; /* caracter */
@@ -60,7 +51,7 @@ typedef struct {
 } localidad_t;
 
 struct objeto_s {
-	char nom[SLEN];
+	char nom[SLEN+1];
 	atributo_t atr;
 	int r,c;
 	uint npc : 1; /* 1: es npc 0: es item */
@@ -96,6 +87,7 @@ typedef Bool (*Condicion)(objeto_t*);
 /* VARIABLES */
 
 extern objeto_t* jugador; /* variable que guarda la direccion del jugador */
+extern Bool quit;
 
 /* FUNCIONES */
 
@@ -150,6 +142,20 @@ Bool objcog(objeto_t* obj,objeto_t* itm);
 
 Bool objdej(objeto_t* obj,objeto_t* itm);
 /* un objeto npc deja un objeto */
+
+Bool objcanact(objeto_t* obj);
+/* dice si un objeto npc esta en disposicion de actuar */
+
+/* jugador.c */
+
+Bool jugnew();
+/* definicion del jugador */
+
+Bool jugact();
+/* accion del jugador determinada por el teclado */
+
+void jugshw();
+/* se muestra la pantalla cogiendo como centro la posicion del jugador */
 
 
 /* rogue.c */

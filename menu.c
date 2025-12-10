@@ -2,7 +2,7 @@
 ============================================================
   Fichero: menu.c
   Creado: 07-12-2025
-  Ultima Modificacion: dimarts, 9 de desembre de 2025, 18:37:08
+  Ultima Modificacion: mié 10 dic 2025 11:00:46
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -33,11 +33,11 @@ presenta:
 	}
 teclado:
 	listen();
-	if(inkey(TARR)) {
+	if(inkey(TMSU)) {
 		if(select>0) --select;
 		else select=os-1;
 		goto presenta;
-	} else if(inkey(TABJ)) {
+	} else if(inkey(TMBA)) {
 		if(select==os-1) select=0;
 		else ++select;
 		goto presenta;

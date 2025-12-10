@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: dimecres, 10 de desembre de 2025, 05:26:15
+  Ultima Modificacion: mié 10 dic 2025 11:10:36
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -152,6 +152,21 @@ Bool objdej(objeto_t* o,objeto_t* itm) {
 		}
 	}
 	men(o,"No puedes dejarlo...");
+	return FALSE;
+}
+
+Bool objcanact(objeto_t* o) {
+	if(o && o->npc) {
+		localidad_t* l=mapget(o->r,o->c);
+		if(l) {
+			if(o->cve==o->vel) {
+				o->cve=0;
+				return TRUE;
+			} else {
+				o->cve++;
+			}
+		}
+	}
 	return FALSE;
 }
 
