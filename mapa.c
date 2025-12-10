@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: dimarts, 9 de desembre de 2025, 18:33:24
+  Ultima Modificacion: mié 10 dic 2025 15:26:02
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -353,16 +353,16 @@ localidad_t* mapget(int r,int c) {
 	return NULL;
 }
 
-u1 maprndpos(int* r,int* c,Bool p) {
+Bool maprndpos(int* r,int* c,Bool p) {
 	const uint TRIES=MAPAA;
 	uint tries=TRIES;
 	while(tries--) {
 		*r=rnd(0,MAPAR-1);
 		*c=rnd(0,MAPAC-1);
 		localidad_t* l=locpos(*r,*c);
-		if(l->trs && (l->hab!=0 || p)) return 1;
+		if(l->trs && (l->hab!=0 || p)) return TRUE;
 	}
-	return 0;
+	return FALSE;
 }
 
 

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: mié 10 dic 2025 15:18:37
+  Ultima Modificacion: mié 10 dic 2025 15:26:36
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -87,10 +87,20 @@ static void nomset() {
 }
 
 static void carset() {
+	/* funcion que da las caracteristicas de jugador */
 	jugador->fue=3;
 	jugador->hab=3;
 	jugador->cve=jugador->vel=3;
 	jugador->cap=3;
+}
+
+static void jugpos() {
+	/* funcion que da la posicion del jugador */
+	int r,c;
+	if(maprndpos(&r,&c,FALSE)) {
+		jugador->r=r;
+		jugador->c=c;
+	}
 }
 
 Bool jugnew() {
@@ -99,6 +109,7 @@ Bool jugnew() {
 		nomset();
 		carset();
 		visset();
+		jugpos();
 		return TRUE;
 	}
 	return FALSE;

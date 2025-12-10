@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: mié 10 dic 2025 15:18:20
+  Ultima Modificacion: mié 10 dic 2025 15:26:36
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -99,7 +99,7 @@ void mapnew(Bool stair_up,Bool stair_down);
 localidad_t* mapget(int r,int c);
 /* consigue las caracteristicas de la localidad en la columna fila pedidas */
 
-u1 maprndpos(int* r,int* c,Bool pasadizo);
+Bool maprndpos(int* r,int* c,Bool pasadizo);
 /* busca una posicion transitable, si pasadizo=true->habitacion y pasadizo, sino solo pasadizo */
 
 /* pantalla.c */
