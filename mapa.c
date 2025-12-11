@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: mié 10 dic 2025 15:26:02
+  Ultima Modificacion: dijous, 11 de desembre de 2025, 05:03:24
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -205,7 +205,8 @@ static void dolab() {
 static void chckloc(int r,int c) {
 	localidad_t* l=locpos(r,c);
 	if(l->obs) {
-		int hco=((rnd(0,PWO))==0);
+		Bool hco=((rnd(0,PWO))==0)?TRUE:FALSE;
+		l->obs=0;
 		l->trs=(hco)?3:2;
 	} else if(!l->obs && !l->trs) {
 		l->trs=1;
@@ -328,7 +329,7 @@ static void coloca_escalera(int escalera) {
 		r=rnd(0,MAPAR-1);
 		c=rnd(0,MAPAC-1);
 		l=mapget(r,c);
-	} while(l->trs==1 || l->hab==0 || (escalera==1 && baja==l->hab));
+	} while(l->trs!=1 || (l->trs==1 && l->hab==0) || (escalera==1 && baja==l->hab));
 	l->esc=escalera;
 	if(escalera==-1) baja=l->hab;
 }
@@ -364,5 +365,3 @@ Bool maprndpos(int* r,int* c,Bool p) {
 	}
 	return FALSE;
 }
-
-

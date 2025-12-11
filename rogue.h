@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: mié 10 dic 2025 15:26:36
+  Ultima Modificacion: dijous, 11 de desembre de 2025, 04:36:16
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -87,7 +87,6 @@ typedef Bool (*Condicion)(objeto_t*);
 /* VARIABLES */
 
 extern objeto_t* jugador; /* variable que guarda la direccion del jugador */
-extern Bool quit;
 
 /* FUNCIONES */
 
@@ -120,6 +119,9 @@ uint menu(char* cabecera,uint opciones,char* opcion[]);
  * Devuelve la opcion selecconada o opciones en caso de no selecionar nada */
 
 /* objeto.c */
+
+uint objsiz();
+/* dice el numero de objetos que se han definido */
 
 objeto_t* objnew(char* nom,atributo_t atr,Bool npc,Bool jug);
 /* definimos objeto nuevo poniendo el nombre y diciendo si es o no un npc */

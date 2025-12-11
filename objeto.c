@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: mié 10 dic 2025 11:10:36
+  Ultima Modificacion: dimecres, 10 de desembre de 2025, 19:31:42
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -15,6 +15,10 @@ objeto_t* jugador=NULL;
 
 static objeto_t objeto[OBJETOS];
 static uint objetos=0;
+
+uint objsiz() {
+	return objetos;
+}
 
 objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 	objeto_t* new=NULL;

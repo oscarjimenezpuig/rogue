@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: mié 10 dic 2025 15:26:36
+  Ultima Modificacion: dijous, 11 de desembre de 2025, 05:21:45
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -20,43 +20,46 @@
 #define TCOG 'c' /* coger 4*/
 #define TDEJ 'd' /* dejar 5*/
 #define TINV 'I' /* inventario 6*/
-#define TQUT 'Q' /* tecla finalizar juego 7*/
-#define TABR 'a' /* abrir una puerta 8*/
-#define TFRZ 'f' /* forzar la puerta 9*/
+#define TABR 'a' /* abrir una puerta 7*/
+#define TFRZ 'f' /* forzar la puerta 8*/
+#define TQUT 'Q' /* tecla finalizar juego 9*/
 
-#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TQUT,TABR,TFRZ};
+#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT};
 #define KEYS 10
 
 /* posicion inicial pantalla */
 #define RO 1
 #define CO 0
 
-Bool quit=FALSE;
-
+static void recjug(int* ri,int* ci,int* rs,int* cs) { 
+	/* rectangulo de visibilidad donde el centro es la posicion del jugador */
+	int jr=jugador->r;
+	int jc=jugador->c;
+	int tr,tc;
+	dimget(&tr,&tc);
+	*rs=tr-3;
+	*ri=jr-*rs/2;
+	*cs=tc;
+	*ci=jc-*cs/2;
+}	
 
 static void visset() {
 	/* determinamos la visibilidad del jugador */
 	const int DSP[]={1,-1,0,0};
 	const uint SIZ=4;
-	int jr=jugador->r;
-	int jc=jugador->c;
-	int tr,tc;
-	dimget(&tr,&tc);
-	int ri=jr-tr/2;
-	int rs=jr+tr/2;
-	int ci=jc-tc/2;
-	int cs=jc+tc/2;
+	int ri,ci,rs,cs;
+	recjug(&ri,&ci,&rs,&cs);
 	for(int r=ri;r<rs;r++) {
 		for(int c=ci;c<cs;c++) {
 			localidad_t* l=mapget(r,c);
-			if(l) l->vis=(l->vis==2)?1:(l->vis);
+			if(l) l->vis=(l->vis)?1:0;
 		}
 	}
-	localidad_t* lj=mapget(jr,jc);
+	localidad_t* lj=mapget(jugador->r,jugador->c);
 	if(lj && lj->trs==1) {
 		lj->vis=2;
 		int hab=lj->hab;
-		if(hab!=0 && lj->osc==0) {
+		if(lj->osc==0) {
 			for(int r=ri;r<rs;r++) {
 				for(int c=ci;c<cs;c++) {
 					localidad_t* l=mapget(r,c);
@@ -65,8 +68,8 @@ static void visset() {
 			}
 		} else {
 			for(int k=0;k<SIZ;k++) {
-				int nr=jr+DSP[k];
-				int nc=jc+DSP[SIZ-k-1];
+				int nr=jugador->r+DSP[k];
+				int nc=jugador->c+DSP[SIZ-k-1];
 				localidad_t* l=mapget(nr,nc);
 				if(l) l->vis=2;
 			}
@@ -83,7 +86,7 @@ static void nomset() {
 	inmode(ECHO|ENTER|DELAY|CURSOR);
 	listen();
 	strbuf(SLEN,jugador->nom);
-	inmode(DELAY);
+	inmode(NORMAL);
 }
 
 static void carset() {
@@ -94,13 +97,16 @@ static void carset() {
 	jugador->cap=3;
 }
 
-static void jugpos() {
+static Bool jugpos() {
 	/* funcion que da la posicion del jugador */
 	int r,c;
 	if(maprndpos(&r,&c,FALSE)) {
 		jugador->r=r;
 		jugador->c=c;
+		localidad_t* l=mapget(r,c);
+		return (l!=NULL)?TRUE:FALSE;
 	}
+	return FALSE;
 }
 
 Bool jugnew() {
@@ -109,8 +115,7 @@ Bool jugnew() {
 		nomset();
 		carset();
 		visset();
-		jugpos();
-		return TRUE;
+		return jugpos();
 	}
 	return FALSE;
 }
@@ -136,7 +141,7 @@ static Bool jugmov(int ckey) {
 }
 
 static Bool jugqut() {
-	quit=TRUE;
+	jugador=NULL;
 	return TRUE;
 }
 
@@ -150,7 +155,7 @@ Bool jugact() {
 			case 2:
 			case 3:
 				return jugmov(ckey);
-			case 7:
+			case 9:
 				return jugqut();
 		}
 	}
@@ -160,14 +165,8 @@ Bool jugact() {
 Bool jugshw() {
 	localidad_t* l=NULL;
 	if(jugador && (l=mapget(jugador->r,jugador->c))) {
-		int jr=jugador->r;
-		int jc=jugador->c;
-		int tr,tc;
-		dimget(&tr,&tc);
-		int ri=jr-tr/2;
-		int rs=tr-3;
-		int ci=jc-tc/2;
-		int cs=tc;
+		int ri,ci,rs,cs;
+		recjug(&ri,&ci,&rs,&cs);
 		panshw(ri,ci,rs,cs,RO,CO);
 		return TRUE;
 	}

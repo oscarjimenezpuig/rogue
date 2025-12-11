@@ -2,7 +2,7 @@
 ============================================================
   Fichero: pantalla.c
   Creado: 04-12-2025
-  Ultima Modificacion: dimarts, 9 de desembre de 2025, 19:01:39
+  Ultima Modificacion: dimecres, 10 de desembre de 2025, 19:37:33
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -46,9 +46,55 @@ static void mapshw(int mri,int mci,int mrs,int mcs,int ro,int co) {
 	}
 }
 
+static void objshw(objeto_t* o,int mri,int mci,int ro,int co) {
+	int r=ro+o->r-mri;
+	int c=co+o->c-mci;
+	at(r,c);
+	attr(o->atr.atr);
+	ink(o->atr.ink);
+	background(o->atr.bkg);
+	printc(o->atr.chr);
+}
+
+static Bool isitm(objeto_t* o) {
+	if(o && o->npc==0) {
+		localidad_t* l=mapget(o->r,o->c);
+		return (l!=NULL && l->vis==2)?TRUE:FALSE;
+	}
+	return FALSE;
+}
+
+static void itmshw(int mri,int mci,int ro,int co) {
+	objeto_t* itm[objsiz()];
+	uint itms=objfnd(itm,isitm);
+	for(int k=0;k<itms;k++) {
+		objeto_t* oe=itm[k];
+		objshw(oe,mri,mci,ro,co);
+	}
+}
+
+static Bool isnpc(objeto_t* o) {
+	if(o && o->npc) {
+		localidad_t* l=mapget(o->r,o->c);
+		return (l!=NULL && l->vis==2)?TRUE:FALSE;
+	}
+	return FALSE;
+}
+
+static void npcshw(int mri,int mci,int ro,int co) {
+	objeto_t* npc[objsiz()];
+	uint itms=objfnd(npc,isnpc);
+	for(int k=0;k<itms;k++) {
+		objeto_t* oe=npc[k];
+		objshw(oe,mri,mci,ro,co);
+	}
+}
+
 void panshw(int mri,int mci,int mrs,int mcs,int ro,int co) {
 	cls();
 	mapshw(mri,mci,mrs,mcs,ro,co);
+	itmshw(mri,mci,ro,co);
+	npcshw(mri,mci,ro,co);
 	show();
 }
 
