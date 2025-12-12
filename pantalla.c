@@ -2,7 +2,7 @@
 ============================================================
   Fichero: pantalla.c
   Creado: 04-12-2025
-  Ultima Modificacion: dimecres, 10 de desembre de 2025, 19:37:33
+  Ultima Modificacion: vie 12 dic 2025 13:14:21
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -20,28 +20,28 @@
 #define COLVIS BLUE /*color de lo visibilizado */
 
 static void mapshw(int mri,int mci,int mrs,int mcs,int ro,int co) {
+	const atributo_t ATRNUL={' ',0,BLACK,BLACK};
 	for(int r=0;r<mrs;r++) {
+		at(ro+r,co);
 		for(int c=0;c<mcs;c++) {
+			atributo_t a=ATRNUL;
 			localidad_t* l=mapget(mri+r,mci+c);
 			if(l && (l->vis) && (l->obs || l->trs)) {
-				atributo_t a={0,0,0,0};
 				if(l->obs || l->trs==3) a=ATROBS;
 				else if(l->trs==2) a=ATRPUE;
 				else if(l->esc==1) a=ATRESU;
 				else if(l->esc==-1) a=ATREBA;
 				else if(l->trs==1 && l->hab) a=ATRHAB;
 				else a=ATRPAS;
-				at(ro+r,co+c);
-				attr(a.atr);
-				if(l->vis==2) {
-					ink(a.ink);
-					background(a.bkg);
-				} else {
-					ink(COLVIS);
-					background(BLACK);
+				if(l->vis==1) {
+					a.ink=COLVIS;
+					a.bkg=BLACK;
 				}
-				printc(a.chr);
 			}
+			attr(a.atr);
+			ink(a.ink);
+			background(a.bkg);
+			printc(a.chr);
 		}
 	}
 }
@@ -65,6 +65,7 @@ static Bool isitm(objeto_t* o) {
 }
 
 static void itmshw(int mri,int mci,int ro,int co) {
+	/* muestra todos los items */
 	objeto_t* itm[objsiz()];
 	uint itms=objfnd(itm,isitm);
 	for(int k=0;k<itms;k++) {
@@ -82,6 +83,7 @@ static Bool isnpc(objeto_t* o) {
 }
 
 static void npcshw(int mri,int mci,int ro,int co) {
+	/* muestra todos los npcs */
 	objeto_t* npc[objsiz()];
 	uint itms=objfnd(npc,isnpc);
 	for(int k=0;k<itms;k++) {
@@ -90,11 +92,35 @@ static void npcshw(int mri,int mci,int ro,int co) {
 	}
 }
 
+static void cajshw() {
+	/* muestra las caracteristicas del jugador */
+	char* const NAM[]={"Fue","Hab","Vel","Cap","Oro"};
+	const uint SIZ=5;
+	uint jca[]={jugador->fue,jugador->hab,jugador->vel,jugador->cap,jugador->oro};
+	int rs,cs;
+	dimget(&rs,&cs);
+	background(BLACK);
+	ink(BLACK);
+	for(int k=0;k<cs;k++) {
+		at(rs-2,k);
+		printc(' ');
+	}
+	at(rs-2,0);
+	ink(WHITE);
+	for(int k=0;k<SIZ;k++) {
+		attr(BOLD);
+		prints("%s: ",NAM[k]);
+		attr(0);
+		prints("%i   ",jca[k]);
+	}
+}
+
 void panshw(int mri,int mci,int mrs,int mcs,int ro,int co) {
 	cls();
 	mapshw(mri,mci,mrs,mcs,ro,co);
 	itmshw(mri,mci,ro,co);
 	npcshw(mri,mci,ro,co);
+	cajshw();
 	show();
 }
 

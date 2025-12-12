@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: dijous, 11 de desembre de 2025, 05:21:45
+  Ultima Modificacion: vie 12 dic 2025 11:17:42
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -60,9 +60,9 @@ static void visset() {
 		lj->vis=2;
 		int hab=lj->hab;
 		if(lj->osc==0) {
-			for(int r=ri;r<rs;r++) {
-				for(int c=ci;c<cs;c++) {
-					localidad_t* l=mapget(r,c);
+			for(int r=0;r<rs;r++) {
+				for(int c=0;c<cs;c++) {
+					localidad_t* l=mapget(r+ri,c+ci);
 					if(l && l->hab==hab) l->vis=2;
 				}
 			}
@@ -114,8 +114,10 @@ Bool jugnew() {
 	if(jugador) {
 		nomset();
 		carset();
-		visset();
-		return jugpos();
+		if(jugpos()) {
+			visset();
+			return TRUE;
+		}
 	}
 	return FALSE;
 }
