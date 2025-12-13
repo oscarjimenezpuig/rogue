@@ -1,3 +1,3 @@
 # rogue
 Una aplicacion de curse.
-11/12/25->No se ve nada en pantalla
+13/12/25->Atencion, la version de curses ha cambiado, se ha de verificar el tema del color (aislando el curses). Cuando este corregido, subirlo al curse
