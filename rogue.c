@@ -1,37 +1,23 @@
 /*
 ============================================================
   Fichero: rogue.c
-  Creado: 05-12-2025
-  Ultima Modificacion: dilluns, 8 de desembre de 2025, 19:26:28
+  Creado: 10-12-2025
+  Ultima Modificacion: vie 12 dic 2025 13:14:31
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
 
 #include "rogue.h"
 
-static void rogueshow() {
-	int dtr,dtc;
-	dimget(&dtr,&dtc);
-	int jr=PJUG->r;
-	int jc=PJUG->c;
-	int mrs=dtr-3;
-	int mcs=dtc;
-	int mri=jr-mrs/2;
-	int mci=jc-mcs/2;
-	int ro=1;
-	int co=0;
-	showscr(mri,mci,mrs,mcs,ro,co); //mostramos pantalla
-}
 
 void begin() {
-	int level=MINLEVEL;
-	mapnew(level);
-	orosnew(ORCPNI);
-	if(jugnew()) {
-		while(inkey('q')==0) {
-			rogueshow();
+	mapnew(FALSE,TRUE);
+	jugnew();
+	cls();
+	while(jugador) {
+		if(jugshw()) {
 			jugact();
-		}
+		} else break;
 	}
 }
 

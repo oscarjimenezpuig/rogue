@@ -2,12 +2,18 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: dilluns, 8 de desembre de 2025, 14:40:42
+  Ultima Modificacion: dijous, 11 de desembre de 2025, 05:03:24
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
 
 #include "rogue.h"
+
+
+/* dimensiones del mapa */
+#define MAPAC 159
+#define MAPAR 48
+#define MAPAA (MAPAR*MAPAC)
 
 #define HABR 3 /* numero maximo de habitaciones en fila */
 #define HABC 3 /* numero maximo de habitaciones en columna */
@@ -22,6 +28,7 @@
 
 #define PWO 4 /* probabilidad de camino oculto */
 
+/* direcciones */
 #define NOR 1
 #define EST 2
 #define WST 4
@@ -48,7 +55,7 @@ localidad_t mapa[MAPAA];
 static void locini() {
 	/* inicia todas las localidades a obstaculo */
 	localidad_t* p=mapa;
-	while(p!=mapa+MAPAA) *p++=(localidad_t){VACIO,0,0,0,0,0};
+	while(p!=mapa+MAPAA) *p++=(localidad_t){0,0,0,0,0,0};
 }
 
 #define ntp(A,M) ((A)*(M)+((M)/2))
@@ -94,13 +101,12 @@ static void habinloc() {
 		for(int r=h.r;r<h.r+h.rs;r++) {
 			for(int c=h.c;c<h.c+h.cs;c++) {
 				localidad_t* l=locpos(r,c);
-				l->visible=0;
-				l->oscuro=h.dark;
-				l->habitacion=h.number;
+				l->osc=h.dark;
+				l->hab=h.number;
 				if(r==h.r || r==h.r+h.rs-1 || c==h.c || c==h.c+h.cs-1) {
-					l->tipo=OBSTACULO;
+					l->obs=1;
 				} else {
-					l->tipo=TRANSITABLE;
+					l->trs=1;
 				}
 			}
 		}
@@ -198,14 +204,13 @@ static void dolab() {
 
 static void chckloc(int r,int c) {
 	localidad_t* l=locpos(r,c);
-	if(l->tipo==OBSTACULO) {
-		int hco=((rnd(0,PWO))==0);
-		l->tipo=(hco)?OCULTA:PUERTA;
-	} else if(l->tipo==VACIO) {
-		l->tipo=TRANSITABLE;
-		l->visible=0;
-		l->oscuro=1;
-		l->habitacion=0;
+	if(l->obs) {
+		Bool hco=((rnd(0,PWO))==0)?TRUE:FALSE;
+		l->obs=0;
+		l->trs=(hco)?3:2;
+	} else if(!l->obs && !l->trs) {
+		l->trs=1;
+		l->osc=1;
 	}
 }	
 
@@ -250,27 +255,26 @@ static void makeways() {
 }
 
 static u1 vecinos(int r,int c) {
-	const int AR[]={1,-1,0,0};
-	const int AC[]={0,0,1,-1};
-	const int ASIZ=4;
+	const int DDS[]={1,-1,0,0};
+	const int SIZ=4;
 	int cuenta=0;
-	for(int k=0;k<ASIZ;k++) {
-		int rr=r+AR[k];
-		int cc=c+AC[k];
+	for(int k=0;k<SIZ;k++) {
+		int rr=r+DDS[k];
+		int cc=c+DDS[SIZ-k-1];
 		localidad_t* l=locpos(rr,cc);
-		u1 t=l->tipo;
-		u1 nh=l->habitacion;
-		if(t==PUERTA || (t==OCULTA) || (t==TRANSITABLE && nh==0)) ++cuenta;
+		u1 t=l->trs;
+		u1 nh=l->hab;
+		if(t==2 || (t==3) || (t==1 && nh==0)) ++cuenta;
 	}
 	return cuenta;
 }
 
 static u1 analiza(int r,int c) {
 	localidad_t* l=locpos(r,c);
-	if(l->tipo==TRANSITABLE && l->habitacion==0) {
+	if(l->trs==1 && l->hab==0) {
 		u1 vec=vecinos(r,c);
 		if(vec==1) {
-			l->tipo=VACIO;
+			l->obs=l->trs=0;
 			return 1;
 		}
 	}
@@ -291,14 +295,13 @@ static void huerfanas() {
 }
 
 static u1 tiene_camino(int r,int c) {
-	const int AR[]={1,-1,0,0};
-	const int AC[]={0,0,1,-1};
-	const int ASIZ=4;
-	for(int k=0;k<ASIZ;k++) {
-		int rr=r+AR[k];
-		int cc=c+AC[k];
+	const int DDS[]={1,-1,0,0};
+	const int SIZ=4;
+	for(int k=0;k<SIZ;k++) {
+		int rr=r+DDS[k];
+		int cc=c+DDS[SIZ-k-1];
 		localidad_t* l=locpos(rr,cc);
-		if(l->tipo==TRANSITABLE && l->habitacion==0) return 1;
+		if(l->trs==1 && l->hab==0) return 1;
 	}
 	return 0;
 }
@@ -308,14 +311,17 @@ static void limpia_puertas() {
 	for(int r=0;r<MAPAR;r++) {
 		for(int c=0;c<MAPAC;c++) {
 			localidad_t* l=locpos(r,c);
-			if(l->tipo==PUERTA || l->tipo==OCULTA) {
-				if(!tiene_camino(r,c)) l->tipo=OBSTACULO;
+			if(l->trs==2 || l->trs==3) {
+				if(!tiene_camino(r,c)) {
+					l->trs=0;
+					l->obs=1;
+				}
 			}
 		}
 	}
 }
 
-static void place_stair(s1 escalera) {
+static void coloca_escalera(int escalera) {
 	static int baja=-1;
 	localidad_t* l=NULL;
 	int r,c;
@@ -323,24 +329,24 @@ static void place_stair(s1 escalera) {
 		r=rnd(0,MAPAR-1);
 		c=rnd(0,MAPAC-1);
 		l=mapget(r,c);
-	} while(l->tipo!=TRANSITABLE || l->habitacion==0 || (escalera==1 && baja==l->habitacion));
-	l->escalera=escalera;
-	if(escalera==-1) baja=l->habitacion;
+	} while(l->trs!=1 || (l->trs==1 && l->hab==0) || (escalera==1 && baja==l->hab));
+	l->esc=escalera;
+	if(escalera==-1) baja=l->hab;
 }
 
-static void coloca_escaleras(u1 l) {
-	if(l!=MAXLEVEL) place_stair(-1);
-	if(l!=MINLEVEL) place_stair(1);	
+static void coloca_escaleras(Bool u,Bool d) {
+	if(d) coloca_escalera(-1);
+	if(u) coloca_escalera(1);	
 }
 
-void mapnew(u1 level) {
+void mapnew(Bool u,Bool d) {
 	locini();
 	habdef();
 	habinloc();
 	makeways();
 	huerfanas();
 	limpia_puertas();
-	coloca_escaleras(level);
+	coloca_escaleras(u,d);
 }
 
 localidad_t* mapget(int r,int c) {
@@ -348,18 +354,14 @@ localidad_t* mapget(int r,int c) {
 	return NULL;
 }
 
-u1 maprndpos(int* r,int* c,u1 tt) {
-	const u2 TRIES=MAPAA;
-	u2 tries=TRIES;
+Bool maprndpos(int* r,int* c,Bool p) {
+	const uint TRIES=MAPAA;
+	uint tries=TRIES;
 	while(tries--) {
 		*r=rnd(0,MAPAR-1);
 		*c=rnd(0,MAPAC-1);
 		localidad_t* l=locpos(*r,*c);
-		if(l->tipo==TRANSITABLE) {
-			if(((l->habitacion==0) && (tt & PASADIZO)) || ((l->habitacion!=0) && (tt & HABITACION))) return 1;
-		}
+		if(l->trs && (l->hab!=0 || p)) return TRUE;
 	}
-	return 0;
+	return FALSE;
 }
-
-

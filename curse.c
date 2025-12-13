@@ -2,7 +2,7 @@
 ============================================================
   Fichero: curse.c
   Creado: 27-11-2025
-  Ultima Modificacion: dissabte, 6 de desembre de 2025, 08:51:37
+  Ultima Modificacion: dissabte, 13 de desembre de 2025, 13:06:15
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -56,35 +56,47 @@ static void __hand_signal(int sig) {
 	exit(sig);
 }
 
+#define CPA(I,B) (B)*8+(I)
+
+static short __color() {
+	static u1 colpair[256];
+	static short colpairs=1;
+	static short last=0;
+	if(last==0) {
+		init_pair(1,BLACK,BLACK);
+		colpair[colpairs++]=0;
+		last=1;
+	}
+	if(_flag.col) {
+		last=1;
+		u1* ptr=colpair;
+		while(ptr!=colpair+colpairs) {
+			if(*ptr==CPA(_ink,_background)) {
+				last=ptr-colpair;
+				break;
+			}
+			ptr++;
+		}
+		if(ptr==colpair+colpairs && colpairs<COLOR_PAIRS) {
+			init_pair(colpairs,_ink,_background);
+			colpair[colpairs]=CPA(_ink,_background);
+			last=colpairs++;
+		}
+		_flag.col=0;
+	}
+	return last;
+}
+
+#undef CPA
+
 static void _attron() {
-	attron(_atrflg | COLOR_PAIR(_ink+8*_background));
+	attron(_atrflg | COLOR_PAIR(__color()));
 }
 
 static void _attroff() {
 	attroff(A_BOLD|A_UNDERLINE|A_REVERSE|A_BLINK|A_PROTECT|A_INVIS|A_DIM);
 	_atrflg=0;
 }
-
-#define CDD 8
-
-static void _color() {
-	static u1 coldefs[CDD];
-	static u1 inited=0;
-	if(!inited) {
-		u1* p=coldefs;
-		while(p!=coldefs+CDD) *p++=0;
-		inited=1;
-	}
-	if(_ink!=BLACK) {
-		u1 fi=1<<_ink;
-		if((coldefs[_background] & fi)==0) {
-			init_pair(_ink+8*_background,_ink,_background);
-			coldefs[_background]|=fi;
-		}
-	}
-}
-
-#undef CDD
 
 static void _init() {
 	signal(SIGINT,__hand_signal);
@@ -95,9 +107,10 @@ static void _init() {
 	nodelay(stdscr,TRUE);
 	curs_set(0);
 	keypad(stdscr,TRUE);
-	start_color();
-	for(u1 k=BLACK;k<=WHITE;k++) init_pair(k*8,BLACK,k);
-	attron(COLOR_PAIR(BLACK+8*BLACK));
+	start_color();	
+	_ink=_background=BLACK;
+	_atrflg=NONE;
+	_attron();
 	atexit(__end);
 	getmaxyx(stdscr,_rows,_columns);
 	_flag.end=0;
@@ -128,16 +141,12 @@ void attr(u1 f) {
 	const int INT[]={BOLD,UNDERLINE,REVERSE,BLINK,PROTECT,INVIS,DIM};
 	const int SIZ=7;
 	_attroff();
-	int flag=0;
-	if(f!=0) {
-		for(u1 pf=0;f!=0 && pf<SIZ;pf++) {
-			u1 fi=INT[pf];
-			if(f & fi) {
-				flag|=FLG[pf];
-				f&=~fi;
-			}
+	for(u1 pf=0;f!=0 && pf<SIZ;pf++) {
+		u1 fi=INT[pf];
+		if(f & fi) {
+			_atrflg|=FLG[pf];
+			f&=~fi;
 		}
-		_atrflg=flag;
 	}
 	_flag.atr=1;
 }
@@ -264,10 +273,6 @@ void printc(char c) {
 		move(_cursor_r,_cursor_c);
 	}
 	if(_flag.atr) {
-		if(_flag.col) {
-			_color();
-			_flag.col=0;
-		}
 		_attron();
 		_flag.atr=0;
 	}

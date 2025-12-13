@@ -2,7 +2,7 @@
 ============================================================
   Fichero: curse.h
   Creado: 27-11-2025
-  Ultima Modificacion: diumenge, 7 de desembre de 2025, 19:04:47
+  Ultima Modificacion: dissabte, 13 de desembre de 2025, 12:22:33
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -15,6 +15,7 @@
 //CONSTANTES
 
 //atributos
+#define NONE 0 //no se aplica nada
 #define BOLD 1 //caracter en resaltado
 #define UNDERLINE 2 //caracter subrayado
 #define REVERSE 4 //caracter inverso

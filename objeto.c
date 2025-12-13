@@ -1,73 +1,183 @@
 /*
 ============================================================
   Fichero: objeto.c
-  Creado: 30-11-2025
-  Ultima Modificacion: dilluns, 8 de desembre de 2025, 19:28:02
+  Creado: 09-12-2025
+  Ultima Modificacion: vie 12 dic 2025 12:13:51
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
 
 #include "rogue.h"
 
-struct objeto_s objetos[OBJETOS];
+#define OBJETOS 64 /* numero de objetos maximos en un nivel */
 
-static void objini() {
-	static u1 inited=0;
-	if(!inited) {
-		pobjeto_t p=objetos;
-		while(p!=objetos+OBJETOS) p++->tipo=0;
-		inited=1;
-	}
+objeto_t* jugador=NULL;
+
+static objeto_t objeto[OBJETOS];
+static uint objetos=0;
+
+uint objsiz() {
+	return objetos;
 }
 
-u1 objnew(objeto_t o,u2 t) {
-	objini();
-	if(o<OBJETOS) {
-		pobjeto_t po=objetos+o;
-		po->tipo=t;
-		return 1;
+objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
+	objeto_t* new=NULL;
+	if(objetos<OBJETOS) {
+		new=objeto+objetos++;
+		char* p=n;
+		char* q=new->nom;
+		while(*p!=EOS && p-n<SLEN) *q++=*p++;
+		*q=EOS;
+		new->atr=a;
+		new->r=new->c=-1;
+		if(npc) {
+			new->npc=1;
+			if(jug) {
+				jugador=new;
+				new->jug=new->mov=1;
+			} else new->jug=new->mov=0;
+			new->fue=new->hab=new->vel=new->cap=new->cve=0;
+			new->oro=0;
+		} else {
+			new->ior=new->arm=new->lla=new->ani=new->ves=0;
+			new->con=NULL;
+		}
+	}
+	return new;
+}
+
+Bool objinipos(objeto_t* o,int r,int c) {
+	if(o) {
+		localidad_t* l=mapget(r,c);
+		if(l && l->trs==1) {
+			for(int k=0;k<objetos;k++) {
+				objeto_t* oe=objeto+k;
+				if(oe!=o && o->r==r && o->c==c) return FALSE;
+			}
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+uint objfnd(objeto_t* o[],Condicion c) {
+	objeto_t* p=objeto;
+	objeto_t** po=o;
+	while(p!=objeto+objetos) {
+		if(c(p)) {
+			*po=p;
+			po++;
+		}
+		p++;
+	}
+	return po-o;
+}
+
+static objeto_t* npce=NULL;
+
+static Bool isnpcinp(objeto_t* o) {
+	/* condicion de busqueda de npc en una posicion */
+	return (o->npc && o->r==npce->r && o->c==npce->c);
+}
+
+static Bool isinv(objeto_t* o) {
+	/* objetos poseidos por npce */
+	return (o->npc==0 && o->con==npce);
+}
+
+Bool objmov(objeto_t* o,int dr,int dc) {
+	if(o && o->npc && o->mov) {
+		localidad_t* l=mapget(o->r,o->c);
+		if(l) {
+			int nr=o->r+dr;
+			int nc=o->c+dc;
+			localidad_t* nl=mapget(nr,nc);
+			if(nl && nl->trs==1) {
+				npce=o;
+				objeto_t* npc[objetos];
+				uint npcs=objfnd(npc,isnpcinp);
+				if(npcs==1) {
+					o->r=nr;
+					o->c=nc;
+					return TRUE;
+				}
+			}
+		}
+	}
+	return FALSE;
+}
+
+uint objinv(objeto_t* o,objeto_t* c[]) {
+	if(o && o->npc) {
+		npce=o;
+		return objfnd(c,isinv);
 	}
 	return 0;
 }
 
-void objname(objeto_t o,char* n) {
-	pobjeto_t po=objget(o);
-	if(po) {
-		char* pn=n;
-		char* pon=po->nombre;
-		while(*pn!='\0' && pn-n<=NAMOBJLEN) {
-			*pon++=*pn++;
+#define men(O,A) if((O)==jugador) mensaje(A)
+
+Bool objcog(objeto_t* o,objeto_t* itm) {
+	if(o && o->npc) {
+		objeto_t* inv[objetos];
+		uint cinv=objinv(o,inv);
+		if(cinv<o->cap) {
+			if(itm && itm->npc==0 && (itm->oro || itm->arm || itm->lla || itm->ani) && itm->r==o->r && itm->c==o->c && itm->con==NULL) {
+				itm->r=itm->c=-1;
+				if(itm->ior) {
+					char str[256];
+					sprintf(str,"Coges %i monedas de oro...",itm->cor);
+					men(o,str);
+					o->oro+=itm->cor;
+				} else {
+					men(o,"Lo coges...");
+					itm->con=o;
+				}
+				return TRUE;
+			}
+		} else {
+			men(o,"Llevas demasiadas cosas...");
 		}
-		*pon='\0';
 	}
+	men(o,"No puedes cogerlo...");
+	return FALSE;
 }
 
-pobjeto_t objget(objeto_t o) {
-	objini();
-	return (o<OBJETOS && (objetos+o)->tipo!=0)?objetos+o:NULL;
-}
-
-u2 objsfnd(objeto_t* os,Condicion c) {
-	objeto_t *pos=os;
-	pobjeto_t ptro=objetos;
-	while(ptro!=objetos+OBJETOS) {
-		if(c(ptro-objetos)) {
-			*pos++=(ptro-objetos);
+Bool objdej(objeto_t* o,objeto_t* itm) {
+	if(o && o->npc) {
+		localidad_t* l=mapget(o->r,o->c);
+		if(l && itm && itm->npc==0 && itm->con==o) {
+			itm->con=NULL;
+			itm->r=o->r;
+			itm->c=o->c;
+			men(o,"Lo dejas...");
+			return TRUE;
 		}
-		ptro++;
 	}
-	return pos-os;
+	men(o,"No puedes dejarlo...");
+	return FALSE;
 }
 
-u2 objsfree() {
-	pobjeto_t p=objetos;
-	while(p!=objetos+OBJETOS) {
-		if(p->tipo==0) return p-objetos;
-		p++;
+Bool objcanact(objeto_t* o) {
+	if(o && o->npc) {
+		localidad_t* l=mapget(o->r,o->c);
+		if(l) {
+			if(o->cve==o->vel) {
+				o->cve=0;
+				return TRUE;
+			} else {
+				o->cve++;
+			}
+		}
 	}
-	return OBJNUL;
+	return FALSE;
 }
 
 
 
 
+
+
+
+
+	

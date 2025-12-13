@@ -2,124 +2,125 @@
 ============================================================
   Fichero: pantalla.c
   Creado: 04-12-2025
-  Ultima Modificacion: dilluns, 8 de desembre de 2025, 19:51:45
+  Ultima Modificacion: dissabte, 13 de desembre de 2025, 12:27:48
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
 
 #include "rogue.h"
 
-static void showmap(int mri,int mci,int mrs,int mcs,int ro,int co) {
+/* atributos del mapa */
+#define ATROBS (atributo_t){' ',REVERSE,BLACK,RED} /* atributo de las paredes */
+#define ATRHAB (atributo_t){'.',0,WHITE,BLACK} /* atributo de suelo de habitacion */
+#define ATRPAS (atributo_t){'#',DIM,WHITE,BLACK} /* atributo de pasadizo de habitacion */
+#define ATRPUE (atributo_t){'?',REVERSE,YELLOW,BLACK} /* atributo de la puerta */
+#define ATRESU (atributo_t){'>',BOLD,MAGENTA,BLACK} /* escalera de subida */
+#define ATREBA (atributo_t){'<',BOLD,MAGENTA,BLACK} /* escalera de bajada */
+
+#define COLVIS BLUE /*color de lo visibilizado */
+
+static void mapshw(int mri,int mci,int mrs,int mcs,int ro,int co) {
+	const atributo_t ATRNUL={' ',0,BLACK,BLACK};
 	for(int r=0;r<mrs;r++) {
+		at(ro+r,co);
 		for(int c=0;c<mcs;c++) {
+			atributo_t a=ATRNUL;
 			localidad_t* l=mapget(mri+r,mci+c);
-			if(l && (l->visible || l->visibilizado) && l->tipo!=VACIO) {
-				atributo_t a={0,0,0,0};
-				switch(l->tipo) {
-					case OBSTACULO:
-					case OCULTA:
-						a=ATROBS;
-						break;
-					case TRANSITABLE:
-						if(l->habitacion==0) a=ATRPAS;
-						else if(l->escalera==-1) a=ATREDW;
-						else if(l->escalera==1) a=ATRESU;
-						else a=ATRHAB;
-						break;
-					case PUERTA:
-						a=ATRPUE;
-						break;
+			if(l && (l->vis) && (l->obs || l->trs)) {
+				if(l->obs || l->trs==3) a=ATROBS;
+				else if(l->trs==2) a=ATRPUE;
+				else if(l->esc==1) a=ATRESU;
+				else if(l->esc==-1) a=ATREBA;
+				else if(l->trs==1 && l->hab) a=ATRHAB;
+				else a=ATRPAS;
+				if(l->vis==1) {
+					a.ink=COLVIS;
+					a.bkg=BLACK;
 				}
-				at(ro+r,co+c);
-				attr(a.attr);
-				if(l->visible) {
-					ink(a.ink);
-					background(a.bkg);
-				} else {
-					ink(COLVIS);
-					background(BLACK);
-				}
-				printc(a.chr);
 			}
+			attr(a.atr);
+			ink(a.ink);
+			background(a.bkg);
+			printc(a.chr);
 		}
 	}
 }
 
-static u1 objisinscr(objeto_t o,int mri,int mci,int mrs,int mcs) {
-	pobjeto_t po=objget(o);
-	int r=po->r;
-	int c=po->c;
-	localidad_t* l=mapget(r,c);
-	return (l && l->visible && r>=mri && r<mri+mrs && c>=mci && c<mci+mcs);
+static void objshw(objeto_t* o,int mri,int mci,int ro,int co) {
+	int r=ro+o->r-mri;
+	int c=co+o->c-mci;
+	at(r,c);
+	attr(o->atr.atr);
+	ink(o->atr.ink);
+	background(o->atr.bkg);
+	printc(o->atr.chr);
 }
 
-static u1 isnpc(objeto_t o) {
-	pobjeto_t po=objget(o);
-	return (po && (po->tipo & NPC));
-}
-
-static void objprt(objeto_t o,int mri,int mci,int ro,int co) {
-	pobjeto_t po=objget(o);
-	int r=po->r;
-	int c=po->c;
-	int prr=r-mri+ro;
-	int prc=c-mci+co;
-	at(prr,prc);
-	attr(po->atributo.attr);
-	ink(po->atributo.ink);
-	background(po->atributo.bkg);
-	printc(po->atributo.chr);
-}
-
-static void shownpc(int mri,int mci,int mrs,int mcs,int ro,int co) {
-	/* se muestran los npcs */
-	objeto_t npc[OBJETOS];
-	u2 npcs=objsfnd(npc,isnpc);
-	for(int k=0;k<npcs;k++) {
-		if(objisinscr(npc[k],mri,mci,mrs,mcs)) objprt(npc[k],mri,mci,ro,co);
+static Bool isitm(objeto_t* o) {
+	if(o && o->npc==0) {
+		localidad_t* l=mapget(o->r,o->c);
+		return (l!=NULL && l->vis==2)?TRUE:FALSE;
 	}
+	return FALSE;
 }
 
-static u1 isitm(objeto_t o) {
-	/* comprueba los items que estan en el suelo */
-	pobjeto_t po=objget(o);
-	return (po && (po->tipo & NPC)==0);
-}
-
-static void showitm(int mri,int mci,int mrs,int mcs,int ro,int co) {
-	/* se muestran los npcs */
-	objeto_t itm[OBJETOS];
-	u2 itms=objsfnd(itm,isitm);
+static void itmshw(int mri,int mci,int ro,int co) {
+	/* muestra todos los items */
+	objeto_t* itm[objsiz()];
+	uint itms=objfnd(itm,isitm);
 	for(int k=0;k<itms;k++) {
-		if(objisinscr(itm[k],mri,mci,mrs,mcs)) objprt(itm[k],mri,mci,ro,co);
+		objeto_t* oe=itm[k];
+		objshw(oe,mri,mci,ro,co);
 	}
 }
 
-#define cj(A) PJUG->npc.A
+static Bool isnpc(objeto_t* o) {
+	if(o && o->npc) {
+		localidad_t* l=mapget(o->r,o->c);
+		return (l!=NULL && l->vis==2)?TRUE:FALSE;
+	}
+	return FALSE;
+}
 
-static void showmarc() {
-	/* muestra todos los puntos que tiene un jugador */
-	const char NAM[]={'G','F','A','H','M','V','C','O'};
-	const u1 SIZ=8;
-	int val[]={cj(golpes),cj(fuerza),cj(armadura),cj(habilidad),cj(magia),cj(velocidad),cj(capacidad),cj(oro)};
-	int dr,dc;
-	dimget(&dr,&dc);
-	at(dr-2,0);
-	ink(7);
+static void npcshw(int mri,int mci,int ro,int co) {
+	/* muestra todos los npcs */
+	objeto_t* npc[objsiz()];
+	uint itms=objfnd(npc,isnpc);
+	for(int k=0;k<itms;k++) {
+		objeto_t* oe=npc[k];
+		objshw(oe,mri,mci,ro,co);
+	}
+}
+
+static void cajshw() {
+	/* muestra las caracteristicas del jugador */
+	char* const NAM[]={"Fue","Hab","Vel","Cap","Oro"};
+	const uint SIZ=5;
+	uint jca[]={jugador->fue,jugador->hab,jugador->vel,jugador->cap,jugador->oro};
+	int rs,cs;
+	dimget(&rs,&cs);
+	background(BLACK);
+	ink(BLACK);
+	for(int k=0;k<cs;k++) {
+		at(rs-2,k);
+		printc(' ');
+	}
+	at(rs-2,0);
+	ink(WHITE);
 	for(int k=0;k<SIZ;k++) {
 		attr(BOLD);
-		printc(NAM[k]);
+		prints("%s: ",NAM[k]);
 		attr(0);
-		prints(": %i  ",val[k]);
+		prints("%i   ",jca[k]);
 	}
-}		
+}
 
-void showscr(int mri,int mci,int mrs,int mcs,int ro,int co) {
+void panshw(int mri,int mci,int mrs,int mcs,int ro,int co) {
 	cls();
-	showmap(mri,mci,mrs,mcs,ro,co);
-	showitm(mri,mci,mrs,mcs,ro,co);
-	shownpc(mri,mci,mrs,mcs,ro,co);
-	showmarc();
+	mapshw(mri,mci,mrs,mcs,ro,co);
+	itmshw(mri,mci,ro,co);
+	npcshw(mri,mci,ro,co);
+	cajshw();
 	show();
 }
 

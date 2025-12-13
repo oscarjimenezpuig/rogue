@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dilluns, 8 de desembre de 2025, 19:49:15
+  Ultima Modificacion: dijous, 11 de desembre de 2025, 04:36:16
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -12,256 +12,100 @@
 
 /* INCLUDES */
 
-#include <stdio.h> //dbg
+#include <stdio.h>
 
 #include "curse.h"
 
 /* CONSTANTES */
 
-/* numero de niveles */
-#define MINLEVEL 1 /* minimo numero de nivel */
-#define MAXLEVEL 10 /* maximo numero de nivel */
-#define LEVELS (MAXLEVEL-MINLEVEL+1) /* numero de levels totales */
+#define EOS '\0' /* final de string */
+#define SLEN 20 /* longitud de los string definidos */
 
-/* numero de objetos */
-#define OBJETOS 512
+#define TRUE 1
+#define FALSE 0
 
-/* longitud nombres objeto */
-#define NAMOBJLEN 20
+/* MACROS */
 
-/* objeto nulo */
-#define OBJNUL OBJETOS
-
-/* dimensiones del mapa */
-#define MAPAC 159
-#define MAPAR 48
-#define MAPAA (MAPAR*MAPAC)
-
-/* tipos de localidad */
-#define VACIO 0
-#define OBSTACULO 1 /* pared */
-#define TRANSITABLE 2 /* camino o habitacion */
-#define PUERTA 3 /* lugar de una puerta */
-#define OCULTA 4 /* lugar de una puerta oculta (en principio, como pared) */
-
-/* tipos de objeto */
-#define COGIBLE 1 /* objeto que se puede coger */
-#define ABRIBLE 2 /* objeto que se puede abrir con una llave */
-#define ARMA 4 /* objeto que se puede usar como arma */
-#define VESTIBLE 8 /* objeto que se puede vestir */
-#define NPC 16 /* objeto que es pensante */
-#define MOVIL 32 /* objeto que se puede mover */
-#define JUGADOR 64 /* objeto que es jugador */
-#define ESCALERA 128 /* objeto que es una escalera */
-#define LLAVE 256 /* objeto que permite abrir */
-#define ORO 512 /* oro (este objeto cuando se coge pasa no ser dejable */
-
-/* tipos de transitable */
-#define HABITACION 1
-#define PASADIZO 2
-
-/* atributos del mapa */
-#define ATROBS (atributo_t){' ',REVERSE,RED,RED} /* atributo de las paredes */
-#define ATRHAB (atributo_t){'.',0,WHITE,BLACK} /* atributo de suelo de habitacion */
-#define ATRPAS (atributo_t){'#',DIM,WHITE,BLACK} /* atributo de pasadizo de habitacion */
-#define ATRPUE (atributo_t){'?',REVERSE,YELLOW,BLACK} /* atributo de la puerta */
-#define ATRESU (atributo_t){'>',BOLD,MAGENTA,BLACK} /* escalera de subida */
-#define ATREDW (atributo_t){'<',BOLD,MAGENTA,BLACK} /* escalera de bajada */
-
-#define COLVIS BLUE /*color de lo visibilizado */
-
-/* npc */
-#define MAXCAR 15  /* valor maximo de las caracteristicas */
-
-/* jugador */
-#define OJUG 0 /* identidad del jugador */
-#define PJUG objget(OJUG) /* puntero al jugador */
-#define ATJUG (atributo_t){'@',BOLD,WHITE,BLACK} /* atributos del jugador */
-
-/* llave inicial */
-#define OLLV 1 /* identidad de la llave inicial */
-#define PRLL 2 /* posibilidad de que una llave se rompa cuando se abre la puerta */
-
-/* mensaje */
-#define STRCON "MAS" /* string que se pone al final del mensaje si tiene continuacion */
-
-/* teclado */
-#define TARR 'i' /* arriba */
-#define TABJ 'k' /* abajo */
-#define TIZQ 'j' /* izquierda */
-#define TDER 'l' /* derecha */
-#define TCOG 'c' /* coger */
-#define TDEJ 'd' /* dejar */
-#define TINV 'I' /* inventario */
-#define TQUT 'Q' /* tecla finalizar juego */
-#define TMFI 'M' /* cerrar menu sin seleccionar */
-#define TMOK 'm' /* cerrar menu seleccionando */
-#define TABR 'a' /* abrir una puerta */
-#define TFRZ 'f' /* forzar la puerta */
-
-/* oro */
-#define ORCPNI 100 /* oro por nivel */
-#define ATRORO (atributo_t){'$',BOLD,YELLOW,BLACK}
+#define MAX(A,B) ((A)>(B))?(A):(B)
+#define MIN(A,B) ((A)>(B))?(B):(A)
 
 /* TIPOS */
 
-typedef signed char s1;
-typedef unsigned short u2;
-typedef signed short s2;
-typedef unsigned int u4;
-
-typedef u2 objeto_t;
+typedef unsigned int uint;
+typedef unsigned char Bool;
 
 typedef struct {
-	char chr;
-	u1 attr;
-	s1 ink;
-	s1 bkg;
+	uint chr : 7; /* caracter */
+	uint atr : 7; /* atributo */
+	uint ink : 3; /* tinta */
+	uint bkg : 3; /* fondo */
 } atributo_t;
 
 typedef struct {
-	u1 golpes : 4;
-	u1 fuerza : 4;
-	u1 armadura : 4;
-	u1 habilidad : 4;
-	u1 magia : 4;
-	u1 velocidad : 4;
-	u1 capacidad : 4;
-	u1 vact; /* cuando vact==15-velocidad, el npc puede actuar */
-	u2 oro;
-} npc_t;
-
-typedef struct {
-	objeto_t contenedor; /* si es cogible, da el contenedor */
-	u2 oro; /* cantidad de oro */
-	struct {
-		u1 abrepuerta : 1; /* si es llave, mira si puede abrir puerta */
-	};
-} item_t;
+	uint obs : 1; /* 1: obstaculo */
+	uint trs : 2; /* 1: transitable normal, 2 : puerta, 3: oculta */
+	uint vis : 2; /* 1: visibilizado 2: visible actual */
+	uint osc : 1; /* 1: oscura */
+	uint hab : 4; /* numero habitacion */
+	int esc : 2; /* -1: escalera descenso, 1: escalera ascenso */
+} localidad_t;
 
 struct objeto_s {
-	u2 tipo;
-	char nombre[NAMOBJLEN+1];
-	atributo_t atributo;
+	char nom[SLEN+1];
+	atributo_t atr;
 	int r,c;
+	uint npc : 1; /* 1: es npc 0: es item */
 	union {
-		npc_t npc;
-		item_t item;
+		struct {
+			uint jug : 1; /* 1: es jugador */
+			uint mov : 1; /* 1: es movil */
+			uint fue : 4; /* fuerza */
+			uint hab : 4; /* habilidad */
+			uint vel : 4; /* velocidad */
+			uint cap : 4; /* capacidad */
+			uint cve : 4; /* contador velocidad */
+			uint oro : 12; /* oro */
+		};
+		struct {
+			uint ior : 1; /* 1: es oro */
+			uint arm : 1; /* 1: es arma */
+			uint lla : 1; /* 1: es llave */
+			uint ani : 1; /* 1: es anillo */
+			uint ves : 1; /* 1: esta vestido */
+			struct objeto_s* con; /* da el contenedor */
+			union {
+				uint cor : 8; /* cantidad de oro del tesoro */
+			};
+		};
 	};
 };
 
-typedef struct objeto_s* pobjeto_t;
+typedef struct objeto_s objeto_t;
 
-typedef struct {
-	u1 tipo : 3;
-	u1 visible : 1;
-	u1 oscuro : 1;
-	u1 habitacion : 4; /* si habitacion es 0, se corresponde a camino */
-	u1 visibilizado : 1;
-	s1 escalera : 2; /* escalera -1 bajada, 1 subida, 0 sin escalera */
-} localidad_t;
+typedef Bool (*Condicion)(objeto_t*);
 
-typedef struct {
-	int seed;
-	u1 enemigos;
-	u1 oro;
-	u1 llaves;
-	u1 objetos;
-} nivel_t;
-	
-typedef u1 (*Condicion)(objeto_t);
-		
 /* VARIABLES */
 
-//extern localidad_t mapa[MAPAA];
+extern objeto_t* jugador; /* variable que guarda la direccion del jugador */
 
 /* FUNCIONES */
 
-/* objeto.c */
-
-u1 objnew(objeto_t o,u2 tipo);
-/* definicion de un objeto nuevo */
-
-void objname(objeto_t o,char* name);
-/* asigna al objeto el nombre */
-
-pobjeto_t objget(objeto_t o);
-/* obtenemos el apuntador al objeto */
-
-u2 objsfnd(objeto_t* os,Condicion c);
-/* a partir de una condicion encontramos una matriz de objetos que la cumplen, se devuelve el numero de objetos*/
-
-u2 objsfree();
-/* da el primer identificador de objeto libre */
-
 /* map.c */
 
-void mapnew(u1 level);
-/* creacion del mapa de un nivel */
+void mapnew(Bool stair_up,Bool stair_down);
+/* creacion del mapa stair_up tiene escalera para subir, stair_down para bajar */
 
 localidad_t* mapget(int r,int c);
 /* consigue las caracteristicas de la localidad en la columna fila pedidas */
 
-u1 maprndpos(int* r,int* c,u1 tipo_transitable);
-/* busca una posicion del transitable que cumpla la condicion del tipo de transitable */
+Bool maprndpos(int* r,int* c,Bool pasadizo);
+/* busca una posicion transitable, si pasadizo=true->habitacion y pasadizo, sino solo pasadizo */
 
 /* pantalla.c */
 
-void showscr(int mri,int mci,int mrs,int mcs,int ro,int co);
+void panshw(int mri,int mci,int mrs,int mcs,int ro,int co);
 /*muestra un sector del mapa que empieza en las coordenadas mri,mci
  * con dimensiones mrs,mcs y la posicion inicial en la pantalla terminal es ro,co */
-
-/* npc.c */
-
-u1 npcnew(objeto_t id,char* nombre,atributo_t a,u1 movil,npc_t npc);
-/* definicion de un npc */
-
-u2 npcfnd(pobjeto_t* npc);
-/* busca todos los npc`s del juego(en punteros) */
-
-u1 npcinplace(int r,int c);
-/* dice si en una posicion hay un npc */
-
-u1 npccanpos(objeto_t o,int r,int c);
-/* dice si un objeto se puede posicionar en la posicion especificada */
-/* no se podra poner si hay otro npc en la misma posicion o no es transitable*/
-
-u1 npcpos(objeto_t o,int r,int c);
-/* coloca, si se puede un objeto en r,c (llama a npccanpos) */
-
-u1 npcrndpos(objeto_t o,u1 tipo_transitable);
-/* se coloca un npc en una posicion random */
-
-u2 npcinv(objeto_t o,objeto_t* c);
-/* da la lista de objetos contenida por o */
-
-u1 npccancog(objeto_t o,objeto_t c);
-/* dice si un objeto se puede coger */
-
-u1 npccog(objeto_t o,objeto_t c);
-/* coge un objeto (llama a npccancog) */
-
-u1 npccandej(objeto_t o,objeto_t c);
-/* se mira si el objeto o puede dejar al objeto c */
-
-u1 npcdej(objeto_t o,objeto_t c);
-/* el objeto o deja el objeto c en la localidad establecida (llamada a npccandej) */
-
-u1 npccanact(objeto_t o);
-/* mira si un npc puede o no actuar (depende de vact y velocidad) */
-
-/* jugador.c */
-
-u1 jugnew();
-/* definicion del jugador */
-
-u1 jugact();
-/* accion del jugador */
-
-/* item.c */
-
-u1 itmnew(objeto_t identificador,char* n,u2 tipo,atributo_t a,item_t item);
-/* definicion de un item */
 
 /* mensaje.c */
 
@@ -270,14 +114,51 @@ void mensaje(char* men);
 
 /* menu.c */
 
-u1 menu(char* cabecera,u1 opciones,char* opcion[]);
+uint menu(char* cabecera,uint opciones,char* opcion[]);
 /* se crea un menu, funciona con las teclas i: subir j: bajar q: quitar s: seleccionar.
  * Devuelve la opcion selecconada o opciones en caso de no selecionar nada */
 
-/* oro.c */
+/* objeto.c */
 
-void orosnew(int cantidad);
-/* crea y coloca oro en todo el nivel en la cantidad dicha */
+uint objsiz();
+/* dice el numero de objetos que se han definido */
+
+objeto_t* objnew(char* nom,atributo_t atr,Bool npc,Bool jug);
+/* definimos objeto nuevo poniendo el nombre y diciendo si es o no un npc */
+
+Bool objinipos(objeto_t* obj,int r,int c);
+/* damos posicion inicial a un objeto 
+ * no puede existir ningun objeto en la misma posicion y debe ser zona transitable del mapa */
+
+uint objfnd(objeto_t* obj[],Condicion cond);
+/* se busca una serie de objetos que cumplan una determinada condicion */
+
+Bool objmov(objeto_t* obj,int dr,int dc);
+/* movemos un objeto haciendo este desplazamiento (solo npc's moviles) */
+
+uint ojbinv(objeto_t* obj,objeto_t* con[]);
+/* se da el inventario de un objeto npc */
+
+Bool objcog(objeto_t* obj,objeto_t* itm);
+/* un objeto npc coge un objeto */
+
+Bool objdej(objeto_t* obj,objeto_t* itm);
+/* un objeto npc deja un objeto */
+
+Bool objcanact(objeto_t* obj);
+/* dice si un objeto npc esta en disposicion de actuar */
+
+/* jugador.c */
+
+Bool jugnew();
+/* definicion del jugador */
+
+Bool jugact();
+/* accion del jugador determinada por el teclado */
+
+Bool jugshw();
+/* se muestra la pantalla cogiendo como centro la posicion del jugador */
+
 
 /* rogue.c */
 

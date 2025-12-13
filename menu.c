@@ -2,15 +2,21 @@
 ============================================================
   Fichero: menu.c
   Creado: 07-12-2025
-  Ultima Modificacion: dilluns, 8 de desembre de 2025, 08:39:03
+  Ultima Modificacion: mié 10 dic 2025 11:00:46
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
 
 #include "rogue.h"
 
-u1 menu(char* c,u1 os,char* o[]) {
-	u1 select=0;
+/* teclado de menu */
+#define TMSU 'i' /* tecla de sube en menu */
+#define TMBA 'k' /* tecla de baja en menu */
+#define TMFI 'M' /* cerrar menu sin seleccionar */
+#define TMOK 'm' /* cerrar menu seleccionando */
+
+uint menu(char* c,uint os,char* o[]) {
+	uint select=0;
 	inmode(DELAY);
 presenta:
 	cls();
@@ -27,11 +33,11 @@ presenta:
 	}
 teclado:
 	listen();
-	if(inkey(TARR)) {
+	if(inkey(TMSU)) {
 		if(select>0) --select;
 		else select=os-1;
 		goto presenta;
-	} else if(inkey(TABJ)) {
+	} else if(inkey(TMBA)) {
 		if(select==os-1) select=0;
 		else ++select;
 		goto presenta;
