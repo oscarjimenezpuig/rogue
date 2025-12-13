@@ -56,7 +56,7 @@ static void __hand_signal(int sig) {
 	exit(sig);
 }
 
-#define CPA(I,B) (B)*8+(I)
+#define CPA(I,B) ((B)*8+(I))
 
 static u1 __color() {
 	const u1 COLS=WHITE+1;
