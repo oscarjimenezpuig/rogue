@@ -58,18 +58,22 @@ static void __hand_signal(int sig) {
 
 #define CPA(I,B) (B)*8+(I)
 
-static short __color() {
-	static u1 colpair[256];
-	static short colpairs=1;
-	static short last=0;
+static u1 __color() {
+	const u1 COLS=WHITE+1;
+	const u1 COLP=COLS*COLS;
+	static u1 colpair[COLP];
+	static u1 colpairs=1;
+	static u1 last=0;
+	static u1 coldim=COLP;
 	if(last==0) {
-		init_pair(1,BLACK,BLACK);
+		init_pair(colpairs,BLACK,BLACK);
 		colpair[colpairs++]=0;
 		last=1;
+		coldim=(COLP>COLOR_PAIRS)?COLP:COLOR_PAIRS;
 	}
 	if(_flag.col) {
 		last=1;
-		u1* ptr=colpair;
+		u1* ptr=colpair+1;
 		while(ptr!=colpair+colpairs) {
 			if(*ptr==CPA(_ink,_background)) {
 				last=ptr-colpair;
@@ -77,7 +81,7 @@ static short __color() {
 			}
 			ptr++;
 		}
-		if(ptr==colpair+colpairs && colpairs<COLOR_PAIRS) {
+		if(ptr==colpair+colpairs && colpairs<colordim) {
 			init_pair(colpairs,_ink,_background);
 			colpair[colpairs]=CPA(_ink,_background);
 			last=colpairs++;
