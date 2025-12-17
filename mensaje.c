@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mensaje.c
   Creado: 06-12-2025
-  Ultima Modificacion: mar 09 dic 2025 11:19:00
+  Ultima Modificacion: dimecres, 17 de desembre de 2025, 18:27:07
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -14,25 +14,23 @@
 
 
 void mensaje(char* m) {
-	int rs,cs;
-	dimget(&rs,&cs);
 	char* pm=m;
-	ink(7);
-	attr(0);
+	INK=WHITE;
+	ATR=NONE;
 	while(*pm!=EOS) {
 		int counter=0;
-		at(0,0);
-		while((counter<cs-10 || *pm!=' ') && *pm!=EOS) {
+		ROW=COL=0;
+		while((counter<COLS-10 || *pm!=' ') && *pm!=EOS) {
 			printc(*pm++);
 		}
 		if(*pm!=EOS) {
-			attr(REVERSE);
+			ATR=REVERSE;
 			prints("   %s",STRCON);
 		}
-		while(listen()==0);
-		attr(0);
-		at(0,0);
-		for(int c=0;c<cs;c++) {
+		while(listen(INKEY)==0);
+		ATR=NONE;
+		ROW=COL=0;
+		for(int c=0;c<COLS;c++) {
 			printc(' ');
 		}
 	}

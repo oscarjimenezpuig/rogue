@@ -2,7 +2,7 @@
 ============================================================
   Fichero: curse.c
   Creado: 27-11-2025
-  Ultima Modificacion: vie 12 dic 2025 11:17:42
+  Ultima Modificacion: dimecres, 17 de desembre de 2025, 18:47:53
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -11,188 +11,78 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <time.h>
+#include <stdarg.h>
 
 #include "curse.h"
 
-//constantes privadas
+//CONSTANTES
+#define BUFSIZE 1024
 
-#define BUFSIZE 256
+//MACROS
+#define TERMDIM getmaxyx(stdscr,ROWS,COLS) //actualiza las dimensiones de filas y columnas del terminal
+#define CPAIR(I,B) (1+(I)+(B)*8) //da el par del color actual
+#define LOCATE move(ROW,COL) //coloca el cursor ncurses en la posicion ROW,COL
+#define INTERM (ROW>=0 && ROW<ROWS && COL>=0 && COL<COLS) //dice si las filas y columnas estan en la pantalla
 
-//tipos privados
+//VARIABLES
 
-//variables estaticas
+//externas
 
-static int _rows=0; //numero de filas de la terminal
-static int _columns=0; //numero de columnas de la terminal
-static int _cursor_r=0; //row del cursor
-static int _cursor_c=0; //column del cursor
-static int _atrflg=0; //bandera de atributos
-static u1 _ink=BLACK; //tinta
-static u1 _background=BLACK; //fondo
-static struct {
-	u1 cur : 1;
-	u1 col : 1;
-	u1 atr : 1;
-	u1 end : 1;
-	u1 min : 4;
-} _flag={0,0,0,1,NORMAL}; 
-//banderas:
-//cur: cursor, col: color, atr: atributo -> indican si hay cambio
-//end: indica si ha sido finalizado el curses
-//min: guarda las banderas del mode in
-static char _buffer[BUFSIZE]={'\0'};
+int ROW,COL,ATR,INK,BKG,ROWS,COLS;
+
+//estaticas
+static char _buffer[BUFSIZE];
+static bool _ended=true;
+
+//FUNCIONES
 
 //privadas
 
+static void __atributos() {
+	//conecta los atributos y el color, desconectando los previos
+	const int FLG[]={A_BOLD,A_UNDERLINE,A_REVERSE,A_BLINK,A_PROTECT,A_INVIS,A_DIM};
+	const int INT[]={BOLD,UNDERLINE,REVERSE,BLINK,PROTECT,INVIS,DIM};
+	const int FCL=7;
+	static int atr=0;
+	static short clp=0;
+	int atrn=0;
+	for(int k=0;k<FCL;k++) {
+		if(ATR & INT[k]) atrn|=FLG[k];
+	};
+	short colpair=CPAIR(INK,BKG);
+	if(atrn!=atr || clp!=colpair) {
+		attroff(atr);
+		attron(atrn | COLOR_PAIR(colpair));
+		atr=atrn;
+		clp=colpair;
+	}
+}
+
 static void __end() {
-	if(_flag.end==0) {
+	//final del ncurses
+	if(!_ended) {
 		endwin();
-		_flag.end=1;
+		_ended=true;
+		printf(" and finished\n");//dbg
 	}
 }
 
 static void __hand_signal(int sig) {
-	endwin();
+	//final en caso de error
+	__end();
 	exit(sig);
 }
 
-static void _attron() {
-	attron(_atrflg | COLOR_PAIR(_ink+8*_background));
-}
-
-static void _attroff() {
-	attroff(A_BOLD|A_UNDERLINE|A_REVERSE|A_BLINK|A_PROTECT|A_INVIS|A_DIM);
-	_atrflg=0;
-}
-
-#define CDD 8
-
-static void _color() {
-	static u1 coldefs[CDD];
-	static u1 inited=0;
-	if(!inited) {
-		u1* p=coldefs;
-		while(p!=coldefs+CDD) *p++=0;
-		inited=1;
-	}
-	if(_ink!=BLACK) {
-		u1 fi=1<<_ink;
-		if((coldefs[_background] & fi)==0) {
-			init_pair(_ink+8*_background,_ink,_background);
-			coldefs[_background]|=fi;
+static void __init_pairs() {
+	for(int t=BLACK;t<=WHITE;t++) {
+		for(int f=BLACK;f<=WHITE;f++) {
+			init_pair(CPAIR(t,f),t,f);
 		}
 	}
 }
 
-#undef CDD
-
-static void _init() {
-	signal(SIGINT,__hand_signal);
-	signal(SIGSEGV,__hand_signal);
-	initscr();
-	noecho();
-	raw();
-	nodelay(stdscr,TRUE);
-	curs_set(0);
-	keypad(stdscr,TRUE);
-	start_color();
-	for(u1 k=BLACK;k<=WHITE;k++) init_pair(k*8,BLACK,k);
-	attron(COLOR_PAIR(BLACK+8*BLACK));
-	atexit(__end);
-	getmaxyx(stdscr,_rows,_columns);
-	_flag.end=0;
-}
-
-static chtype _chkpos() {
-	//da las caracteristicas de una posicion de la pantalla
-	return mvinch(_cursor_r,_cursor_c);
-}
-
-//publicas
-
-void at(int r,int c) {
-	if(_cursor_r!=r || _cursor_c!=c) {
-		_cursor_r=r;
-		_cursor_c=c;
-		_flag.cur=1;
-	}
-}
-
-void atget(int* r,int* c) {
-	*r=_cursor_r;
-	*c=_cursor_c;
-}
-
-void attr(u1 f) {
-	const int FLG[]={A_BOLD,A_UNDERLINE,A_REVERSE,A_BLINK,A_PROTECT,A_INVIS,A_DIM};
-	const int INT[]={BOLD,UNDERLINE,REVERSE,BLINK,PROTECT,INVIS,DIM};
-	const int SIZ=7;
-	_attroff();
-	int flag=0;
-	if(f!=0) {
-		for(u1 pf=0;f!=0 && pf<SIZ;pf++) {
-			u1 fi=INT[pf];
-			if(f & fi) {
-				flag|=FLG[pf];
-				f&=~fi;
-			}
-		}
-		_atrflg=flag;
-	}
-	_flag.atr=1;
-}
-
-u1 attrget() {
-	const int FLG[]={A_BOLD,A_UNDERLINE,A_REVERSE,A_BLINK,A_PROTECT,A_INVIS,A_DIM};
-	const int INT[]={BOLD,UNDERLINE,REVERSE,BLINK,PROTECT,INVIS,DIM};
-	const int SIZ=7;
-	chtype ch=_chkpos();
-	int attrs=ch & A_ATTRIBUTES;
-	u1 flag=0;
-	for(u1 k=0;k<SIZ;k++) {
-		if(attrs & FLG[k]) flag|=INT[k];
-	}
-	return flag;
-}
-
-void background(u1 c) {
-	if(_background!=c) {
-		_background=c;
-		_flag.atr=_flag.col=1;
-	}
-}
-
-char chrget() {
-	chtype ch=_chkpos();
-	return ch & A_CHARTEXT;
-}
-
-void cls() {
-	at(0,0);
-	do {
-		printc(' ');
-		if(_cursor_c==_columns) {
-			_cursor_r++;
-			_cursor_c=0;
-		}
-	}while(_cursor_r<_rows);
-	_cursor_r=_cursor_c=0;
-}
-
-void colget(u1* i,u1* b) {
-	chtype ch=_chkpos();
-	int pair=PAIR_NUMBER(ch);
-	*i=pair%8;
-	*b=pair/8;
-}
-
-void dimget(int* r,int* c) {
-	*r=_rows;
-	*c=_columns;
-}
-
-void inmode(u1 f) {
-	_flag.min=f;
+static void _modein(int f) {
+	//determina el modo de entrada del curses
 	if((f & CURSOR)) curs_set(1);
 	else curs_set(0);
 	if((f & ECHO)) echo();
@@ -202,15 +92,66 @@ void inmode(u1 f) {
 	else raw();
 }
 
-void ink(u1 c) {
-	if(_ink!=c) {
-		_ink=c;
-		_flag.atr=_flag.col=1;
+static bool _prtchr(char c) {
+	if(INTERM) {
+		LOCATE;
+		addch(c);
+		COL++;
+		return true;
 	}
+	return false;
 }
 
-u1 inkey(char c) {
-	u1 count=0;
+static void _init() {
+	//inicio del ncurses
+	signal(SIGINT,__hand_signal);
+	signal(SIGSEGV,__hand_signal);
+	initscr();
+	noecho();
+	raw();
+	nodelay(stdscr,TRUE);
+	curs_set(0);
+	keypad(stdscr,TRUE);
+	start_color();
+	palette(BRIGHT);
+	__init_pairs();
+	atexit(__end);
+	_ended=false;
+	ROW=COL=0;
+	LOCATE;
+	TERMDIM;
+	INK=BKG=BLACK;
+	__atributos();
+	printf("CURSES inited");
+}
+
+//publicas
+
+int bufget(int l,char* s) {
+	l=(l>BUFSIZE-1)?BUFSIZE-1:l;
+	char* pb=_buffer;
+	char* ps=s;
+	while(ps-s<l && *pb!='\0') {
+		*ps++=*pb++;
+	}
+	*ps='\0';
+	return ps-s;
+}
+
+void cls() {
+	TERMDIM;
+	__atributos();
+	for(ROW=0;ROW<ROWS;ROW++) {
+		for(COL=0;COL<COLS;COL++) {
+			LOCATE;
+			addch(' ');
+		}
+	}
+	ROW=COL=0;
+}	
+
+int inkey(char c) {
+	int count=0;
 	char* p=_buffer;
 	while(*p!='\0') {
 		if(*p++==c) ++count;
@@ -218,15 +159,21 @@ u1 inkey(char c) {
 	return count;
 }
 
-
-u1 listen() {
+int listen(int modein) {
+	static int modeflag=0;
+	if(modeflag!=modein) {
+		_modein(modein);
+		modeflag=modein;
+	}
+	LOCATE;
+	__atributos();
 	char* p=_buffer;
 	char c=0;
-	u1 entmod=(_flag.min & ENTER)?1:0;
+	bool entmod=(modeflag & ENTER)?true:false;
 	do {
 		c=getch();
 		if(c!=ERR) {
-			if(c=='\n' && entmod) entmod=0;
+			if(c=='\n' && entmod) entmod=false;
 			else {
 				*p++=c;
 			}
@@ -236,53 +183,71 @@ u1 listen() {
 	return p-_buffer;
 }
 
-void palette(u1 n) {
-	const int COLS[]={COLOR_BLACK,COLOR_RED,COLOR_GREEN,COLOR_YELLOW,COLOR_BLUE,COLOR_MAGENTA,COLOR_CYAN,COLOR_WHITE};
-	const int DIF=125;
-	if(n!=GREYS) {
-		int value=1000;
-		if(n==MEDIUM) value=600;
-		else if(n==LOW) value=200;
-		init_color(COLOR_BLACK,0,0,0);
-		init_color(COLOR_RED,value,0,0);
-		init_color(COLOR_GREEN,0,value,0);
-		init_color(COLOR_YELLOW,value,value,0);
-		init_color(COLOR_BLUE,0,0,value);
-		init_color(COLOR_MAGENTA,value,0,value);
-		init_color(COLOR_CYAN,0,value,value);
-		init_color(COLOR_WHITE,value,value,value);
-	} else for(int k=0;k<8;k++) init_color(COLS[k],DIF*k,DIF*k,DIF*k);
+#define hascmp(A,D) ((((A)&(D))==(D))?1:0)
+
+void palette(int t) {
+	const short COLS[]={COLOR_BLACK,COLOR_RED,COLOR_GREEN,COLOR_YELLOW,COLOR_BLUE,COLOR_MAGENTA,COLOR_CYAN,COLOR_WHITE};
+	const short DIF=142;
+	short red,green,blue;
+	short value=1000;
+	if(t==MEDIUM) value=600;
+	else if(t==LOW) value=200;
+	for(int col=BLACK;col<=WHITE;col++) {
+		if(t==GREYS) {
+			red=green=blue=DIF*col;
+		} else { 
+			red=green=blue=0;
+			if(hascmp(col,RED)) red=value;
+			if(hascmp(col,GREEN)) green=value;
+			if(hascmp(col,BLUE)) blue=value;
+		}
+		init_color(COLS[col],red,green,blue);
+	}
 }
+
+#undef hascmp
 
 void pause(double s) {
 	clock_t limit=clock()+s*CLOCKS_PER_SEC;
 	while(clock()<limit);
 }
 
-void printc(char c) {
-	if(_flag.cur) {
-		move(_cursor_r,_cursor_c);
-	}
-	if(_flag.atr) {
-		if(_flag.col) {
-			_color();
-			_flag.col=0;
+int posget(char* c,int* a,int* i,int* b) {
+	const int FLG[]={A_BOLD,A_UNDERLINE,A_REVERSE,A_BLINK,A_PROTECT,A_INVIS,A_DIM};
+	const int INT[]={BOLD,UNDERLINE,REVERSE,BLINK,PROTECT,INVIS,DIM};
+	const int FCL=7;
+	if(INTERM) {
+		LOCATE;
+		chtype cht=inch();
+		if(c) *c=(cht & A_CHARTEXT);
+		if(a) {
+			int atra=(cht & A_ATTRIBUTES);
+			*a=0;
+			for(int k=0;k<FCL;k++) {
+				if(atra & FLG[k]) *a|=INT[k];
+			}
 		}
-		_attron();
-		_flag.atr=0;
+		short pc=(cht & A_COLOR);
+		if(i) *i=(pc-1)%8;
+		if(b) *b=(pc-1)/8;
+		return 1;
 	}
-	addch(c);
-	_cursor_c++;
+	return 0;
+}
+
+void printc(char ch) {
+	prints("%c",ch);
 }
 
 void prints(const char* s,...) {
-	char str[1024];
 	va_list list;
 	va_start(list,s);
-	vsprintf(str,s,list);
+	vsprintf(_buffer,s,list);
 	va_end(list);
-	char* c=str;
-	while(*c!='\0') printc(*c++);
+	char* ptr=_buffer;
+	LOCATE;
+	__atributos();
+	while(*ptr!='\0' && _prtchr(*ptr++));
 }
 
 void randomize(int s) {
@@ -298,27 +263,11 @@ int rnd(int a,int b) {
 }
 
 void show() {
-	int ar=_rows;
-	int ac=_columns;
-	getmaxyx(stdscr,_rows,_columns);
-	if(ar!=_rows || ac!=_columns) cls();
-	else refresh();
-}
-
-u1 strbuf(u1 l,char* s) {
-	char* pb=_buffer;
-	char* ps=s;
-	while(*pb!='\0' && ps-s<l) {
-		*ps++=*pb++;
-	}
-	*ps='\0';
-	return ps-s;
+	TERMDIM;
+	refresh();
 }
 
 int main() {
 	_init();
-	begin();
-	return 0;
+	curse();
 }
-
-

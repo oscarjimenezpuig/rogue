@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dijous, 11 de desembre de 2025, 04:36:16
+  Ultima Modificacion: dimecres, 17 de desembre de 2025, 19:36:45
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -21,8 +21,13 @@
 #define EOS '\0' /* final de string */
 #define SLEN 20 /* longitud de los string definidos */
 
+/* definicion de booleanos */
 #define TRUE 1
 #define FALSE 0
+
+/* reglas */
+#define VMC 15 /* valor maximo de cualquier caracteristica */
+#define HmO 3 /* habilidad minima necesaria para abrir una puerta */
 
 /* MACROS */
 

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: curse.h
   Creado: 27-11-2025
-  Ultima Modificacion: dijous, 11 de desembre de 2025, 04:35:37
+  Ultima Modificacion: mié 17 dic 2025 14:24:53
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -10,9 +10,16 @@
 #ifndef CURSE_H
 #define CURSE_H
 
-#include <stdarg.h>
 
 //CONSTANTES
+
+#define NONE 0 // valor generico para el 0
+
+//palette
+#define BRIGHT 1 //paleta de maximo brillante
+#define MEDIUM 2 //paleta de brillo medio
+#define LOW 3 //paleta de brillo bajo
+#define GREYS 4 //paleta de grises
 
 //atributos
 #define BOLD 1 //caracter en resaltado
@@ -22,12 +29,6 @@
 #define PROTECT 16 //caracter protegido
 #define INVIS 32 //caracter invisible
 #define DIM 64 //caracter en resaltado medio
-
-//palette
-#define BRIGHT 1 //paleta de maximo brillante
-#define MEDIUM 2 //paleta de brillo medio
-#define LOW 3 //paleta de brillo bajo
-#define GREYS 4 //paleta de grises
 
 //colors
 #define BLACK 0
@@ -40,69 +41,64 @@
 #define WHITE 7
 
 //mode in
-#define NORMAL 0 //No hay echo, no se espera a la introduccion de teclas, no se espera al enter no hay cursor
 #define ECHO 1 //las teclas se reproducen en pantalla
 #define DELAY 2 //se espera a la introduccion de teclas
 #define ENTER 4// se espera al enter
 #define CURSOR 8 //pone el cursor
 
-//TIPOS
-typedef unsigned char u1;
+#define INKEY NONE //mode generico para pulsacion de teclas
+#define INPUT ECHO|DELAY|ENTER|CURSOR //modo generico para input tradicional
+
+//METODOS
 
 //VARIABLES
+//variable cambiables
+extern int ROW; //fila del cursor
+extern int COL; //columna del cursor
+extern int ATR; //atributo de impresion (banderas de atributos)
+extern int INK; //tinta
+extern int BKG; //fondo
+
+//variables estaticas
+extern int ROWS; //dimension en filas de la terminal
+extern int COLS; //dimension en columnas de la terminal
+
 
 //FUNCIONES
 
-void at(int r,int c);
-//situa el cursor en la posicion especificada
+//principales
 
-void atget(int* r,int* c);
-//da la posicion actual del cursor
+//secundarias (acceso mediante metodos)
 
-void attr(u1 attributes);
-//define los atributos
-
-void background(u1 color);
-//establecer color del fondo
-
-u1 chrchk(char* in,char c);
-//comprueba que el caracter c esta en la entrada in (devuelve el numero de veces)
-
-char chrget();
-//da el caracter que se encuentra en la posicion señalada por los cursores
+int bufget(int len,char* str);
+//se obtiene lo que hay en el buffer y se coloca en str
 
 void cls();
-//borra toda la pantalla, se substituye por espacios con el fondo especificado. Hace refresh
+//hace un cls de toda la pantalla en el fondo elegido, coloca los cursores en 0,0
 
-void colget(u1* ink,u1* background);
-//devuelve el color de una determinada zona de la pantalla
+void curse();
+//funcion donde se alojara todo el programa que usa curses
 
-void dimget(int* rows,int* cols);
-//consigue la dimension del terminal
-
-void inmode(u1 flags);
-//define el inmode poniendo las flags necesarias (NOECHO,NODELAY,NORAW)
-
-void ink(u1 color);
-//establecer color de la tinta
-
-u1 inkey(char c);
+int inkey(char chr);
 //comprueba si el caracter c esta en el buffer (devuelve el numero de veces)
 
-u1 listen();
-//escucha de las teclas y las guarda en el buffer siempre que la salida no sea error
+int listen(int modein_flags);
+//escuchamos el teclado, introduciendo las banderas indicando como queremos que sea la escucha
 
-void palette(u1 number);
-//define la paleta de colores
+void palette(int type);
+//se entra un tipo de paleta 
 
 void pause(double seconds);
 //pausa de segundos
 
-void printc(char c);
-//imprime un caracter
+int posget(char* chr,int* atr,int* ink,int* bkg);
+//da el caracter y atributos de la posicion marcada por los cursores, si no necesitamos un valor, ponemos NONE
 
-void prints(const char* s,...);
-//imprime un string (tipo printf)
+void printc(char chr);
+//impresion de un solo caracter
+
+void prints(const char* str,...);
+//impresion de un string
 
 void randomize(int seed);
 //introduce la semilla, si es negativa en funcion del tiempo
@@ -111,13 +107,8 @@ int rnd(int a,int b);
 //numero aleatorio del intervalo cerrado a,b
 
 void show();
-//hace el refresh
+//muestra el contenido de la pantalla
 
-u1 strbuf(u1 len,char* str);
-//copia la cadena del buffer en str
-
-void begin();
-//condiciones iniciales que establecemos
 
 #endif /* CURSE_H */
 

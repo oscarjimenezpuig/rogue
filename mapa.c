@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: dijous, 11 de desembre de 2025, 05:03:24
+  Ultima Modificacion: dimecres, 17 de desembre de 2025, 18:35:30
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -35,19 +35,19 @@
 #define SUR 8
 
 typedef struct {
-	u1 number;
-	u1 dark;
+	uint number;
+	uint dark;
 	int r,c;
 	int rs,cs;
 } habitacion_t;
 
 typedef struct {
-	u1 cam : 4;
-	u1 sal : 4;
+	uint cam : 4;
+	uint sal : 4;
 } hablab_t;
 
 static habitacion_t habitacion[HABA];
-static u1 habitaciones=0;
+static uint habitaciones=0;
 static hablab_t laberinto[HABA];
 
 localidad_t mapa[MAPAA];
@@ -60,7 +60,7 @@ static void locini() {
 
 #define ntp(A,M) ((A)*(M)+((M)/2))
 
-static habitacion_t habnew(u1 n,u1 r,u1 c) {
+static habitacion_t habnew(uint n,uint r,uint c) {
 	/* define una habitacion */
 	const int MLC=MHC/2;
 	const int MLR=MHR/2;
@@ -76,8 +76,8 @@ static habitacion_t habnew(u1 n,u1 r,u1 c) {
 
 static void habdef() {
 	/* define todas las habitaciones del mapa */
-	u1 done[HABA];
-	u1* pd=done;
+	uint done[HABA];
+	uint* pd=done;
 	while(pd!=done+HABA) *pd++=0;
 	while(habitaciones<NHMI) {
 		for(int r=0;r<HABR;r++) {
@@ -151,10 +151,10 @@ static void doway(int way,int ro,int co,int rf,int cf) {
 	}
 }
 
-static u1 fndfree(int* r,int* c) {
+static uint fndfree(int* r,int* c) {
 	/* da una habitacion por la que no pasa un camino, 1 si la encuentra, 0 si no */
-	for(u1 y=0;y<HABR;y++) {
-		for(u1 x=0;x<HABC;x++) {
+	for(uint y=0;y<HABR;y++) {
+		for(uint x=0;x<HABC;x++) {
 			hablab_t* l=labhab(y,x);
 			if(l->cam==0) {
 				*r=y;
@@ -214,7 +214,7 @@ static void chckloc(int r,int c) {
 	}
 }	
 
-static void makeway(u1 rri,u1 rci,u1 rrf,u1 rcf) {
+static void makeway(uint rri,uint rci,uint rrf,uint rcf) {
 	/* hace un camino entre habitaciones */
 	int ri=ntp(rri,MHR);
 	int ci=ntp(rci,MHC);
@@ -254,7 +254,7 @@ static void makeways() {
 	}
 }
 
-static u1 vecinos(int r,int c) {
+static uint vecinos(int r,int c) {
 	const int DDS[]={1,-1,0,0};
 	const int SIZ=4;
 	int cuenta=0;
@@ -262,17 +262,17 @@ static u1 vecinos(int r,int c) {
 		int rr=r+DDS[k];
 		int cc=c+DDS[SIZ-k-1];
 		localidad_t* l=locpos(rr,cc);
-		u1 t=l->trs;
-		u1 nh=l->hab;
+		uint t=l->trs;
+		uint nh=l->hab;
 		if(t==2 || (t==3) || (t==1 && nh==0)) ++cuenta;
 	}
 	return cuenta;
 }
 
-static u1 analiza(int r,int c) {
+static uint analiza(int r,int c) {
 	localidad_t* l=locpos(r,c);
 	if(l->trs==1 && l->hab==0) {
-		u1 vec=vecinos(r,c);
+		uint vec=vecinos(r,c);
 		if(vec==1) {
 			l->obs=l->trs=0;
 			return 1;
@@ -283,7 +283,7 @@ static u1 analiza(int r,int c) {
 
 static void huerfanas() {
 	/* elimina todos los caminos que tienen un vecino */
-	u1 cambio;
+	uint cambio;
 	do {
 		cambio=0;
 		for(int r=0;r<MAPAR;r++) {
@@ -294,7 +294,7 @@ static void huerfanas() {
 	}while(cambio);
 }
 
-static u1 tiene_camino(int r,int c) {
+static uint tiene_camino(int r,int c) {
 	const int DDS[]={1,-1,0,0};
 	const int SIZ=4;
 	for(int k=0;k<SIZ;k++) {

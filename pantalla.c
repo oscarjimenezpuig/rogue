@@ -2,7 +2,7 @@
 ============================================================
   Fichero: pantalla.c
   Creado: 04-12-2025
-  Ultima Modificacion: vie 12 dic 2025 13:14:21
+  Ultima Modificacion: dimecres, 17 de desembre de 2025, 18:41:36
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -22,7 +22,8 @@
 static void mapshw(int mri,int mci,int mrs,int mcs,int ro,int co) {
 	const atributo_t ATRNUL={' ',0,BLACK,BLACK};
 	for(int r=0;r<mrs;r++) {
-		at(ro+r,co);
+		ROW=ro+r;
+		COL=co;
 		for(int c=0;c<mcs;c++) {
 			atributo_t a=ATRNUL;
 			localidad_t* l=mapget(mri+r,mci+c);
@@ -38,9 +39,9 @@ static void mapshw(int mri,int mci,int mrs,int mcs,int ro,int co) {
 					a.bkg=BLACK;
 				}
 			}
-			attr(a.atr);
-			ink(a.ink);
-			background(a.bkg);
+			ATR=a.atr;
+			INK=a.ink;
+			BKG=a.bkg;
 			printc(a.chr);
 		}
 	}
@@ -49,10 +50,11 @@ static void mapshw(int mri,int mci,int mrs,int mcs,int ro,int co) {
 static void objshw(objeto_t* o,int mri,int mci,int ro,int co) {
 	int r=ro+o->r-mri;
 	int c=co+o->c-mci;
-	at(r,c);
-	attr(o->atr.atr);
-	ink(o->atr.ink);
-	background(o->atr.bkg);
+	ROW=r;
+	COL=c;
+	ATR=o->atr.atr;
+	INK=o->atr.ink;
+	BKG=o->atr.bkg;
 	printc(o->atr.chr);
 }
 
@@ -97,20 +99,18 @@ static void cajshw() {
 	char* const NAM[]={"Fue","Hab","Vel","Cap","Oro"};
 	const uint SIZ=5;
 	uint jca[]={jugador->fue,jugador->hab,jugador->vel,jugador->cap,jugador->oro};
-	int rs,cs;
-	dimget(&rs,&cs);
-	background(BLACK);
-	ink(BLACK);
-	for(int k=0;k<cs;k++) {
-		at(rs-2,k);
+	BKG=INK=BLACK;
+	for(COL=0;COL<COLS;COL++) {
+		ROW=ROWS-2;
 		printc(' ');
 	}
-	at(rs-2,0);
-	ink(WHITE);
+	ROW=ROWS-2;
+	COL=0;
+	INK=WHITE;
 	for(int k=0;k<SIZ;k++) {
-		attr(BOLD);
+		ATR=BOLD;
 		prints("%s: ",NAM[k]);
-		attr(0);
+		ATR=NONE;
 		prints("%i   ",jca[k]);
 	}
 }

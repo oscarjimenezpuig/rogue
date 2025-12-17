@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: vie 12 dic 2025 11:17:42
+  Ultima Modificacion: dimecres, 17 de desembre de 2025, 19:37:08
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -35,11 +35,9 @@ static void recjug(int* ri,int* ci,int* rs,int* cs) {
 	/* rectangulo de visibilidad donde el centro es la posicion del jugador */
 	int jr=jugador->r;
 	int jc=jugador->c;
-	int tr,tc;
-	dimget(&tr,&tc);
-	*rs=tr-3;
+	*rs=ROWS-3;
 	*ri=jr-*rs/2;
-	*cs=tc;
+	*cs=COLS;
 	*ci=jc-*cs/2;
 }	
 
@@ -79,14 +77,13 @@ static void visset() {
 
 static void nomset() {
 	/* funcion que escoge el nombre del jugador */
-	at(0,0);
-	attr(BOLD);
+	INK=WHITE;
+	ROW=COL=0;
+	ATR=BOLD;
 	prints("Cual es tu nombre? ");
-	attr(0);
-	inmode(ECHO|ENTER|DELAY|CURSOR);
-	listen();
-	strbuf(SLEN,jugador->nom);
-	inmode(NORMAL);
+	ATR=NONE;
+	listen(INPUT);
+	bufget(SLEN,jugador->nom);
 }
 
 static void carset() {
@@ -123,6 +120,7 @@ Bool jugnew() {
 }
 
 static int chkkey() {
+	/* funcion que detecta el caracter que se pulsa y lo pasa a un numero */
 	const char KECH[]=KEYN;
 	for(int k=0;k<KEYS;k++) {
 		if(inkey(KECH[k])) return k;
@@ -131,6 +129,7 @@ static int chkkey() {
 }
 
 static Bool jugmov(int ckey) {
+	/* funcion que mueve el jugador si se puede */
 	const int DR[]={-1,1,0,0};
 	const int DC[]={0,0,-1,1};
 	int dr=DR[ckey];
@@ -142,14 +141,34 @@ static Bool jugmov(int ckey) {
 	return FALSE;
 }
 
+static Bool jugdsc() {
+	/* busca las celdas vecinas y descubre las puertas ocultas */
+	const int DR[]={1,-1,0,0};
+	const int DRS=4;
+	int pr,pc;
+	localidad_t* pe=NULL;
+	for(int k=0;k<DRS && !pe;k++) {
+		pr=jugador->r+DR[k];
+		pc=jugador->c+DR[DRS-k-1];
+		pe=mapget(pr,pc);
+		if(pe->obs==1 || pe->trs!=3) pe=NULL;
+	}
+	if(pe && rnd(HmO,VMC)<jugador->hab) {
+		mensaje("Has descubierto una puerta oculta...");
+		pe->trs=1;
+		return TRUE;
+	}
+	return FALSE;
+}
+
 static Bool jugqut() {
 	jugador=NULL;
 	return TRUE;
 }
 
 Bool jugact() {
-	if(objcanact(jugador)) {
-		listen();
+	if(objcanact(jugador) && !jugdsc()) {
+		listen(INKEY);
 		int ckey=chkkey();
 		switch(ckey) {
 			case 0:

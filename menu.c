@@ -2,7 +2,7 @@
 ============================================================
   Fichero: menu.c
   Creado: 07-12-2025
-  Ultima Modificacion: mié 10 dic 2025 11:00:46
+  Ultima Modificacion: dimecres, 17 de desembre de 2025, 18:30:26
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -17,22 +17,21 @@
 
 uint menu(char* c,uint os,char* o[]) {
 	uint select=0;
-	inmode(DELAY);
 presenta:
 	cls();
-	at(0,0);
-	ink(WHITE);
-	attr(BOLD);
+	ROW=COL=0;
+	INK=WHITE;
+	ATR=BOLD;
 	prints(c);
-	attr(0);
-	for(int k=0;k<os;k++) {
-		at(k,2);
-		if(k==select) attr(REVERSE);
-		else attr(0);
-		prints("%i. %s",k+1,o[k]);
+	ATR=NONE;
+	for(COL=0;COL<os;COL++) {
+		ROW=2;
+		if(COL==select) ATR=REVERSE;
+		else ATR=NONE;
+		prints("%i. %s",COL+1,o[COL]);
 	}
 teclado:
-	listen();
+	listen(DELAY);
 	if(inkey(TMSU)) {
 		if(select>0) --select;
 		else select=os-1;
