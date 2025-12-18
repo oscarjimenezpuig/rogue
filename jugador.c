@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: dimecres, 17 de desembre de 2025, 19:37:08
+  Ultima Modificacion: jue 18 dic 2025 08:39:51
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -43,13 +43,11 @@ static void recjug(int* ri,int* ci,int* rs,int* cs) {
 
 static void visset() {
 	/* determinamos la visibilidad del jugador */
-	const int DSP[]={1,-1,0,0};
-	const uint SIZ=4;
 	int ri,ci,rs,cs;
 	recjug(&ri,&ci,&rs,&cs);
-	for(int r=ri;r<rs;r++) {
-		for(int c=ci;c<cs;c++) {
-			localidad_t* l=mapget(r,c);
+	for(int r=0;r<rs;r++) {
+		for(int c=0;c<cs;c++) {
+			localidad_t* l=mapget(r+ri,c+ci);
 			if(l) l->vis=(l->vis)?1:0;
 		}
 	}
@@ -65,11 +63,10 @@ static void visset() {
 				}
 			}
 		} else {
-			for(int k=0;k<SIZ;k++) {
-				int nr=jugador->r+DSP[k];
-				int nc=jugador->c+DSP[SIZ-k-1];
-				localidad_t* l=mapget(nr,nc);
-				if(l) l->vis=2;
+			localidad_t* n[4];
+			mapngh(jugador->r,jugador->c,n);
+			for(int k=0;k<4;k++) {
+				if(n[k]) n[k]->vis=2;
 			}
 		}
 	}
@@ -88,8 +85,8 @@ static void nomset() {
 
 static void carset() {
 	/* funcion que da las caracteristicas de jugador */
-	jugador->fue=3;
-	jugador->hab=3;
+	jugador->fue=4;
+	jugador->hab=5;
 	jugador->cve=jugador->vel=3;
 	jugador->cap=3;
 }
@@ -143,23 +140,39 @@ static Bool jugmov(int ckey) {
 
 static Bool jugdsc() {
 	/* busca las celdas vecinas y descubre las puertas ocultas */
-	const int DR[]={1,-1,0,0};
-	const int DRS=4;
-	int pr,pc;
+	localidad_t* n[4];
+	mapngh(jugador->r,jugador->c,n);
 	localidad_t* pe=NULL;
-	for(int k=0;k<DRS && !pe;k++) {
-		pr=jugador->r+DR[k];
-		pc=jugador->c+DR[DRS-k-1];
-		pe=mapget(pr,pc);
-		if(pe->obs==1 || pe->trs!=3) pe=NULL;
+	for(int k=0;k<4 && !pe;k++) {
+		pe=n[k];
+		if(pe && (pe->obs==1 || pe->trs!=3)) pe=NULL;
 	}
-	if(pe && rnd(HmO,VMC)<jugador->hab) {
+	if(pe && rnd(HmO+nivel,VMC)<jugador->hab) {
 		mensaje("Has descubierto una puerta oculta...");
 		pe->trs=1;
 		return TRUE;
 	}
 	return FALSE;
 }
+
+static Bool jugfrp() {
+	/* accion de forzar la puerta de un jugador */
+	localidad_t* n[4];
+	mapngh(jugador->r,jugador->c,n);
+	localidad_t* pe=NULL;
+	for(int k=0;k<4 && !pe;k++) {
+		pe=n[k];
+		if(pe && (pe->trs!=2)) pe=NULL;
+	}
+	if(pe) {
+		if(rnd(HmF+nivel,VMC)<jugador->hab && rnd(FmF+nivel,VMC)<jugador->fue) {
+			mensaje("Has podido forzar la puerta...");
+			pe->trs=1;
+		} else mensaje("No has podido forzar la puerta...");
+		return TRUE;
+	} else mensaje("No veo cerca ninguna puerta para forzar...");
+	return FALSE;
+}	
 
 static Bool jugqut() {
 	jugador=NULL;
@@ -176,6 +189,8 @@ Bool jugact() {
 			case 2:
 			case 3:
 				return jugmov(ckey);
+			case 8:
+				return jugfrp();
 			case 9:
 				return jugqut();
 		}

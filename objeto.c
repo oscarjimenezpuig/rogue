@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: vie 12 dic 2025 12:13:51
+  Ultima Modificacion: jue 18 dic 2025 13:22:39
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -39,6 +39,7 @@ objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 			new->fue=new->hab=new->vel=new->cap=new->cve=0;
 			new->oro=0;
 		} else {
+			new->npc=0;
 			new->ior=new->arm=new->lla=new->ani=new->ves=0;
 			new->con=NULL;
 		}
@@ -52,8 +53,10 @@ Bool objinipos(objeto_t* o,int r,int c) {
 		if(l && l->trs==1) {
 			for(int k=0;k<objetos;k++) {
 				objeto_t* oe=objeto+k;
-				if(oe!=o && o->r==r && o->c==c) return FALSE;
+				if(oe!=o && oe->r==r && oe->c==c) return FALSE;
 			}
+			o->r=r;
+			o->c=c;
 			return TRUE;
 		}
 	}

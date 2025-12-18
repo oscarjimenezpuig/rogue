@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dimecres, 17 de desembre de 2025, 19:36:45
+  Ultima Modificacion: jue 18 dic 2025 09:31:29
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -18,8 +18,13 @@
 
 /* CONSTANTES */
 
+/* generales */
 #define EOS '\0' /* final de string */
 #define SLEN 20 /* longitud de los string definidos */
+
+/* dimensiones del mapa */
+#define MAPAC 159
+#define MAPAR 48
 
 /* definicion de booleanos */
 #define TRUE 1
@@ -27,7 +32,10 @@
 
 /* reglas */
 #define VMC 15 /* valor maximo de cualquier caracteristica */
-#define HmO 3 /* habilidad minima necesaria para abrir una puerta */
+#define HmO 1 /* habilidad minima necesaria para abrir una puerta (sube una por nivel)*/
+#define HmF 3 /* habilidad minima para forzar la puerta (sube una por  nivel) */
+#define FmF 2 /* fuerza minima para forzar la puerta (sube una por nivel) */
+#define PLR 4 /* probabilidad de que se rompa una llave */
 
 /* MACROS */
 
@@ -80,6 +88,7 @@ struct objeto_s {
 			struct objeto_s* con; /* da el contenedor */
 			union {
 				uint cor : 8; /* cantidad de oro del tesoro */
+				uint pue : 1; /* 1: la llave abre puerta 0: otra cosa */
 			};
 		};
 	};
@@ -93,6 +102,8 @@ typedef Bool (*Condicion)(objeto_t*);
 
 extern objeto_t* jugador; /* variable que guarda la direccion del jugador */
 
+extern uint nivel; /* planta en la que se encuentra el jugador */
+
 /* FUNCIONES */
 
 /* map.c */
@@ -105,6 +116,11 @@ localidad_t* mapget(int r,int c);
 
 Bool maprndpos(int* r,int* c,Bool pasadizo);
 /* busca una posicion transitable, si pasadizo=true->habitacion y pasadizo, sino solo pasadizo */
+
+uint mapngh(int r,int c,localidad_t* ln[4]);
+/* da las cuatro localidades vecinas a la posicion dada N,S,E,O
+ * en caso de que este fuera del mapa, la localidad sera NULL
+ * se devuelve el numero de localidades diferentes a NULL*/
 
 /* pantalla.c */
 
@@ -164,6 +180,10 @@ Bool jugact();
 Bool jugshw();
 /* se muestra la pantalla cogiendo como centro la posicion del jugador */
 
+/* item.c */
+
+void llplev();
+/* crea todas las llaves de un nivel en funcion de las puertas que hay */
 
 /* rogue.c */
 

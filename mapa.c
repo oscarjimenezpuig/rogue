@@ -2,18 +2,14 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: dimecres, 17 de desembre de 2025, 18:35:30
+  Ultima Modificacion: jue 18 dic 2025 13:16:30
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
 
 #include "rogue.h"
 
-
-/* dimensiones del mapa */
-#define MAPAC 159
-#define MAPAR 48
-#define MAPAA (MAPAR*MAPAC)
+#define MAPAA (MAPAR*MAPAC) /* area del mapa */
 
 #define HABR 3 /* numero maximo de habitaciones en fila */
 #define HABC 3 /* numero maximo de habitaciones en columna */
@@ -361,7 +357,21 @@ Bool maprndpos(int* r,int* c,Bool p) {
 		*r=rnd(0,MAPAR-1);
 		*c=rnd(0,MAPAC-1);
 		localidad_t* l=locpos(*r,*c);
-		if(l->trs && (l->hab!=0 || p)) return TRUE;
+		if(l->trs==1 && (l->hab!=0 || p)) return TRUE;
 	}
 	return FALSE;
 }
+
+uint mapngh(int r,int c,localidad_t* l[4]) {
+	const int DR[]={-1,1,0,0};
+	uint ret=4;
+	for(int k=0;k<4;k++) {
+		int re=r+DR[k];
+		int ce=c+DR[3-k];
+		localidad_t* le=mapget(re,ce);
+		if(!le) --ret;
+		l[k]=le;
+	}
+	return ret;
+}
+

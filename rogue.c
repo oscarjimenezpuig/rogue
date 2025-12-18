@@ -2,16 +2,20 @@
 ============================================================
   Fichero: rogue.c
   Creado: 10-12-2025
-  Ultima Modificacion: dimecres, 17 de desembre de 2025, 18:57:42
+  Ultima Modificacion: jue 18 dic 2025 13:13:53
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
 
 #include "rogue.h"
 
+uint nivel=1;
+
 void curse() {
+	randomize(-1);
 	mapnew(FALSE,TRUE);
 	jugnew();
+	llplev();
 	cls();
 	while(jugador) {
 		if(jugshw()) {

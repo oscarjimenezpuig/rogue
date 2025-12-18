@@ -2,7 +2,7 @@
 ============================================================
   Fichero: pantalla.c
   Creado: 04-12-2025
-  Ultima Modificacion: dimecres, 17 de desembre de 2025, 18:41:36
+  Ultima Modificacion: jue 18 dic 2025 13:23:41
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -59,9 +59,9 @@ static void objshw(objeto_t* o,int mri,int mci,int ro,int co) {
 }
 
 static Bool isitm(objeto_t* o) {
-	if(o && o->npc==0) {
+	if(o && !o->npc) {
 		localidad_t* l=mapget(o->r,o->c);
-		return (l!=NULL && l->vis==2)?TRUE:FALSE;
+		return (l && l->vis==2)?TRUE:FALSE;
 	}
 	return FALSE;
 }
@@ -79,7 +79,7 @@ static void itmshw(int mri,int mci,int ro,int co) {
 static Bool isnpc(objeto_t* o) {
 	if(o && o->npc) {
 		localidad_t* l=mapget(o->r,o->c);
-		return (l!=NULL && l->vis==2)?TRUE:FALSE;
+		return (l && l->vis==2)?TRUE:FALSE;
 	}
 	return FALSE;
 }
@@ -115,12 +115,39 @@ static void cajshw() {
 	}
 }
 
+static Bool isitijp(objeto_t* o) {
+	return (o && o->npc==0 && mapget(o->r,o->c) && o->r==jugador->r && o->c==jugador->c);
+}
+
+static void itmsay() {
+	/* dice todos los items que estan bajo el jugador */
+	objeto_t* itm[objsiz()];
+	uint itms=objfnd(itm,isitijp);
+	if(itms) {
+		INK=WHITE;
+		ATR=BOLD;
+		ROW=ROWS-1;
+		COL=0;
+		prints("Aqui puedes ver: ");
+		ATR=NONE;
+		int k=0;
+		objeto_t* oe;
+		for(;k<itms-1;k++) {
+			oe=itm[k];
+			prints("%s, ",oe->nom);
+		}
+		oe=itm[k];
+		prints("%s",oe->nom);
+	}
+}
+
 void panshw(int mri,int mci,int mrs,int mcs,int ro,int co) {
 	cls();
 	mapshw(mri,mci,mrs,mcs,ro,co);
 	itmshw(mri,mci,ro,co);
 	npcshw(mri,mci,ro,co);
 	cajshw();
+	itmsay();
 	show();
 }
 
