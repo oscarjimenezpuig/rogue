@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: jue 18 dic 2025 08:39:51
+  Ultima Modificacion: jue 18 dic 2025 14:37:21
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -172,7 +172,7 @@ static Bool jugfrp() {
 		return TRUE;
 	} else mensaje("No veo cerca ninguna puerta para forzar...");
 	return FALSE;
-}	
+}
 
 static Bool jugqut() {
 	jugador=NULL;
