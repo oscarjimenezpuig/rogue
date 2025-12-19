@@ -2,7 +2,7 @@
 ============================================================
   Fichero: menu.c
   Creado: 07-12-2025
-  Ultima Modificacion: dimecres, 17 de desembre de 2025, 18:30:26
+  Ultima Modificacion: vie 19 dic 2025 12:32:49
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -27,8 +27,8 @@ presenta:
 	for(COL=0;COL<os;COL++) {
 		ROW=2;
 		if(COL==select) ATR=REVERSE;
-		else ATR=NONE;
 		prints("%i. %s",COL+1,o[COL]);
+		ATR=NONE;
 	}
 teclado:
 	listen(DELAY);
@@ -41,8 +41,10 @@ teclado:
 		else ++select;
 		goto presenta;
 	} else if(inkey(TMFI)) {
+		cls();
 		return os;
 	} else if(inkey(TMOK)) {
+		cls();
 		return select;
 	} else {
 		goto teclado;

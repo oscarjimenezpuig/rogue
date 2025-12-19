@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: jue 18 dic 2025 13:22:39
+  Ultima Modificacion: vie 19 dic 2025 12:03:56
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -118,31 +118,29 @@ uint objinv(objeto_t* o,objeto_t* c[]) {
 	return 0;
 }
 
-#define men(O,A) if((O)==jugador) mensaje(A)
+#define oij (o==jugador)
 
 Bool objcog(objeto_t* o,objeto_t* itm) {
 	if(o && o->npc) {
 		objeto_t* inv[objetos];
 		uint cinv=objinv(o,inv);
 		if(cinv<o->cap) {
-			if(itm && itm->npc==0 && (itm->oro || itm->arm || itm->lla || itm->ani) && itm->r==o->r && itm->c==o->c && itm->con==NULL) {
+			if(itm && itm->npc==0 && (itm->ior || itm->arm || itm->lla || itm->ani) && itm->r==o->r && itm->c==o->c && itm->con==NULL) {
 				itm->r=itm->c=-1;
 				if(itm->ior) {
-					char str[256];
-					sprintf(str,"Coges %i monedas de oro...",itm->cor);
-					men(o,str);
+					if(oij) mensaje("Coges %i monedas de oro...",itm->cor);
 					o->oro+=itm->cor;
 				} else {
-					men(o,"Lo coges...");
+					if(oij) mensaje("Coges %s...",itm->nom);
 					itm->con=o;
 				}
 				return TRUE;
 			}
 		} else {
-			men(o,"Llevas demasiadas cosas...");
+			if(oij) mensaje("Llevas demasiadas cosas...");
 		}
 	}
-	men(o,"No puedes cogerlo...");
+	if(oij) mensaje("No puedes cogerlo...");
 	return FALSE;
 }
 
@@ -153,13 +151,15 @@ Bool objdej(objeto_t* o,objeto_t* itm) {
 			itm->con=NULL;
 			itm->r=o->r;
 			itm->c=o->c;
-			men(o,"Lo dejas...");
+			if(oij) mensaje("Dejas %s...",itm->nom);
 			return TRUE;
 		}
 	}
-	men(o,"No puedes dejarlo...");
+	if(oij) mensaje("No puedes dejarlo...");
 	return FALSE;
 }
+
+#undef oij
 
 Bool objcanact(objeto_t* o) {
 	if(o && o->npc) {

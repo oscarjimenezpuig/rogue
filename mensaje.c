@@ -2,18 +2,26 @@
 ============================================================
   Fichero: mensaje.c
   Creado: 06-12-2025
-  Ultima Modificacion: dimecres, 17 de desembre de 2025, 18:27:07
+  Ultima Modificacion: vie 19 dic 2025 08:49:33
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
 
+#include <stdarg.h>
+
 #include "rogue.h"
 
 /* mensaje */
+#define MENLEN 1024 /* longitud del mensaje */
 #define STRCON "MAS" /* string que se pone al final del mensaje si tiene continuacion */
 
 
-void mensaje(char* m) {
+void mensaje(const char* im,...) {
+	char m[MENLEN];
+	va_list list;
+	va_start(list,im);
+	vsnprintf(m,MENLEN-1,im,list);
+	va_end(list);
 	char* pm=m;
 	INK=WHITE;
 	ATR=NONE;

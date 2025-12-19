@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: jue 18 dic 2025 09:31:29
+  Ultima Modificacion: vie 19 dic 2025 11:43:41
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -36,6 +36,9 @@
 #define HmF 3 /* habilidad minima para forzar la puerta (sube una por  nivel) */
 #define FmF 2 /* fuerza minima para forzar la puerta (sube una por nivel) */
 #define PLR 4 /* probabilidad de que se rompa una llave */
+#define OXD 1 /* oro por cada 10 cuadrados de transitable */
+#define OML 9 /* maximo de sacos de oro por nivel */
+#define OmL 1 /* minimo de sacos por nivel */
 
 /* MACROS */
 
@@ -88,7 +91,6 @@ struct objeto_s {
 			struct objeto_s* con; /* da el contenedor */
 			union {
 				uint cor : 8; /* cantidad de oro del tesoro */
-				uint pue : 1; /* 1: la llave abre puerta 0: otra cosa */
 			};
 		};
 	};
@@ -130,7 +132,7 @@ void panshw(int mri,int mci,int mrs,int mcs,int ro,int co);
 
 /* mensaje.c */
 
-void mensaje(char* men);
+void mensaje(const char* men,...);
 /* se introduce un mensaje que se separara por trozos */
 
 /* menu.c */
@@ -157,7 +159,7 @@ uint objfnd(objeto_t* obj[],Condicion cond);
 Bool objmov(objeto_t* obj,int dr,int dc);
 /* movemos un objeto haciendo este desplazamiento (solo npc's moviles) */
 
-uint ojbinv(objeto_t* obj,objeto_t* con[]);
+uint objinv(objeto_t* obj,objeto_t* con[]);
 /* se da el inventario de un objeto npc */
 
 Bool objcog(objeto_t* obj,objeto_t* itm);
@@ -184,6 +186,9 @@ Bool jugshw();
 
 void llplev();
 /* crea todas las llaves de un nivel en funcion de las puertas que hay */
+
+void orolev();
+/* crea el oro por nivel */
 
 /* rogue.c */
 
