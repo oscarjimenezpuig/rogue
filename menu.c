@@ -2,7 +2,7 @@
 ============================================================
   Fichero: menu.c
   Creado: 07-12-2025
-  Ultima Modificacion: vie 19 dic 2025 12:32:49
+  Ultima Modificacion: dilluns, 22 de desembre de 2025, 22:58:53
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -18,7 +18,6 @@
 uint menu(char* c,uint os,char* o[]) {
 	uint select=0;
 presenta:
-	cls();
 	ROW=COL=0;
 	INK=WHITE;
 	ATR=BOLD;

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.c
   Creado: 10-12-2025
-  Ultima Modificacion: vie 19 dic 2025 11:58:32
+  Ultima Modificacion: dilluns, 22 de desembre de 2025, 21:43:29
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -17,6 +17,7 @@ void curse() {
 	jugnew();
 	llplev();
 	orolev();
+	rhrlev();
 	cls();
 	while(jugador) {
 		if(jugshw()) {

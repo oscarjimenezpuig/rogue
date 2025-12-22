@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: vie 19 dic 2025 12:03:56
+  Ultima Modificacion: dilluns, 22 de desembre de 2025, 21:53:14
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -40,7 +40,7 @@ objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 			new->oro=0;
 		} else {
 			new->npc=0;
-			new->ior=new->arm=new->lla=new->ani=new->ves=0;
+			new->cog=new->ior=new->arm=new->lla=new->ani=new->ves=0;
 			new->con=NULL;
 		}
 	}
@@ -125,7 +125,7 @@ Bool objcog(objeto_t* o,objeto_t* itm) {
 		objeto_t* inv[objetos];
 		uint cinv=objinv(o,inv);
 		if(cinv<o->cap) {
-			if(itm && itm->npc==0 && (itm->ior || itm->arm || itm->lla || itm->ani) && itm->r==o->r && itm->c==o->c && itm->con==NULL) {
+			if(itm && itm->npc==0 && (itm->cog) && itm->r==o->r && itm->c==o->c && itm->con==NULL) {
 				itm->r=itm->c=-1;
 				if(itm->ior) {
 					if(oij) mensaje("Coges %i monedas de oro...",itm->cor);

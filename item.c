@@ -2,7 +2,7 @@
 ============================================================
   Fichero: item.c
   Creado: 18-12-2025
-  Ultima Modificacion: vie 19 dic 2025 12:29:18
+  Ultima Modificacion: dilluns, 22 de desembre de 2025, 21:54:56
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -13,6 +13,7 @@
 
 #define LLPA (atributo_t){'?',BOLD,CYAN,BLACK} //atributo de una llave de puerta
 #define OROA (atributo_t){'$',BOLD,YELLOW,BLACK} //atributo de tesoro
+#define RHRA (atributo_t){';',BOLD,RED,BLACK} //atributo de red herring
 
 static Bool itmplc(objeto_t* item,Bool pasadizo) {
 	int r,c;
@@ -57,6 +58,7 @@ static objeto_t* llvnew() {
 	objeto_t* ll=itmnew("LLAVE",LLPA);
 	if(ll) {
 		ll->lla=1;
+		ll->cog=1;
 	}
 	return ll;
 }
@@ -94,6 +96,7 @@ static uint ororep(uint oro,uint* c) {
 static objeto_t* oronew(uint oro) {
 	objeto_t* o=itmnew("TESORO",OROA);
 	if(o) {
+		o->cog=1;
 		o->ior=1;
 		o->cor=oro;
 	}
@@ -111,6 +114,15 @@ void orolev() {
 		}
 	}
 }
+
+void rhrlev() {
+	objeto_t* rh=itmnew("RED HERRING",RHRA);
+	if(rh) {
+		rh->cog=1;
+		itmplc(rh,FALSE);
+	}
+}
+
 
 
 

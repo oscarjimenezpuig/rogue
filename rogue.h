@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: vie 19 dic 2025 11:43:41
+  Ultima Modificacion: dilluns, 22 de desembre de 2025, 21:52:27
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -83,6 +83,7 @@ struct objeto_s {
 			uint oro : 12; /* oro */
 		};
 		struct {
+			uint cog : 1; /* 1: es cogible */
 			uint ior : 1; /* 1: es oro */
 			uint arm : 1; /* 1: es arma */
 			uint lla : 1; /* 1: es llave */
@@ -189,6 +190,9 @@ void llplev();
 
 void orolev();
 /* crea el oro por nivel */
+
+void rhrlev();
+/* creacion del red herring, objeto que no sirve para nada (uno por nivel) */
 
 /* rogue.c */
 
