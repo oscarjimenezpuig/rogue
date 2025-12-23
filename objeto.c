@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: dilluns, 22 de desembre de 2025, 21:53:14
+  Ultima Modificacion: dimarts, 23 de desembre de 2025, 17:28:47
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -128,19 +128,19 @@ Bool objcog(objeto_t* o,objeto_t* itm) {
 			if(itm && itm->npc==0 && (itm->cog) && itm->r==o->r && itm->c==o->c && itm->con==NULL) {
 				itm->r=itm->c=-1;
 				if(itm->ior) {
-					if(oij) mensaje("Coges %i monedas de oro...",itm->cor);
+					if(oij) menin("Coges %i monedas de oro...",itm->cor);
 					o->oro+=itm->cor;
 				} else {
-					if(oij) mensaje("Coges %s...",itm->nom);
+					if(oij) menin("Coges %s...",itm->nom);
 					itm->con=o;
 				}
 				return TRUE;
 			}
 		} else {
-			if(oij) mensaje("Llevas demasiadas cosas...");
+			if(oij) menin("Llevas demasiadas cosas...");
 		}
 	}
-	if(oij) mensaje("No puedes cogerlo...");
+	if(oij) menin("No puedes cogerlo...");
 	return FALSE;
 }
 
@@ -151,11 +151,11 @@ Bool objdej(objeto_t* o,objeto_t* itm) {
 			itm->con=NULL;
 			itm->r=o->r;
 			itm->c=o->c;
-			if(oij) mensaje("Dejas %s...",itm->nom);
+			if(oij) menin("Dejas %s...",itm->nom);
 			return TRUE;
 		}
 	}
-	if(oij) mensaje("No puedes dejarlo...");
+	if(oij) menin("No puedes dejarlo...");
 	return FALSE;
 }
 

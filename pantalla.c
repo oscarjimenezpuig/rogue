@@ -2,7 +2,7 @@
 ============================================================
   Fichero: pantalla.c
   Creado: 04-12-2025
-  Ultima Modificacion: vie 19 dic 2025 11:03:29
+  Ultima Modificacion: dimarts, 23 de desembre de 2025, 18:00:53
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -121,6 +121,7 @@ void panshw(int mri,int mci,int mrs,int mcs,int ro,int co) {
 	itmshw(mri,mci,ro,co);
 	npcshw(mri,mci,ro,co);
 	cajshw();
+	menout();
 	show();
 }
 

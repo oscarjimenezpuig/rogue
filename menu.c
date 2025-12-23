@@ -2,7 +2,7 @@
 ============================================================
   Fichero: menu.c
   Creado: 07-12-2025
-  Ultima Modificacion: dilluns, 22 de desembre de 2025, 22:58:53
+  Ultima Modificacion: dimarts, 23 de desembre de 2025, 18:21:03
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -23,10 +23,11 @@ presenta:
 	ATR=BOLD;
 	prints(c);
 	ATR=NONE;
-	for(COL=0;COL<os;COL++) {
-		ROW=2;
-		if(COL==select) ATR=REVERSE;
-		prints("%i. %s",COL+1,o[COL]);
+	for(int k=0;k<os;k++) {
+		COL=2;
+		ROW=k+2;
+		if(ROW==select+2) ATR=REVERSE;
+		prints("%i. %s",k+1,o[k]);
 		ATR=NONE;
 	}
 teclado:
@@ -40,10 +41,8 @@ teclado:
 		else ++select;
 		goto presenta;
 	} else if(inkey(TMFI)) {
-		cls();
 		return os;
 	} else if(inkey(TMOK)) {
-		cls();
 		return select;
 	} else {
 		goto teclado;

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: vie 19 dic 2025 12:14:43
+  Ultima Modificacion: dimarts, 23 de desembre de 2025, 18:00:53
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -149,7 +149,7 @@ static Bool jugdsc() {
 		if(pe && (pe->obs==1 || pe->trs!=3)) pe=NULL;
 	}
 	if(pe && rnd(HmO+nivel,VMC)<jugador->hab) {
-		mensaje("Has descubierto una puerta oculta...");
+		menin("Has descubierto una puerta oculta...");
 		pe->trs=1;
 		return TRUE;
 	}
@@ -167,11 +167,11 @@ static Bool jugfrp() {
 	}
 	if(pe) {
 		if(rnd(HmF+nivel,VMC)<jugador->hab && rnd(FmF+nivel,VMC)<jugador->fue) {
-			mensaje("Has podido forzar la puerta...");
+			menin("Has podido forzar la puerta...");
 			pe->trs=1;
-		} else mensaje("No has podido forzar la puerta...");
+		} else menin("No has podido forzar la puerta...");
 		return TRUE;
-	} else mensaje("No veo cerca ninguna puerta para forzar...");
+	} else menin("No veo cerca ninguna puerta para forzar...");
 	return FALSE;
 }
 
@@ -183,9 +183,9 @@ static Bool jugmir() {
 	/* mira la posicion para examinar si hay algun objeto */
 	objeto_t* itm[objsiz()];
 	uint itms=objfnd(itm,isitijp);
-	if(itms==1) mensaje("Aqui puedes ver %s...",(*itm)->nom);
-	else if(itms>1) mensaje("Aqui puedes ver, a parte de %s, algunas cosas mas...",(*itm)->nom);
-	else mensaje("No veo nada aqui...");
+	if(itms==1) menin("Aqui puedes ver %s...",(*itm)->nom);
+	else if(itms>1) menin("Aqui puedes ver, a parte de %s, algunas cosas mas...",(*itm)->nom);
+	else menin("No veo nada aqui...");
 	return (itms>0)?TRUE:FALSE;
 }
 
@@ -226,7 +226,7 @@ static Bool jugcog() {
 		}
 		if(cog) return objcog(jugador,cog);
 	}
-	mensaje("No hay nada aqui que puedas coger...");
+	menin("No hay nada aqui que puedas coger...");
 	return FALSE;
 }
 
@@ -241,7 +241,7 @@ static Bool jugdej() {
 		uint ne=menu("Que quieres dejar?",invs,inno);
 		if(ne<invs) return objdej(jugador,inv[ne]);
 	} else {
-		mensaje("No tienes nada para dejar...");
+		menin("No tienes nada para dejar...");
 	}
 	return FALSE;
 }
@@ -291,15 +291,15 @@ static Bool jugabr() {
 			if(inv[k]->lla) ll=inv[k];
 		}
 		if(ll) {
-			mensaje("Abres la puerta...");
+			menin("Abres la puerta...");
 			p->trs=1;
 			if(rnd(0,PLR)==0) {
-				mensaje("... pero la llave se ha roto...");
+				menin("... pero la llave se ha roto...");
 				ll->con=NULL;
 			}
 			return TRUE;
-		} else mensaje("No tienes una llave adecuada para esta puerta...");
-	} else mensaje("No hay nada para abrir aqui cerca...");
+		} else menin("No tienes una llave adecuada para esta puerta...");
+	} else menin("No hay nada para abrir aqui cerca...");
 	return FALSE;
 }
 

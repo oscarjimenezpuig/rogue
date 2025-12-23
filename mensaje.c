@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mensaje.c
   Creado: 06-12-2025
-  Ultima Modificacion: vie 19 dic 2025 08:49:33
+  Ultima Modificacion: dimarts, 23 de desembre de 2025, 18:13:37
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -11,41 +11,57 @@
 
 #include "rogue.h"
 
-/* mensaje */
-#define MENLEN 1024 /* longitud del mensaje */
-#define STRCON "MAS" /* string que se pone al final del mensaje si tiene continuacion */
+/* constantes */
+#define MENLEN 1024 /* longitud de la lista mensaje */
 
+/* variables */
+static char mensaje[MENLEN]={'\0'};
+char* pmensaje=mensaje;
 
-void mensaje(const char* im,...) {
-	char m[MENLEN];
+void menin(const char* im,...) {
+	uint len=MENLEN-2-(pmensaje-mensaje);
+	char m[len];
 	va_list list;
 	va_start(list,im);
-	vsnprintf(m,MENLEN-1,im,list);
+	vsnprintf(m,len-1,im,list);
 	va_end(list);
 	char* pm=m;
-	INK=WHITE;
-	ATR=NONE;
 	while(*pm!=EOS) {
-		int counter=0;
-		ROW=COL=0;
-		while((counter<COLS-10 || *pm!=' ') && *pm!=EOS) {
-			printc(*pm++);
-		}
-		if(*pm!=EOS) {
-			ATR=REVERSE;
-			prints("   %s",STRCON);
-		}
-		while(listen(INKEY)==0);
-		ATR=NONE;
-		ROW=COL=0;
-		for(int c=0;c<COLS;c++) {
-			printc(' ');
-		}
+		*pmensaje++=*pm++;
 	}
+	*pmensaje++=EOS;
+	*pmensaje=EOS;
 }
 
-#undef EOS
+static Bool onemenout() {
+	if(*pmensaje!=EOS) {
+		while(*pmensaje!=EOS) {
+			ROW=COL=0;
+			while((COL<COLS-10 || *pmensaje!=' ') && *pmensaje!=EOS) {
+				printc(*pmensaje++);
+			}
+			if(*pmensaje!=EOS) {
+				ATR=REVERSE;
+				COL=COL+3;
+				prints("MAS");
+			}
+			while(listen(INKEY)==0);
+			ATR=NONE;
+			ROW=COL=0;
+			for(;COL<COLS;) printc(' ');
+		}
+		pmensaje++;
+		return TRUE;
+	} else return FALSE;
+}
 
-		
-
-	
+void menout() {
+	ROW=COL=0;
+	INK=WHITE;
+	BKG=BLACK;
+	ATR=NONE;
+	pmensaje=mensaje;
+	while(onemenout());
+	pmensaje=mensaje;
+	*pmensaje=EOS;
+}

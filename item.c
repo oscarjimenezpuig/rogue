@@ -2,7 +2,7 @@
 ============================================================
   Fichero: item.c
   Creado: 18-12-2025
-  Ultima Modificacion: dilluns, 22 de desembre de 2025, 21:54:56
+  Ultima Modificacion: dimarts, 23 de desembre de 2025, 19:53:31
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -71,18 +71,6 @@ void llplev() {
 	}
 }
 
-static uint orototal() {
-	/* cuenta los transitables con habitacion de un mapa y da el oro en funcion de estos*/
-	uint trs=0;
-	for(int f=0;f<MAPAR;f++) {
-		for(int c=0;c<MAPAC;c++) {
-			localidad_t* l=mapget(f,c);
-			if(l && l->trs==1 && l->hab!=0) trs++;
-		}
-	}
-	return (trs*OXD)/10;
-}
-
 static uint ororep(uint oro,uint* c) {
 	/* reparte el oro en montones */
 	int montones=rnd(OmL,OML);
@@ -94,6 +82,7 @@ static uint ororep(uint oro,uint* c) {
 }
 
 static objeto_t* oronew(uint oro) {
+	/* crea un nuevo objeto oro */
 	objeto_t* o=itmnew("TESORO",OROA);
 	if(o) {
 		o->cog=1;
@@ -103,10 +92,9 @@ static objeto_t* oronew(uint oro) {
 	return o;
 }
 
-void orolev() {
-	uint total=orototal();
+void orolev(uint oro) {
 	uint monton[OML+1];
-	uint montones=ororep(total,monton);
+	uint montones=ororep(oro,monton);
 	for(int k=0;k<montones;k++) {
 		if(monton[k]>0) {
 			objeto_t* o=oronew(monton[k]);

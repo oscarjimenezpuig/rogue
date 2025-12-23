@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dilluns, 22 de desembre de 2025, 21:52:27
+  Ultima Modificacion: dimarts, 23 de desembre de 2025, 19:41:15
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -39,6 +39,10 @@
 #define OXD 1 /* oro por cada 10 cuadrados de transitable */
 #define OML 9 /* maximo de sacos de oro por nivel */
 #define OmL 1 /* minimo de sacos por nivel */
+
+/* nivel */ 
+#define NIN 1 /* nivel inicial */
+#define NFI 15 /* nivel final */
 
 /* MACROS */
 
@@ -101,6 +105,15 @@ typedef struct objeto_s objeto_t;
 
 typedef Bool (*Condicion)(objeto_t*);
 
+typedef struct {
+	uint sem; /* semilla para la creacion del mapa */
+	uint num : 4 /* nivel (max 15) */
+	uint lls : 4; /* llaves (max 15) */ 
+	uint ars : 4; /* armas (max 15) */
+	uint ens : 4; /* enemigos (max 15) */
+	uint oro; /* cantidad total de oro restante */
+} nivel_t;
+
 /* VARIABLES */
 
 extern objeto_t* jugador; /* variable que guarda la direccion del jugador */
@@ -133,8 +146,11 @@ void panshw(int mri,int mci,int mrs,int mcs,int ro,int co);
 
 /* mensaje.c */
 
-void mensaje(const char* men,...);
-/* se introduce un mensaje que se separara por trozos */
+void menin(const char* men,...);
+/* se introduce un mensaje */
+
+void menout();
+/* se obtienen y imprimen por pantalla todos los mensajes guardados */
 
 /* menu.c */
 
@@ -188,8 +204,8 @@ Bool jugshw();
 void llplev();
 /* crea todas las llaves de un nivel en funcion de las puertas que hay */
 
-void orolev();
-/* crea el oro por nivel */
+void orolev(uint oro);
+/* crea el oro por nivel, oro es la cantidad de oro que meteremos en un nivel */
 
 void rhrlev();
 /* creacion del red herring, objeto que no sirve para nada (uno por nivel) */
