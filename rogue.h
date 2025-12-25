@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dimarts, 23 de desembre de 2025, 19:41:15
+  Ultima Modificacion: dijous, 25 de desembre de 2025, 08:54:49
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -67,7 +67,7 @@ typedef struct {
 	uint vis : 2; /* 1: visibilizado 2: visible actual */
 	uint osc : 1; /* 1: oscura */
 	uint hab : 4; /* numero habitacion */
-	int esc : 2; /* -1: escalera descenso, 1: escalera ascenso */
+	int esc : 2; /* 1: escalera descenso, -1: escalera ascenso */
 } localidad_t;
 
 struct objeto_s {
@@ -106,19 +106,21 @@ typedef struct objeto_s objeto_t;
 typedef Bool (*Condicion)(objeto_t*);
 
 typedef struct {
-	uint sem; /* semilla para la creacion del mapa */
-	uint num : 4 /* nivel (max 15) */
+	uint def : 1; /* dice si el nivel ha sido o no definido */
+	uint sem : 16; /* semilla para la creacion del mapa */
+	uint num : 4; /* nivel (max 15) */
 	uint lls : 4; /* llaves (max 15) */ 
 	uint ars : 4; /* armas (max 15) */
 	uint ens : 4; /* enemigos (max 15) */
-	uint oro; /* cantidad total de oro restante */
+	uint ani : 1; /* anillo o no */
+	uint oro : 16; /* cantidad total de oro restante */
 } nivel_t;
 
 /* VARIABLES */
 
 extern objeto_t* jugador; /* variable que guarda la direccion del jugador */
 
-extern uint nivel; /* planta en la que se encuentra el jugador */
+extern uint num_nivel; /* planta en la que se encuentra el jugador */
 
 /* FUNCIONES */
 
@@ -160,15 +162,21 @@ uint menu(char* cabecera,uint opciones,char* opcion[]);
 
 /* objeto.c */
 
+void objclr();
+/* borra todos los objetos */
+
 uint objsiz();
 /* dice el numero de objetos que se han definido */
 
 objeto_t* objnew(char* nom,atributo_t atr,Bool npc,Bool jug);
 /* definimos objeto nuevo poniendo el nombre y diciendo si es o no un npc */
 
+objeto_t* objcpy(objeto_t objcar);
+/* copia las caracteristicas del objeto en un nuevo objeto */
+
 Bool objinipos(objeto_t* obj,int r,int c);
 /* damos posicion inicial a un objeto 
- * no puede existir ningun objeto en la misma posicion y debe ser zona transitable del mapa */
+ * no puede existir dos npc en la misma posicion y debe ser zona transitable del mapa */
 
 uint objfnd(objeto_t* obj[],Condicion cond);
 /* se busca una serie de objetos que cumplan una determinada condicion */
@@ -193,6 +201,9 @@ Bool objcanact(objeto_t* obj);
 Bool jugnew();
 /* definicion del jugador */
 
+Bool jugpos(int dir);
+/* posicion del jugador en el mapa. dir=0 random, dir=1: escalera de subida dir=-1:escalera de bajada */
+
 Bool jugact();
 /* accion del jugador determinada por el teclado */
 
@@ -201,14 +212,22 @@ Bool jugshw();
 
 /* item.c */
 
-void llplev();
-/* crea todas las llaves de un nivel en funcion de las puertas que hay */
+void llplev(uint num);
+/* crea todas las llaves de un nivel */
 
 void orolev(uint oro);
 /* crea el oro por nivel, oro es la cantidad de oro que meteremos en un nivel */
 
-void rhrlev();
+void rhrlev(uint rdh);
 /* creacion del red herring, objeto que no sirve para nada (uno por nivel) */
+
+/* nivel.c */
+
+void nivprm();
+/* establece por primera vez el primer nivel */
+
+Bool nivchg(int dir);
+/* cambio de nivel, donde dir es la direccion (+1 bajada,-1 subida) */
 
 /* rogue.c */
 

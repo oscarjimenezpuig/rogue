@@ -2,7 +2,7 @@
 ============================================================
   Fichero: pantalla.c
   Creado: 04-12-2025
-  Ultima Modificacion: dimarts, 23 de desembre de 2025, 18:00:53
+  Ultima Modificacion: dijous, 25 de desembre de 2025, 10:17:28
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -11,11 +11,11 @@
 
 /* atributos del mapa */
 #define ATROBS (atributo_t){' ',REVERSE,RED,RED} /* atributo de las paredes */
-#define ATRHAB (atributo_t){'.',0,WHITE,BLACK} /* atributo de suelo de habitacion */
+#define ATRHAB (atributo_t){'.',NONE,WHITE,BLACK} /* atributo de suelo de habitacion */
 #define ATRPAS (atributo_t){'#',DIM,WHITE,BLACK} /* atributo de pasadizo de habitacion */
 #define ATRPUE (atributo_t){'?',REVERSE,YELLOW,BLACK} /* atributo de la puerta */
-#define ATRESU (atributo_t){'>',BOLD,MAGENTA,BLACK} /* escalera de subida */
-#define ATREBA (atributo_t){'<',BOLD,MAGENTA,BLACK} /* escalera de bajada */
+#define ATRESU (atributo_t){'>',NONE,MAGENTA,BLACK} /* escalera de subida */
+#define ATREBA (atributo_t){'<',NONE,MAGENTA,BLACK} /* escalera de bajada */
 
 #define COLVIS BLUE /*color de lo visibilizado */
 
@@ -96,9 +96,9 @@ static void npcshw(int mri,int mci,int ro,int co) {
 
 static void cajshw() {
 	/* muestra las caracteristicas del jugador */
-	char* const NAM[]={"Fue","Hab","Vel","Cap","Oro"};
-	const uint SIZ=5;
-	uint jca[]={jugador->fue,jugador->hab,jugador->vel,jugador->cap,jugador->oro};
+	char* const NAM[]={"Niv","Fue","Hab","Vel","Cap","Oro"};
+	const uint SIZ=6;
+	uint jca[]={num_nivel,jugador->fue,jugador->hab,jugador->vel,jugador->cap,jugador->oro};
 	BKG=INK=BLACK;
 	for(COL=0;COL<COLS;COL++) {
 		ROW=ROWS-2;

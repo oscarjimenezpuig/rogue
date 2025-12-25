@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: dimarts, 23 de desembre de 2025, 18:00:53
+  Ultima Modificacion: dijous, 25 de desembre de 2025, 11:18:32
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -24,12 +24,13 @@
 #define TFRZ 'f' /* forzar la puerta 8*/
 #define TQUT 'Q' /* tecla finalizar juego 9*/
 #define TMIR 'm' /* mirar 10 */
+#define TESC 's' /* escalera 11 */
 
-#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR};
-#define KEYS 11
+#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR,TESC};
+#define KEYS 12
 
 /* posicion inicial pantalla */
-#define RO 1
+#define RO 0
 #define CO 0
 
 static void recjug(int* ri,int* ci,int* rs,int* cs) { 
@@ -79,6 +80,7 @@ static void nomset() {
 	ROW=COL=0;
 	ATR=BOLD;
 	prints("Cual es tu nombre? ");
+	show();
 	ATR=NONE;
 	listen(INPUT);
 	bufget(SLEN,jugador->nom);
@@ -92,26 +94,46 @@ static void carset() {
 	jugador->cap=3;
 }
 
-static Bool jugpos() {
-/* funcion que da la posicion del jugador */
-	int r,c;
-	if(maprndpos(&r,&c,FALSE)) {
-		jugador->r=r;
-		jugador->c=c;
-		localidad_t* l=mapget(r,c);
-		return (l!=NULL)?TRUE:FALSE;
-	}
-	return FALSE;
-}
-
 Bool jugnew() {
 	objnew("",JATR,TRUE,TRUE);
 	if(jugador) {
 		nomset();
 		carset();
-		if(jugpos()) {
-			visset();
-			return TRUE;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+static Bool strfnd(int* er ,int* ec,int dir) {
+	/* busca escalera en la localidad, si dir=1 escalera de subida, si dir=-1 escalera de bajada */
+	for(int r=0;r<MAPAR;r++) {
+		for(int c=0;c<MAPAC;c++) {
+			localidad_t* l=mapget(r,c);
+			if(l && l->esc==-dir) {
+				*er=r;
+				*ec=c;
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
+Bool jugpos(int dir) {
+	if(jugador) {
+		int r,c;
+		r=c=-1;
+		if(dir==0) {
+			if(maprndpos(&r,&c,FALSE)) {
+				localidad_t* l=mapget(r,c);
+				if(l==NULL) r=c=-1;
+			}
+		} else strfnd(&r,&c,dir);
+		if(r!=-1 && c!=-1) {
+			if(objinipos(jugador,r,c)) {
+				visset();
+				return TRUE;
+			}
 		}
 	}
 	return FALSE;
@@ -148,7 +170,7 @@ static Bool jugdsc() {
 		pe=n[k];
 		if(pe && (pe->obs==1 || pe->trs!=3)) pe=NULL;
 	}
-	if(pe && rnd(HmO+nivel,VMC)<jugador->hab) {
+	if(pe && rnd(HmO+num_nivel,VMC)<jugador->hab) {
 		menin("Has descubierto una puerta oculta...");
 		pe->trs=1;
 		return TRUE;
@@ -166,7 +188,7 @@ static Bool jugfrp() {
 		if(pe && (pe->trs!=2)) pe=NULL;
 	}
 	if(pe) {
-		if(rnd(HmF+nivel,VMC)<jugador->hab && rnd(FmF+nivel,VMC)<jugador->fue) {
+		if(rnd(HmF+num_nivel,VMC)<jugador->hab && rnd(FmF+num_nivel,VMC)<jugador->fue) {
 			menin("Has podido forzar la puerta...");
 			pe->trs=1;
 		} else menin("No has podido forzar la puerta...");
@@ -247,7 +269,6 @@ static Bool jugdej() {
 }
 
 static Bool juginv() {
-	cls();
 	INK=WHITE;
 	ATR=BOLD;
 	ROW=COL=0;
@@ -272,7 +293,6 @@ static Bool juginv() {
 	if(resto==0) prints("No puedes llevar nada mas...");
 	else prints("Todavia puedes llevar %i objetos mas...",resto);
 	while(listen(INKEY)==0);
-	cls();
 	return TRUE;
 }
 
@@ -300,6 +320,18 @@ static Bool jugabr() {
 			return TRUE;
 		} else menin("No tienes una llave adecuada para esta puerta...");
 	} else menin("No hay nada para abrir aqui cerca...");
+	return FALSE;
+}
+
+static Bool jugues() {
+	/* funcion de usar la escalera del jugador */
+	localidad_t* l=mapget(jugador->r,jugador->c);
+	int dir=(l && l->esc)?l->esc:0;
+	if(dir) {
+		if(dir==1) menin("Bajaras por la escalera...");
+		else menin("Subiras por la escalera...");
+		return nivchg(dir);
+	} else menin("No veo aqui ninguna escalera...");
 	return FALSE;
 }
 
@@ -332,6 +364,8 @@ Bool jugact() {
 				return jugqut();
 			case 10:
 				return jugmir();
+			case 11:
+				return jugues();
 		}
 	}
 	return FALSE;

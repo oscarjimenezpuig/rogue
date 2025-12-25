@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: dimarts, 23 de desembre de 2025, 17:28:47
+  Ultima Modificacion: dijous, 25 de desembre de 2025, 09:28:27
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -14,7 +14,11 @@
 objeto_t* jugador=NULL;
 
 static objeto_t objeto[OBJETOS];
-static uint objetos=0;
+static uint objetos=1;
+
+void objclr() {
+	objetos=1;
+}
 
 uint objsiz() {
 	return objetos;
@@ -23,7 +27,7 @@ uint objsiz() {
 objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 	objeto_t* new=NULL;
 	if(objetos<OBJETOS) {
-		new=objeto+objetos++;
+		new=(npc && jug)?objeto:objeto+objetos++;
 		char* p=n;
 		char* q=new->nom;
 		while(*p!=EOS && p-n<SLEN) *q++=*p++;
@@ -47,13 +51,23 @@ objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 	return new;
 }
 
+objeto_t* objcpy(struct objeto_s objcar) {
+	Bool inpc=objcar.npc;
+	Bool ijug=(inpc)?objcar.jug:FALSE;
+	objeto_t* o=objnew(objcar.nom,objcar.atr,inpc,ijug);
+	if(o) *o=objcar;
+	return o;
+}
+
 Bool objinipos(objeto_t* o,int r,int c) {
 	if(o) {
 		localidad_t* l=mapget(r,c);
 		if(l && l->trs==1) {
-			for(int k=0;k<objetos;k++) {
-				objeto_t* oe=objeto+k;
-				if(oe!=o && oe->r==r && oe->c==c) return FALSE;
+			if(o->npc) {
+				for(int k=0;k<objetos;k++) {
+					objeto_t* oe=objeto+k;
+					if(oe->npc && oe->r==r && oe->c==c) return FALSE;
+				}
 			}
 			o->r=r;
 			o->c=c;
@@ -62,6 +76,7 @@ Bool objinipos(objeto_t* o,int r,int c) {
 	}
 	return FALSE;
 }
+				
 
 uint objfnd(objeto_t* o[],Condicion c) {
 	objeto_t* p=objeto;

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: jue 18 dic 2025 13:16:30
+  Ultima Modificacion: dijous, 25 de desembre de 2025, 10:22:00
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -45,6 +45,7 @@ typedef struct {
 static habitacion_t habitacion[HABA];
 static uint habitaciones=0;
 static hablab_t laberinto[HABA];
+static int escalera_baja=-1;
 
 localidad_t mapa[MAPAA];
 
@@ -318,24 +319,25 @@ static void limpia_puertas() {
 }
 
 static void coloca_escalera(int escalera) {
-	static int baja=-1;
 	localidad_t* l=NULL;
 	int r,c;
 	do {
 		r=rnd(0,MAPAR-1);
 		c=rnd(0,MAPAC-1);
 		l=mapget(r,c);
-	} while(l->trs!=1 || (l->trs==1 && l->hab==0) || (escalera==1 && baja==l->hab));
+	} while(l->trs!=1 || (l->trs==1 && l->hab==0) || (escalera==1 && escalera_baja==l->hab));
 	l->esc=escalera;
-	if(escalera==-1) baja=l->hab;
+	if(escalera==-1) escalera_baja=l->hab;
 }
 
 static void coloca_escaleras(Bool u,Bool d) {
-	if(d) coloca_escalera(-1);
-	if(u) coloca_escalera(1);	
+	if(d) coloca_escalera(1);
+	if(u) coloca_escalera(-1);	
 }
 
 void mapnew(Bool u,Bool d) {
+	habitaciones=0;
+	escalera_baja=-1;
 	locini();
 	habdef();
 	habinloc();

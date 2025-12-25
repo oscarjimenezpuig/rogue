@@ -2,7 +2,7 @@
 ============================================================
   Fichero: item.c
   Creado: 18-12-2025
-  Ultima Modificacion: dimarts, 23 de desembre de 2025, 19:53:31
+  Ultima Modificacion: dijous, 25 de desembre de 2025, 08:27:42
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -13,7 +13,6 @@
 
 #define LLPA (atributo_t){'?',BOLD,CYAN,BLACK} //atributo de una llave de puerta
 #define OROA (atributo_t){'$',BOLD,YELLOW,BLACK} //atributo de tesoro
-#define RHRA (atributo_t){';',BOLD,RED,BLACK} //atributo de red herring
 
 static Bool itmplc(objeto_t* item,Bool pasadizo) {
 	int r,c;
@@ -33,27 +32,6 @@ static objeto_t* itmnew(char* nom,atributo_t a) {
 	return it;
 }
 
-static uint numpue() {
-	/* calcula el numero de puertas que hay en un nivel */
-	uint tot=0;
-	for(int f=0;f<MAPAR;f++) {
-		for(int c=0;c<MAPAC;c++) {
-			localidad_t* l=mapget(f,c);
-			if(l && l->trs==2) ++tot;
-		}
-	}
-	return tot;
-}
-
-static uint numlln() {
-	/* da el numero de llaves del nivel */
-	uint np=numpue();
-	uint rp=(PLR)?np/PLR:0;
-	uint rs=(PLR)?np%PLR:0;
-	if(rs!=0) ++rp;
-	return rp;
-}
-
 static objeto_t* llvnew() {
 	objeto_t* ll=itmnew("LLAVE",LLPA);
 	if(ll) {
@@ -63,9 +41,8 @@ static objeto_t* llvnew() {
 	return ll;
 }
 
-void llplev() {
-	uint lls=numlln();
-	for(int k=0;k<lls;k++) {
+void llplev(uint n) {
+	for(int k=0;k<n;k++) {
 		objeto_t* ll=llvnew();
 		if(!ll || !itmplc(ll,TRUE)) break; 
 	}
@@ -102,15 +79,6 @@ void orolev(uint oro) {
 		}
 	}
 }
-
-void rhrlev() {
-	objeto_t* rh=itmnew("RED HERRING",RHRA);
-	if(rh) {
-		rh->cog=1;
-		itmplc(rh,FALSE);
-	}
-}
-
 
 
 

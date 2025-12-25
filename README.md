@@ -1,4 +1,4 @@
 # rogue
 Una aplicacion de curse.
-19/12/25: Programar el fantasma
-23/12/25: Continuar la programacion del level. Hay que programar primera visita del level y segunda visita del level.
+19/12/25: Programar el redherring y el fantasma
+19/12/25: Mejorar estetica del cerrado de menu y quizas hacer menu bold en vez de menu inverse para el seleccionado
