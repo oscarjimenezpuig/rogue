@@ -2,7 +2,7 @@
 ============================================================
   Fichero: item.c
   Creado: 18-12-2025
-  Ultima Modificacion: dijous, 25 de desembre de 2025, 08:27:42
+  Ultima Modificacion: diumenge, 28 de desembre de 2025, 19:38:13
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -11,8 +11,9 @@
 
 #define TRIES 1000 /* numero de tries para situar el objeto */
 
-#define LLPA (atributo_t){'?',BOLD,CYAN,BLACK} //atributo de una llave de puerta
-#define OROA (atributo_t){'$',BOLD,YELLOW,BLACK} //atributo de tesoro
+#define LLPA (atributo_t){'?',BOLD,CYAN,BLACK} /* atributo de una llave de puerta */
+#define OROA (atributo_t){'$',BOLD,YELLOW,BLACK} /* atributo de tesoro */
+#define ANIA (atributo_t){'o',BOLD,YELLOW,BLACK} /* atributo de anillo */
 
 static Bool itmplc(objeto_t* item,Bool pasadizo) {
 	int r,c;
@@ -26,7 +27,7 @@ static Bool itmplc(objeto_t* item,Bool pasadizo) {
 static objeto_t* itmnew(char* nom,atributo_t a) {
 	objeto_t* it=objnew(nom,a,FALSE,FALSE);
 	if(it) {
-		it->ior=it->arm=it->lla=it->ani=it->ves=0;
+		it->cog=it->ior=it->arm=it->lla=it->ani=it->prt=it->ves=0;
 		it->con=NULL;
 	}
 	return it;
@@ -79,6 +80,20 @@ void orolev(uint oro) {
 		}
 	}
 }
+
+void anilev(uint a) {
+	/* crea el anillo */
+	if(a) {
+		objeto_t* o=itmnew("ANILLO",ANIA);
+		if(o) {
+			o->cog=1;
+			o->ani=1;
+			itmplc(o,FALSE);
+		}
+	}
+}
+
+
 
 
 

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dijous, 25 de desembre de 2025, 08:54:49
+  Ultima Modificacion: diumenge, 28 de desembre de 2025, 22:15:28
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -30,15 +30,35 @@
 #define TRUE 1
 #define FALSE 0
 
+/* dados */
+#define DAT (rnd(1,4)) /* dado de 4 caras */
+#define DAC (rnd(1,6)) /* dado de 6 caras */
+#define DAO (rnd(1,8)) /* dado de 8 caras */
+#define DAD (rnd(1,12)) /* dado de 12 caras */
+#define DAI (rnd(1,20)) /* dado de 20 caras */
+
 /* reglas */
 #define VMC 15 /* valor maximo de cualquier caracteristica */
-#define HmO 1 /* habilidad minima necesaria para abrir una puerta (sube una por nivel)*/
-#define HmF 3 /* habilidad minima para forzar la puerta (sube una por  nivel) */
-#define FmF 2 /* fuerza minima para forzar la puerta (sube una por nivel) */
-#define PLR 4 /* probabilidad de que se rompa una llave */
 #define OXD 1 /* oro por cada 10 cuadrados de transitable */
 #define OML 9 /* maximo de sacos de oro por nivel */
 #define OmL 1 /* minimo de sacos por nivel */
+#define PLR 4 /* factor de las llaves (relacionado con el dado que se usa para que se rompa la llave) */
+#define CFP (DAI<=jugador->hab) && (DAI<=jugador->fue) /* condicion de jugador para forzar puerta */
+#define CDP (DAO<=jugador->hab) /* condicion para descubrir una puerta */
+#define CRL (DAT==1) /* condicion para que se rompa la llave */
+#define PFA 5 /* puntos extras de fuerza por fuerza, solo para decidir el ataque */
+#define PHA 15 /* puntos de habilidad extras si peleamos con el puño */
+#define PFU 15 /* puntos de fuerza extras si peleamos con el puño */
+#define PDA 1 /* dado de daño (1: DAT, 2: DAC, 3: DAO, 4: DAD, 5: DAI) */
+#define NDA 1 /* numero de dados de daño de puñetazo */
+#define CAR 5 /* puntos de armadura por cada punto de fuerza (siempre se cuentan) */
+#define HAT(A,D) regla_ataque((A),(D)) /* condicion de ataque fructifero A: atacante, D: defensor */
+#define DAN(A) regla_dano(A) /* daño que inflinge un atacante */
+
+/* Reglas lucha: Se lanza 1D20 +(fuerza_ataque/PFA) , si este supera
+ * a la defensa (fuerza/CAR) + armadura, el ataque es positivo. Entonces se
+ * usa el arma con los dados de daño mas los plus de habilidad y fuerza, en caso de no
+ * tener arma se usan los puños */
 
 /* nivel */ 
 #define NIN 1 /* nivel inicial */
@@ -92,12 +112,25 @@ struct objeto_s {
 			uint arm : 1; /* 1: es arma */
 			uint lla : 1; /* 1: es llave */
 			uint ani : 1; /* 1: es anillo */
+			uint prt : 1; /* 1: es armadura de proteccion */
 			uint ves : 1; /* 1: esta vestido */
 			struct objeto_s* con; /* da el contenedor */
 			union {
-				uint cor : 8; /* cantidad de oro del tesoro */
+				struct { /* caracteristica del tesoro */
+					uint cor : 8; /* cantidad de oro del tesoro */
+				};
+				struct { /* caracteristicas del arma */
+					uint dad : 3; /* tipo de dado daño (1: 1D4, 2: 1D6, 3: 1D8, 4: 1D12, 5: 1D20) */
+					uint nad : 2; /* numero de dados daño */
+					uint pfu : 4; /* cada cuantos puntos de fuerza nos de un plus de fuerza */
+					uint pha : 4; /* cada cuantos puntos de habilidad nos da un plus de habilidad */
+				};
+				struct { /* caracteristica de armadura */
+					uint nar: 4; /* valor de la armadura (extra) */
+				};
 			};
 		};
+		
 	};
 };
 
@@ -193,6 +226,18 @@ Bool objcog(objeto_t* obj,objeto_t* itm);
 Bool objdej(objeto_t* obj,objeto_t* itm);
 /* un objeto npc deja un objeto */
 
+objeto_t* objisprt(objeto_t* obj);
+/* nos dice si un objeto tiene armadura de proteccion (cada npc solo puede llevar una) */
+
+objeto_t* objisves(objeto_t* obj);
+/* Da el objeto que es vestido por obj */
+
+Bool objves(objeto_t* obj,objeto_t* itm);
+/* viste un objeto (arma) que es poseido (solo se puede poner un arma) */
+
+Bool objdes(objeto_t* obj,objeto_t* itm);
+/* desvistes un objeto poseido y vestido */
+
 Bool objcanact(objeto_t* obj);
 /* dice si un objeto npc esta en disposicion de actuar */
 
@@ -218,8 +263,8 @@ void llplev(uint num);
 void orolev(uint oro);
 /* crea el oro por nivel, oro es la cantidad de oro que meteremos en un nivel */
 
-void rhrlev(uint rdh);
-/* creacion del red herring, objeto que no sirve para nada (uno por nivel) */
+void anilev(uint anillo);
+/* creacion del anillo, inicialmente en el ultimo nivel */
 
 /* nivel.c */
 
@@ -228,6 +273,14 @@ void nivprm();
 
 Bool nivchg(int dir);
 /* cambio de nivel, donde dir es la direccion (+1 bajada,-1 subida) */
+
+/* regla.c */
+
+Bool regla_ataque(objeto_t* atacante,objeto_t* defensor);
+/* regla que determina si el atacante ataca al defensor (TRUE) */
+
+int regla_dano(objeto_t* atacante);
+/* regla que inflinge el dano al defensor, devuelve el dano */
 
 /* rogue.c */
 

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: dijous, 25 de desembre de 2025, 09:28:27
+  Ultima Modificacion: diumenge, 28 de desembre de 2025, 19:17:11
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -139,17 +139,23 @@ Bool objcog(objeto_t* o,objeto_t* itm) {
 	if(o && o->npc) {
 		objeto_t* inv[objetos];
 		uint cinv=objinv(o,inv);
-		if(cinv<o->cap) {
+		if(cinv<o->cap) {		
 			if(itm && itm->npc==0 && (itm->cog) && itm->r==o->r && itm->c==o->c && itm->con==NULL) {
-				itm->r=itm->c=-1;
-				if(itm->ior) {
-					if(oij) menin("Coges %i monedas de oro...",itm->cor);
-					o->oro+=itm->cor;
+				if(!itm->prt || !objisprt(o)) {
+					itm->r=itm->c=-1;
+					if(itm->ior) {
+						if(oij) menin("Coges %i monedas de oro...",itm->cor);
+						o->oro+=itm->cor;
+					} else if(itm->prt) {
+						if(oij) menin("Cogers %s y te la pones...",itm->nom);
+					} else {
+						if(oij) menin("Coges %s...",itm->nom);
+						itm->con=o;
+					}
+					return TRUE;
 				} else {
-					if(oij) menin("Coges %s...",itm->nom);
-					itm->con=o;
+					if(oij) menin("No puedes coger una armadura, ya llevas una...");
 				}
-				return TRUE;
 			}
 		} else {
 			if(oij) menin("Llevas demasiadas cosas...");
@@ -163,14 +169,65 @@ Bool objdej(objeto_t* o,objeto_t* itm) {
 	if(o && o->npc) {
 		localidad_t* l=mapget(o->r,o->c);
 		if(l && itm && itm->npc==0 && itm->con==o) {
-			itm->con=NULL;
-			itm->r=o->r;
-			itm->c=o->c;
-			if(oij) menin("Dejas %s...",itm->nom);
-			return TRUE;
+			if(!itm->ves) {
+				itm->con=NULL;
+				itm->r=o->r;
+				itm->c=o->c;
+				if(oij) menin("Dejas %s...",itm->nom);
+				return TRUE;
+			} else {
+				if(oij) menin("Debes quitartelo antes de dejarlo...");
+			}
 		}
 	}
 	if(oij) menin("No puedes dejarlo...");
+	return FALSE;
+}
+
+objeto_t* objisprt(objeto_t* o) {
+	objeto_t* inv[objsiz()];
+	uint invs=objinv(o,inv);
+	for(int k=0;k<invs;k++) {
+		if(inv[k]->prt) return inv[k];
+	}
+	return NULL;
+}
+
+objeto_t* objisves(objeto_t* o) {
+	objeto_t* inv[objsiz()];
+	uint invs=objinv(o,inv);
+	for(int k=0;k<invs;k++) {
+		if(inv[k]->ves) return inv[k];
+	}
+	return NULL;
+}
+
+Bool objves(objeto_t* o,objeto_t* itm) {
+	if(o && o->npc) {
+		if(itm && !itm->npc && itm->con==o && itm->arm && !itm->ves) {
+			if(!objisves(o)) {
+				itm->ves=1;
+				if(oij) menin("Te pones %s...",itm->nom);
+				return TRUE;
+			} else {
+				if(oij) menin("No puedes llevar puesto nada mas...");
+			}
+		} else {
+			if(oij) menin("No te puedes poner eso...");
+		}
+	}
+	return FALSE;
+}
+
+Bool objdes(objeto_t* o,objeto_t* itm) {
+	if(o && o->npc) {
+		objeto_t* op=objisves(o);
+		if(op==itm) {
+			itm->ves=0;
+			if(oij) menin("Te quitas %s...",itm->nom);
+			return TRUE;
+		} else if(oij) menin("No llevas eso puesto...");
+	}
 	return FALSE;
 }
 

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: nivel.c
   Creado: 23-12-2025
-  Ultima Modificacion: dijous, 25 de desembre de 2025, 11:03:03
+  Ultima Modificacion: diumenge, 28 de desembre de 2025, 09:52:16
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -38,7 +38,7 @@ static void nivcountnum() {
 }
 
 static void nivini() {
-	/* inicia todos los niveles colocando la semilla en 0 */
+	/* inicia todos los niveles poniendo la semilla y definiendolos en 0 */
 	randomize(-1);
 	nivel_t* p=nivel;
 	uint cn=NIN;
@@ -64,6 +64,7 @@ static void nivitm(uint niv) {
 	nivel_t* p=nivel+(niv-NIN);
 	llplev(p->lls);
 	orolev(p->oro);
+	anilev(p->ani);
 }	
 
 static Bool nivnue(uint niv) {
@@ -85,6 +86,8 @@ static Bool nivnue(uint niv) {
 			nll=(nll>15)?15:nll;
 		}
 		p->lls=nll;
+		/* anillo */
+		p->ani=(niv==NFI)?1:0;
 		/* colocacion de todos los objetos */
 		nivitm(niv);
 	}

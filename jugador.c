@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: dijous, 25 de desembre de 2025, 11:18:32
+  Ultima Modificacion: diumenge, 28 de desembre de 2025, 09:18:23
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -170,7 +170,7 @@ static Bool jugdsc() {
 		pe=n[k];
 		if(pe && (pe->obs==1 || pe->trs!=3)) pe=NULL;
 	}
-	if(pe && rnd(HmO+num_nivel,VMC)<jugador->hab) {
+	if(pe && CDP) {
 		menin("Has descubierto una puerta oculta...");
 		pe->trs=1;
 		return TRUE;
@@ -188,7 +188,7 @@ static Bool jugfrp() {
 		if(pe && (pe->trs!=2)) pe=NULL;
 	}
 	if(pe) {
-		if(rnd(HmF+num_nivel,VMC)<jugador->hab && rnd(FmF+num_nivel,VMC)<jugador->fue) {
+		if(CFP) {
 			menin("Has podido forzar la puerta...");
 			pe->trs=1;
 		} else menin("No has podido forzar la puerta...");
@@ -313,7 +313,7 @@ static Bool jugabr() {
 		if(ll) {
 			menin("Abres la puerta...");
 			p->trs=1;
-			if(rnd(0,PLR)==0) {
+			if(CRL) {
 				menin("... pero la llave se ha roto...");
 				ll->con=NULL;
 			}

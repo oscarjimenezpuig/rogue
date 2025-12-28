@@ -2,7 +2,7 @@
 ============================================================
   Fichero: pantalla.c
   Creado: 04-12-2025
-  Ultima Modificacion: dijous, 25 de desembre de 2025, 10:17:28
+  Ultima Modificacion: diumenge, 28 de desembre de 2025, 19:20:32
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -13,7 +13,7 @@
 #define ATROBS (atributo_t){' ',REVERSE,RED,RED} /* atributo de las paredes */
 #define ATRHAB (atributo_t){'.',NONE,WHITE,BLACK} /* atributo de suelo de habitacion */
 #define ATRPAS (atributo_t){'#',DIM,WHITE,BLACK} /* atributo de pasadizo de habitacion */
-#define ATRPUE (atributo_t){'?',REVERSE,YELLOW,BLACK} /* atributo de la puerta */
+#define ATRPUE (atributo_t){'?',REVERSE,WHITE,BLACK} /* atributo de la puerta */
 #define ATRESU (atributo_t){'>',NONE,MAGENTA,BLACK} /* escalera de subida */
 #define ATREBA (atributo_t){'<',NONE,MAGENTA,BLACK} /* escalera de bajada */
 
