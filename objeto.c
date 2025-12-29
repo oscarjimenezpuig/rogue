@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: diumenge, 28 de desembre de 2025, 19:17:11
+  Ultima Modificacion: dilluns, 29 de desembre de 2025, 09:53:48
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -41,6 +41,7 @@ objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 				new->jug=new->mov=1;
 			} else new->jug=new->mov=0;
 			new->fue=new->hab=new->vel=new->cap=new->cve=0;
+			new->ata=0;
 			new->oro=0;
 		} else {
 			new->npc=0;

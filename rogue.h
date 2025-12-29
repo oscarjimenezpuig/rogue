@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: diumenge, 28 de desembre de 2025, 22:15:28
+  Ultima Modificacion: dilluns, 29 de desembre de 2025, 10:07:49
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -37,12 +37,29 @@
 #define DAD (rnd(1,12)) /* dado de 12 caras */
 #define DAI (rnd(1,20)) /* dado de 20 caras */
 
-/* reglas */
+/* nivel */
+#define NIN 1 /* nivel inicial */
+#define NFI 15 /* nivel final */
+
+/* items */
 #define VMC 15 /* valor maximo de cualquier caracteristica */
 #define OXD 1 /* oro por cada 10 cuadrados de transitable */
 #define OML 9 /* maximo de sacos de oro por nivel */
 #define OmL 1 /* minimo de sacos por nivel */
 #define PLR 4 /* factor de las llaves (relacionado con el dado que se usa para que se rompa la llave) */
+
+/* enemigos */
+#define CEE 5 /* numero de caracteristicas evaluables de enemigo */
+#define PIE 3 /* puntos iniciales de enemigo por caracteristica */
+#define PFE 15 /* puntos finales de enemigo por caracteristica */
+#define EPE (CEE*(PFE-PIE)/(NFI-NIN+1)) /* evolucion de puntos por cada nivel */
+
+/* MACROS */
+
+#define MAX(A,B) ((A)>(B))?(A):(B)
+#define MIN(A,B) ((A)>(B))?(B):(A)
+
+/* REGLAS */
 #define CFP (DAI<=jugador->hab) && (DAI<=jugador->fue) /* condicion de jugador para forzar puerta */
 #define CDP (DAO<=jugador->hab) /* condicion para descubrir una puerta */
 #define CRL (DAT==1) /* condicion para que se rompa la llave */
@@ -60,14 +77,6 @@
  * usa el arma con los dados de daño mas los plus de habilidad y fuerza, en caso de no
  * tener arma se usan los puños */
 
-/* nivel */ 
-#define NIN 1 /* nivel inicial */
-#define NFI 15 /* nivel final */
-
-/* MACROS */
-
-#define MAX(A,B) ((A)>(B))?(A):(B)
-#define MIN(A,B) ((A)>(B))?(B):(A)
 
 /* TIPOS */
 
@@ -105,6 +114,7 @@ struct objeto_s {
 			uint cap : 4; /* capacidad */
 			uint cve : 4; /* contador velocidad */
 			uint oro : 12; /* oro */
+			uint ata : 1; /* indicador de estar siendo atacado */
 		};
 		struct {
 			uint cog : 1; /* 1: es cogible */
@@ -265,6 +275,11 @@ void orolev(uint oro);
 
 void anilev(uint anillo);
 /* creacion del anillo, inicialmente en el ultimo nivel */
+
+/* enemigo.c */
+
+void enelev(uint enemigos);
+/* creacion de enemigos de un nivel a partir de un numero */
 
 /* nivel.c */
 
