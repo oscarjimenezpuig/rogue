@@ -1,3 +1,4 @@
 # rogue
 Una aplicacion de curse.
 29/12/25 Programar los enemigos con su inteligencia artifical
+30/13/25 Añadir vida a los NPC
