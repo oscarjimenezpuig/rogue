@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: dilluns, 29 de desembre de 2025, 09:53:48
+  Ultima Modificacion: dimecres, 31 de desembre de 2025, 08:10:24
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -36,13 +36,14 @@ objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 		new->r=new->c=-1;
 		if(npc) {
 			new->npc=1;
+			new->anm=0;
 			if(jug) {
 				jugador=new;
-				new->jug=new->mov=1;
-			} else new->jug=new->mov=0;
+			} else new->jug=0;
 			new->fue=new->hab=new->vel=new->cap=new->cve=0;
 			new->ata=0;
 			new->oro=0;
+			new->vid=VMC;
 		} else {
 			new->npc=0;
 			new->cog=new->ior=new->arm=new->lla=new->ani=new->ves=0;
@@ -105,7 +106,7 @@ static Bool isinv(objeto_t* o) {
 }
 
 Bool objmov(objeto_t* o,int dr,int dc) {
-	if(o && o->npc && o->mov) {
+	if(o && o->npc) {
 		localidad_t* l=mapget(o->r,o->c);
 		if(l) {
 			int nr=o->r+dr;

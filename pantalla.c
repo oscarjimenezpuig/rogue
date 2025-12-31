@@ -2,7 +2,7 @@
 ============================================================
   Fichero: pantalla.c
   Creado: 04-12-2025
-  Ultima Modificacion: diumenge, 28 de desembre de 2025, 19:20:32
+  Ultima Modificacion: dimecres, 31 de desembre de 2025, 08:06:27
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -96,9 +96,9 @@ static void npcshw(int mri,int mci,int ro,int co) {
 
 static void cajshw() {
 	/* muestra las caracteristicas del jugador */
-	char* const NAM[]={"Niv","Fue","Hab","Vel","Cap","Oro"};
-	const uint SIZ=6;
-	uint jca[]={num_nivel,jugador->fue,jugador->hab,jugador->vel,jugador->cap,jugador->oro};
+	char* const NAM[]={"Niv","Vid","Fue","Hab","Vel","Cap","Oro"};
+	const uint SIZ=7;
+	uint jca[]={num_nivel,jugador->vid,jugador->fue,jugador->hab,jugador->vel,jugador->cap,jugador->oro};
 	BKG=INK=BLACK;
 	for(COL=0;COL<COLS;COL++) {
 		ROW=ROWS-2;

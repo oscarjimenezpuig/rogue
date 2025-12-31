@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dilluns, 29 de desembre de 2025, 10:07:49
+  Ultima Modificacion: dimecres, 31 de desembre de 2025, 16:47:37
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -49,10 +49,13 @@
 #define PLR 4 /* factor de las llaves (relacionado con el dado que se usa para que se rompa la llave) */
 
 /* enemigos */
-#define CEE 5 /* numero de caracteristicas evaluables de enemigo */
+#define CEE 4 /* numero de caracteristicas evaluables de enemigo */
 #define PIE 3 /* puntos iniciales de enemigo por caracteristica */
 #define PFE 15 /* puntos finales de enemigo por caracteristica */
 #define EPE (CEE*(PFE-PIE)/(NFI-NIN+1)) /* evolucion de puntos por cada nivel */
+#define RZS 30 /* numero maximo de razas de enemigos */
+#define RNm -2 /* diferencia minima por nivel aceptada */
+#define RNM 2 /* diferencia maxima por nivel aceptada */
 
 /* MACROS */
 
@@ -107,12 +110,13 @@ struct objeto_s {
 	union {
 		struct {
 			uint jug : 1; /* 1: es jugador */
-			uint mov : 1; /* 1: es movil */
+			uint anm : 1; /* 1: es animal */
 			uint fue : 4; /* fuerza */
 			uint hab : 4; /* habilidad */
 			uint vel : 4; /* velocidad */
 			uint cap : 4; /* capacidad */
 			uint cve : 4; /* contador velocidad */
+			uint vid : 4; /* contador de vida */
 			uint oro : 12; /* oro */
 			uint ata : 1; /* indicador de estar siendo atacado */
 		};
@@ -277,6 +281,12 @@ void anilev(uint anillo);
 /* creacion del anillo, inicialmente en el ultimo nivel */
 
 /* enemigo.c */
+
+void killdrg();
+/* funcion que dice que el dragon ha sido muerto */
+
+void killsau();
+/* funcion que dice que sauron ha sido muerto */
 
 void enelev(uint enemigos);
 /* creacion de enemigos de un nivel a partir de un numero */
