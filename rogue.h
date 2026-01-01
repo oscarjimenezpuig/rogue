@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dimecres, 31 de desembre de 2025, 16:47:37
+  Ultima Modificacion: dijous, 1 de gener de 2026, 11:04:18
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -51,16 +51,18 @@
 /* enemigos */
 #define CEE 4 /* numero de caracteristicas evaluables de enemigo */
 #define PIE 3 /* puntos iniciales de enemigo por caracteristica */
-#define PFE 15 /* puntos finales de enemigo por caracteristica */
-#define EPE (CEE*(PFE-PIE)/(NFI-NIN+1)) /* evolucion de puntos por cada nivel */
+#define PFE VMC /* puntos finales de enemigo por caracteristica */
 #define RZS 30 /* numero maximo de razas de enemigos */
 #define RNm -2 /* diferencia minima por nivel aceptada */
 #define RNM 2 /* diferencia maxima por nivel aceptada */
+#define EmH 1 /* numero minimo de enemigos por nivel por habitacion */
+#define EMH 3 /* numero maximo de enemigos por nivel por habitacion */
 
 /* MACROS */
 
 #define MAX(A,B) ((A)>(B))?(A):(B)
 #define MIN(A,B) ((A)>(B))?(B):(A)
+#define ABS(A) (((A)>0)?(A):(-(A)))
 
 /* REGLAS */
 #define CFP (DAI<=jugador->hab) && (DAI<=jugador->fue) /* condicion de jugador para forzar puerta */
@@ -158,7 +160,7 @@ typedef struct {
 	uint num : 4; /* nivel (max 15) */
 	uint lls : 4; /* llaves (max 15) */ 
 	uint ars : 4; /* armas (max 15) */
-	uint ens : 4; /* enemigos (max 15) */
+	uint ens : 8; /* enemigos (max 256) */
 	uint ani : 1; /* anillo o no */
 	uint oro : 16; /* cantidad total de oro restante */
 } nivel_t;
@@ -170,6 +172,14 @@ extern objeto_t* jugador; /* variable que guarda la direccion del jugador */
 extern uint num_nivel; /* planta en la que se encuentra el jugador */
 
 /* FUNCIONES */
+
+/* debug.c */
+
+void dbgprt(const char* s,...);
+/* impresion de un debug */
+
+void dbgcls();
+/* borrado de pantalla del debug */
 
 /* map.c */
 
@@ -221,6 +231,9 @@ objeto_t* objnew(char* nom,atributo_t atr,Bool npc,Bool jug);
 objeto_t* objcpy(objeto_t objcar);
 /* copia las caracteristicas del objeto en un nuevo objeto */
 
+int objdis(objeto_t* a,objeto_t* b);
+/* da la distancia Manhattan entre dos objetos, si uno de ellos esta fuera de mapa, la distancia sera -1 */
+
 Bool objinipos(objeto_t* obj,int r,int c);
 /* damos posicion inicial a un objeto 
  * no puede existir dos npc en la misma posicion y debe ser zona transitable del mapa */
@@ -252,6 +265,12 @@ Bool objves(objeto_t* obj,objeto_t* itm);
 Bool objdes(objeto_t* obj,objeto_t* itm);
 /* desvistes un objeto poseido y vestido */
 
+Bool objata(objeto_t* obj,objeto_t* npc);
+/* un objeto ataca a otro */
+
+Bool objmue(objeto_t* obj);
+/* se declara la muerte de un objeto */
+
 Bool objcanact(objeto_t* obj);
 /* dice si un objeto npc esta en disposicion de actuar */
 
@@ -282,14 +301,8 @@ void anilev(uint anillo);
 
 /* enemigo.c */
 
-void killdrg();
-/* funcion que dice que el dragon ha sido muerto */
-
-void killsau();
-/* funcion que dice que sauron ha sido muerto */
-
-void enelev(uint enemigos);
-/* creacion de enemigos de un nivel a partir de un numero */
+void enelev(uint num);
+/* creacion de enemigos por nivel */
 
 /* nivel.c */
 

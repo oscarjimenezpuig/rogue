@@ -2,7 +2,7 @@
 ============================================================
   Fichero: enemigo.c
   Creado: 29-12-2025
-  Ultima Modificacion: dimecres, 31 de desembre de 2025, 16:47:37
+  Ultima Modificacion: dijous, 1 de gener de 2026, 10:32:13
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -21,40 +21,48 @@ typedef struct {
 static raza_t raza[RZS];
 static uint razas=0;
 
-static int dragon=(NFI-NIN+1)/2; /* indica el nivel inical de dragon, si muerto -1 */
-static int sauron=NFI; /* indica nivel inicial de sauron, si muerto -1 */
+static objeto_t* dragon=NULL;
+static objeto_t* sauron=NULL;
 
 static int razniv(raza_t r) {
 	/* calcula el nivel de un enemigo */
-	int total=r.fue+r.hab+r.vel+r.cap;
-	int nivel=(total-PIE*CEE)%EPE;
-	return nivel;
+	const double IN=(NFI-NIN);
+	const double IP=(PFE-PIE);
+	const double M=IN/(IP*CEE);
+	const double N=(NIN*IP-IN*PIE)/IP;
+	double x=r.fue+r.hab+r.vel+r.cap;
+	double y=M*x+N;
+	return (int)y;
 }
 
 static void tocap(char* d,char* o) {
 	char* po=o;
 	char* pd=d;
 	while(*po!=EOS) {
-		if(*pd>='a' && *pd<='z') *pd=*po-'a'+'A';
+		if(*po>='a' && *po<='z') *pd=*po-'a'+'A';
 		else *pd=*po;
 		pd++;
 		po++;
 	}
 }
 
-static Boolean raznew(raza_t r) {
+static Bool raznew(raza_t r) {
 	if(razas<RZS) {
 		raza_t* pr=raza+razas++;
-		*pr=r;
 		tocap(pr->nom,r.nom);
+		pr->anm=r.anm;
+		pr->fue=r.fue;
+		pr->hab=r.hab;
+		pr->vel=r.vel;
+		pr->cap=r.cap;
 		return TRUE;
 	}
 	return FALSE;
 }
 
 #define rf(N,A,F,H,V,C) (raza_t){N,(A),(F),(H),(V),(C)}
-#define rr(N,F,H,V,C) razanew(rf(N,0,F,H,V,C))
-#define ra(N,F,H,V) razanew(rf(N,1,F,H,V,0))
+#define rr(N,F,H,V,C) raznew(rf(N,0,F,H,V,C))
+#define ra(N,F,H,V) raznew(rf(N,1,F,H,V,0))
 
 static void razdef() {
 	/* definicion de todas las razas excepto las dos especiales */
@@ -87,16 +95,13 @@ static void razdef() {
 	ra("tarantula",5,5,2);
 }
 
-#undef ra
-#undef rr
-#undef rf
 
 static objeto_t* enenew(raza_t r) {
 	/* definicion de un enemigo a partir de sus caracteristicas y su nivel */
 	uint ink=rnd(RED,CYAN);
 	char chr=*(r.nom);
 	if(r.anm) chr=chr-'A'+'a';
-	atributo_t a={e.chr,BOLD,ink,BLACK};
+	atributo_t a={chr,BOLD,ink,BLACK};
 	objeto_t* o=objnew(r.nom,a,TRUE,FALSE);
 	if(o) {
 		o->anm=r.anm;
@@ -112,34 +117,39 @@ static objeto_t* enenew(raza_t r) {
 static int enepos(objeto_t* enemigo) {
 	/* coloca a los enemigos en una habitacion diferente a la del jugador */
 	const int TRIES=10000;
+	int ret=0;
 	if(enemigo) {
 		int tries=TRIES;
-		while(tries--) {
+		while(tries-- && ret==0) {
 			int r,c;
-			if(maprndpos(r,c,TRUE)) {
+			if(maprndpos(&r,&c,TRUE)) {
 				localidad_t* l=mapget(r,c);
-				if(!jugador || num_niv!=NIN || (l->hab!=mapget(jugador->r,jugador->c)->hab)) {
-					if(ojbinipos(enemigo,r,c)) return 1;
+				if(!jugador || num_nivel!=NIN || (l->hab!=mapget(jugador->r,jugador->c)->hab)) {
+					if(objinipos(enemigo,r,c)) ret=1;
 				}
 			}
 		}
 	}
-	return 0;
+	return ret;
 }		
 
 static int razporniv() {
 	/* escoge una raza al azar que se adecue el nivel */
+	const int TRIES=10000;
 	static Bool defined=FALSE;
+	static Bool maxnivget=FALSE;
 	if(!defined) {
 		razdef();
 		defined=TRUE;
 	}
-	static Bool maxnivget=FALSE;
-	maxnivget=(num_niv==NFI)?TRUE:FALSE;
-	while(1) {
+	maxnivget=(num_nivel==NFI)?TRUE:FALSE;
+	int tries=TRIES;
+	int nniv=(int)num_nivel;
+	while(tries--) {
 		int re=rnd(0,razas-1);
 		raza_t* r=raza+re;
-		if((maxnivget==TRUE && num_niv!=NFI) || ((nr=razniv(*r)) && nr>=num_niv+RNm && nr<=num_niv+RNM)) {
+		int nr=0;
+		if((maxnivget==TRUE && num_nivel!=NFI) || ((nr=razniv(*r)) && nr>=nniv+RNm && nr<=nniv+RNM)) {
 			return enepos(enenew(*r));
 		}
 	}
@@ -148,19 +158,38 @@ static int razporniv() {
 
 static int razesp() {
 	/* escoge una de las dos razas especiales */
+	static int posdragon=(NFI-NIN+1)/2; 
+	static int possauron=NFI;
 	int res=0;
-	if(num_niv==dragon) {
-		raza_t drg=rr("dragon",15,13,13,15);
-		dragon=rnd(NIN,NFI);
-		res+=enepos(enenew(drg));
+	if(num_nivel==posdragon && (!dragon || dragon->vid>0)) {
+		if(!dragon) {
+			raza_t drg=rf("dragon",0,15,13,13,15);
+			dragon=enenew(drg);
+		}
+		res+=enepos(dragon);
+		posdragon=rnd(NIN,posdragon);
 	}
-	if(num_nvi==sauron) {
-		raza_t sau=rr("sauron",15,15,15,15);
-		sauron=rnd(NIN,NFI);
-		res+=enepos(enenew(sau));
+	if(num_nivel==possauron && (!sauron || sauron->vid>0)) {
+		if(!sauron) {
+			raza_t sau=rf("sauron",0,15,15,15,15);
+			sauron=enenew(sau);
+		}
+		res+=enepos(sauron);
+		possauron=rnd(NIN,possauron);
 	}
 	return res;
 }
+
+#undef ra
+#undef rr
+#undef rf
+
+void enelev(uint es) {
+	int res=es;
+	res-=razesp();
+	for(int k=0;k<res;k++) razporniv();
+}
+
 
 
 

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: diumenge, 28 de desembre de 2025, 09:18:23
+  Ultima Modificacion: dijous, 1 de gener de 2026, 11:19:17
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -25,9 +25,10 @@
 #define TQUT 'Q' /* tecla finalizar juego 9*/
 #define TMIR 'm' /* mirar 10 */
 #define TESC 's' /* escalera 11 */
+#define TATQ 'A' /* atacar 12 */
 
-#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR,TESC};
-#define KEYS 12
+#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR,TESC,TATQ};
+#define KEYS 13
 
 /* posicion inicial pantalla */
 #define RO 0
@@ -335,6 +336,27 @@ static Bool jugues() {
 	return FALSE;
 }
 
+static Bool isnpcvec(objeto_t* o) {
+	return (o->npc && o->vid>0 && objdis(o,jugador)==1);
+}
+
+static Bool jugata() {
+	/* funcion de ataque de jugador */
+	objeto_t* vcn[4];
+	int vcns=objfnd(vcn,isnpcvec);
+	if(vcns==1) {
+		return objata(jugador,vcn[0]);
+	} else if(vcns){
+		char* enenom[vcns];
+		for(int k=0;k<vcns;k++) {
+			enenom[k]=vcn[k]->nom;
+		}
+		uint nene=menu("A quien atacas?",vcns,enenom);
+		if(nene<vcns) return objata(jugador,vcn[nene]);
+	} else menin("Nadie a quien puedas atacar aqui cerca...");
+	return FALSE;
+}
+
 static Bool jugqut() {
 	jugador=NULL;
 	return TRUE;
@@ -366,6 +388,8 @@ Bool jugact() {
 				return jugmir();
 			case 11:
 				return jugues();
+			case 12:
+				return jugata();
 		}
 	}
 	return FALSE;

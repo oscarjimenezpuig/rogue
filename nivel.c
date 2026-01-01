@@ -2,7 +2,7 @@
 ============================================================
   Fichero: nivel.c
   Creado: 23-12-2025
-  Ultima Modificacion: diumenge, 28 de desembre de 2025, 09:52:16
+  Ultima Modificacion: dijous, 1 de gener de 2026, 08:47:13
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -65,7 +65,13 @@ static void nivitm(uint niv) {
 	llplev(p->lls);
 	orolev(p->oro);
 	anilev(p->ani);
-}	
+}
+
+static void nivene(uint niv) {
+	/* colocacion de todos los enemigos segun las cantidades */
+	nivel_t* p=nivel+(niv-NIN);
+	enelev(p->ens);
+}
 
 static Bool nivnue(uint niv) {
 	/* crea todo lo relativo a un nivel visitado por primera vez */
@@ -90,6 +96,11 @@ static Bool nivnue(uint niv) {
 		p->ani=(niv==NFI)?1:0;
 		/* colocacion de todos los objetos */
 		nivitm(niv);
+		/* enemigos */
+		p->ens=0;
+		for(int k=0;k<num_hab;k++) p->ens+=rnd(EmH,EMH);
+		/* colocacion de enemigos */
+		nivene(niv);
 	}
 	return ret;
 }
@@ -118,6 +129,8 @@ static Bool nivvie(uint niv) {
 		nivmap(niv,p->sem);
 		/* objetos */
 		nivitm(niv);
+		/* enemigos */
+		nivene(niv);
 		/* opertura de ocultas y puertas */
 		nivopd(p);
 	}

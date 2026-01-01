@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: dimecres, 31 de desembre de 2025, 08:10:24
+  Ultima Modificacion: dijous, 1 de gener de 2026, 11:16:48
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -39,6 +39,7 @@ objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 			new->anm=0;
 			if(jug) {
 				jugador=new;
+				new->jug=1;
 			} else new->jug=0;
 			new->fue=new->hab=new->vel=new->cap=new->cve=0;
 			new->ata=0;
@@ -59,6 +60,13 @@ objeto_t* objcpy(struct objeto_s objcar) {
 	objeto_t* o=objnew(objcar.nom,objcar.atr,inpc,ijug);
 	if(o) *o=objcar;
 	return o;
+}
+
+int objdis(objeto_t* a,objeto_t* b) {
+	if(a && b && a->c!=-1 && a->r!=-1 && b->c!=-1 && b->r!=-1) {
+		return ABS(a->c-b->c)+ABS(a->r-b->r);
+	}
+	return -1;
 }
 
 Bool objinipos(objeto_t* o,int r,int c) {
@@ -93,38 +101,38 @@ uint objfnd(objeto_t* o[],Condicion c) {
 	return po-o;
 }
 
-static objeto_t* npce=NULL;
-
+static int onc=-1;
+static int onr=-1;
 static Bool isnpcinp(objeto_t* o) {
 	/* condicion de busqueda de npc en una posicion */
-	return (o->npc && o->r==npce->r && o->c==npce->c);
-}
-
-static Bool isinv(objeto_t* o) {
-	/* objetos poseidos por npce */
-	return (o->npc==0 && o->con==npce);
+	return (o->npc && o->r==onr && o->c==onc);
 }
 
 Bool objmov(objeto_t* o,int dr,int dc) {
 	if(o && o->npc) {
 		localidad_t* l=mapget(o->r,o->c);
 		if(l) {
-			int nr=o->r+dr;
-			int nc=o->c+dc;
-			localidad_t* nl=mapget(nr,nc);
+			onr=o->r+dr;
+			onc=o->c+dc;
+			localidad_t* nl=mapget(onr,onc);
 			if(nl && nl->trs==1) {
-				npce=o;
 				objeto_t* npc[objetos];
 				uint npcs=objfnd(npc,isnpcinp);
-				if(npcs==1) {
-					o->r=nr;
-					o->c=nc;
+				if(!npcs) {
+					o->r=onr;
+					o->c=onc;
 					return TRUE;
 				}
 			}
 		}
 	}
 	return FALSE;
+}
+
+static objeto_t* npce=NULL;
+static Bool isinv(objeto_t* o) {
+	/* objetos poseidos por npce */
+	return (o->npc==0 && o->con==npce);
 }
 
 uint objinv(objeto_t* o,objeto_t* c[]) {
@@ -229,6 +237,45 @@ Bool objdes(objeto_t* o,objeto_t* itm) {
 			if(oij) menin("Te quitas %s...",itm->nom);
 			return TRUE;
 		} else if(oij) menin("No llevas eso puesto...");
+	}
+	return FALSE;
+}
+
+Bool objata(objeto_t* o,objeto_t* ene) {
+	//TODO Programar la señal de objeto atacado
+	if(o && ene && o->npc && ene->npc && (o->jug || ene->jug)) {
+		objeto_t* v=objisves(o);
+		if(v) menin("%s ataca a %s con %s...",o->nom,ene->nom,v->nom);
+		else menin("%s ataca a %s a mano descubierta...",o->nom,ene->nom);
+		if(HAT(o,ene)) {
+			int dano=DAN(o);
+			menin("%s da un golpe de %i puntos a %s...",o->nom,dano,ene->nom);
+			if(dano>=ene->vid) objmue(ene);
+			else ene->vid-=dano;
+		} else {
+			objeto_t* p=objisprt(ene);
+			if(p) menin("%s lleva puesta %s, que le protege del ataque...",ene->nom,p->nom);
+			else menin("%s repele el ataque...",ene->nom);
+		}
+		return TRUE;
+	}
+	return FALSE;
+}
+
+Bool objmue(objeto_t* o) {
+	if(o && o->npc && o->vid>0 && o->r!=-1 && o->c!=-1) {
+		menin("%s ha muerto...",o->nom);
+		o->vid=0;
+		objeto_t* inv[objsiz()];
+		int invs=objinv(o,inv);
+		for(int k=0;k<invs;k++) {
+			objeto_t* oe=inv[k];
+			oe->con=NULL;
+			oe->r=o->r;
+			oe->c=o->c;
+		}
+		o->r=o->c=-1;
+		return TRUE;
 	}
 	return FALSE;
 }
