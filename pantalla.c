@@ -2,7 +2,7 @@
 ============================================================
   Fichero: pantalla.c
   Creado: 04-12-2025
-  Ultima Modificacion: dimecres, 31 de desembre de 2025, 08:06:27
+  Ultima Modificacion: divendres, 2 de gener de 2026, 08:17:54
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -18,6 +18,8 @@
 #define ATREBA (atributo_t){'<',NONE,MAGENTA,BLACK} /* escalera de bajada */
 
 #define COLVIS BLUE /*color de lo visibilizado */
+
+#define BKGATA RED /* color del background cuando es atacado */
 
 static void mapshw(int mri,int mci,int mrs,int mcs,int ro,int co) {
 	const atributo_t ATRNUL={' ',0,BLACK,BLACK};
@@ -54,7 +56,10 @@ static void objshw(objeto_t* o,int mri,int mci,int ro,int co) {
 	COL=c;
 	ATR=o->atr.atr;
 	INK=o->atr.ink;
-	BKG=o->atr.bkg;
+	if(o->npc && o->ata) {
+		BKG=BKGATA;
+		o->ata=0;
+	} else BKG=o->atr.bkg;
 	printc(o->atr.chr);
 }
 

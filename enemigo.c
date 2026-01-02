@@ -2,7 +2,7 @@
 ============================================================
   Fichero: enemigo.c
   Creado: 29-12-2025
-  Ultima Modificacion: dijous, 1 de gener de 2026, 10:32:13
+  Ultima Modificacion: divendres, 2 de gener de 2026, 10:38:44
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -124,7 +124,7 @@ static int enepos(objeto_t* enemigo) {
 			int r,c;
 			if(maprndpos(&r,&c,TRUE)) {
 				localidad_t* l=mapget(r,c);
-				if(!jugador || num_nivel!=NIN || (l->hab!=mapget(jugador->r,jugador->c)->hab)) {
+				if(num_nivel!=NIN || NHMI==1 || l->hab!=JHI) {
 					if(objinipos(enemigo,r,c)) ret=1;
 				}
 			}

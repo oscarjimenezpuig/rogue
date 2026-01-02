@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: dijous, 1 de gener de 2026, 11:16:48
+  Ultima Modificacion: divendres, 2 de gener de 2026, 08:20:13
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -242,20 +242,22 @@ Bool objdes(objeto_t* o,objeto_t* itm) {
 }
 
 Bool objata(objeto_t* o,objeto_t* ene) {
-	//TODO Programar la señal de objeto atacado
 	if(o && ene && o->npc && ene->npc && (o->jug || ene->jug)) {
+		ene->ata=1;
 		objeto_t* v=objisves(o);
 		if(v) menin("%s ataca a %s con %s...",o->nom,ene->nom,v->nom);
 		else menin("%s ataca a %s a mano descubierta...",o->nom,ene->nom);
 		if(HAT(o,ene)) {
 			int dano=DAN(o);
 			menin("%s da un golpe de %i puntos a %s...",o->nom,dano,ene->nom);
+			jugshw();
 			if(dano>=ene->vid) objmue(ene);
 			else ene->vid-=dano;
 		} else {
 			objeto_t* p=objisprt(ene);
 			if(p) menin("%s lleva puesta %s, que le protege del ataque...",ene->nom,p->nom);
 			else menin("%s repele el ataque...",ene->nom);
+			jugshw();
 		}
 		return TRUE;
 	}

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dijous, 1 de gener de 2026, 11:04:18
+  Ultima Modificacion: divendres, 2 de gener de 2026, 10:38:51
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -22,9 +22,11 @@
 #define EOS '\0' /* final de string */
 #define SLEN 20 /* longitud de los string definidos */
 
-/* dimensiones del mapa */
-#define MAPAC 159
-#define MAPAR 48
+/* mapa */
+#define MAPAC 159 /* columnas totales del mapa */
+#define MAPAR 48 /* filas totales del mapa */
+#define NHMI 3 /* numero de habitaciones minimas */
+#define NHMA 7 /* numero de habitaciones maximas */
 
 /* definicion de booleanos */
 #define TRUE 1
@@ -58,10 +60,13 @@
 #define EmH 1 /* numero minimo de enemigos por nivel por habitacion */
 #define EMH 3 /* numero maximo de enemigos por nivel por habitacion */
 
+/* jugador */
+#define JHI 1 /* habitacion inicial del jugador */
+
 /* MACROS */
 
-#define MAX(A,B) ((A)>(B))?(A):(B)
-#define MIN(A,B) ((A)>(B))?(B):(A)
+#define MAX(A,B) (((A)>(B))?(A):(B))
+#define MIN(A,B) (((A)>(B))?(B):(A))
 #define ABS(A) (((A)>0)?(A):(-(A)))
 
 /* REGLAS */

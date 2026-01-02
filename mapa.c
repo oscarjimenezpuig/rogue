@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: dijous, 25 de desembre de 2025, 10:22:00
+  Ultima Modificacion: divendres, 2 de gener de 2026, 10:36:57
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -15,8 +15,6 @@
 #define HABC 3 /* numero maximo de habitaciones en columna */
 #define HABA (HABR*HABC)
 
-#define NHMI 3 /* numero de habitaciones minimas */
-#define NHMA 7 /* numero de habitaciones maximas */
 #define PEH 2 /* posibilidad de que se forme una habitacion */
 #define PHO 4 /* posibilidad de habitacion oscura */
 #define MHR (MAPAR/HABR) /*maximo de filas que puede tener una habitacion */
@@ -325,9 +323,9 @@ static void coloca_escalera(int escalera) {
 		r=rnd(0,MAPAR-1);
 		c=rnd(0,MAPAC-1);
 		l=mapget(r,c);
-	} while(l->trs!=1 || (l->trs==1 && l->hab==0) || (escalera==1 && escalera_baja==l->hab));
+	} while(l->trs!=1 || (l->trs==1 && l->hab==0) || (escalera==-1 && escalera_baja==l->hab));
 	l->esc=escalera;
-	if(escalera==-1) escalera_baja=l->hab;
+	if(escalera==1) escalera_baja=l->hab;
 }
 
 static void coloca_escaleras(Bool u,Bool d) {

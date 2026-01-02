@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: dijous, 1 de gener de 2026, 11:19:17
+  Ultima Modificacion: divendres, 2 de gener de 2026, 10:40:18
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -77,6 +77,7 @@ static void visset() {
 
 static void nomset() {
 	/*funcion que escoge el nombre del jugador */
+	cls();
 	INK=WHITE;
 	ROW=COL=0;
 	ATR=BOLD;
@@ -87,12 +88,119 @@ static void nomset() {
 	bufget(SLEN,jugador->nom);
 }
 
+static void carrndset(int points) {
+	jugador->cap=1;
+	--points;
+	for(int k=0;k<points;k++) {
+		int cn=rnd(1,CEE);
+		switch(cn) {
+			case 1:
+				jugador->fue++;
+				break;
+			case 2:
+				jugador->hab++;
+				break;
+			case 3:
+				jugador->vel++;
+				break;
+			case 4:
+				jugador->cap++;
+				break;
+		}
+	}
+}
+
+static void carequset(int points) {
+	jugador->fue=jugador->hab=jugador->vel=jugador->cap=points/CEE;
+}
+
+static void carownset(int points) {
+	cls();
+	char* str[]={"fuerza","habilidad","velocidad","capacidad"};
+	for(int k=0;k<CEE && points;k++) {
+		cls();
+otra:
+		ATR=BOLD;
+		INK=WHITE;
+		prints("Caracteristica %s",str[k]);
+		ATR=NONE;
+		ROW++;
+		COL=0;
+		prints("Quedan %i puntos, asignas: ",points);
+		ATR=NONE;
+		listen(INPUT);
+		char resp[3];
+		bufget(2,resp);
+		ROW++;
+		COL=0;
+		prints("Has introducido: %s",resp);
+		int value=0;
+		sscanf(resp,"%i",&value);
+		if(value<0 || value>MIN(points,VMC)) {
+			COL=0;
+			ROW++;
+			INK=RED;
+			prints("El valor de la caracteristica debe estar entre 0 i %i",MIN(points,VMC));
+			goto otra;
+		} else {
+			switch(k) {
+				case 0:
+					jugador->fue=value;
+					break;
+				case 1:
+					jugador->hab=value;
+					break;
+				case 2:
+					jugador->vel=value;
+					break;
+				case 3:
+					jugador->cap=value;
+					break;
+			}
+			points-=value;
+		}
+	}
+}
+
+static Bool carres() {
+	char* str[]={"FUE","HAB","VEL","CAP"};
+	int val[]={jugador->fue,jugador->hab,jugador->vel,jugador->cap};
+	cls();
+	ATR=BOLD;
+	prints("En resumen, las caracteristicas escogidas son: ");
+	ROW++;
+	COL=0;
+	for(int k=0;k<CEE;k++) {
+		ATR=BOLD;
+		prints("%s: ",str[k]);
+		ATR=NONE;
+		prints("%i   ",val[k]);
+	}
+	COL=0;
+	ROW+=2;
+	ATR=BOLD;
+	INK=YELLOW;
+	prints("Pulsa 0 si NO estas de acuerdo");
+	ATR=NONE;
+	INK=WHITE;
+	while(listen(INKEY)==0);
+	if(inkey('0')) return FALSE;
+	return TRUE;
+}		
+
 static void carset() {
 	/* funcion que da las caracteristicas de jugador */
-	jugador->fue=4;
-	jugador->hab=5;
-	jugador->cve=jugador->vel=3;
-	jugador->cap=3;
+	const int NOPS=3;
+	char* OPS[]={"Igualitaria","Aleatoria","Individualmente"};
+	cls();
+	do {
+		cls();
+		jugador->fue=jugador->hab=jugador->vel=jugador->cap=0;
+		int res=menu("Escoge las caracteristicas de tu jugador",NOPS,OPS);
+		if(res==0 || res>NOPS) carequset(CEE*PIE);
+		else if(res==1) carrndset(CEE*PIE);
+		else carownset(CEE*PIE);
+	} while(!carres());
 }
 
 Bool jugnew() {
@@ -120,16 +228,24 @@ static Bool strfnd(int* er ,int* ec,int dir) {
 	return FALSE;
 }
 
+static Bool jugposini(int* r,int* c) {
+	/* determina la posicion inicial del  jugador que tiene que estar en la habitacion dada por JHI */
+	const int TRIES=10000;
+	int tries=TRIES;
+	while(tries--) {
+		maprndpos(r,c,FALSE);
+		localidad_t * l=mapget(*r,*c);
+		if(l && l->hab==JHI) return TRUE;
+	}
+	return FALSE;
+}
+
 Bool jugpos(int dir) {
 	if(jugador) {
 		int r,c;
 		r=c=-1;
-		if(dir==0) {
-			if(maprndpos(&r,&c,FALSE)) {
-				localidad_t* l=mapget(r,c);
-				if(l==NULL) r=c=-1;
-			}
-		} else strfnd(&r,&c,dir);
+		if(dir==0) jugposini(&r,&c);
+		else strfnd(&r,&c,dir);
 		if(r!=-1 && c!=-1) {
 			if(objinipos(jugador,r,c)) {
 				visset();
