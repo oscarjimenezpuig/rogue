@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: divendres, 2 de gener de 2026, 10:36:57
+  Ultima Modificacion: dissabte, 3 de gener de 2026, 19:44:23
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -375,3 +375,9 @@ uint mapngh(int r,int c,localidad_t* l[4]) {
 	return ret;
 }
 
+int mapdis(int ro,int co,int rf,int cf) {
+	if(mapget(ro,co) && mapget(rf,cf)) {
+		return ABS(ro-rf) + ABS(co-cf);
+	}
+	return -1;
+}

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: divendres, 2 de gener de 2026, 10:38:51
+  Ultima Modificacion: dissabte, 3 de gener de 2026, 19:42:54
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -68,6 +68,7 @@
 #define MAX(A,B) (((A)>(B))?(A):(B))
 #define MIN(A,B) (((A)>(B))?(B):(A))
 #define ABS(A) (((A)>0)?(A):(-(A)))
+#define SGN(A,B) ((A)==(B))?0:((A)>(B))?1:-1;
 
 /* REGLAS */
 #define CFP (DAI<=jugador->hab) && (DAI<=jugador->fue) /* condicion de jugador para forzar puerta */
@@ -201,6 +202,9 @@ uint mapngh(int r,int c,localidad_t* ln[4]);
 /* da las cuatro localidades vecinas a la posicion dada N,S,E,O
  * en caso de que este fuera del mapa, la localidad sera NULL
  * se devuelve el numero de localidades diferentes a NULL*/
+
+int mapdis(int ro,int co,int fr,int cf);
+/* calcula la distancia Manhattan entre dos puntos del mapa, si alguno de ellos esta fuera del mapa, resultado -1 */
 
 /* pantalla.c */
 

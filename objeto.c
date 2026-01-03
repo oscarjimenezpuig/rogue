@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: divendres, 2 de gener de 2026, 08:20:13
+  Ultima Modificacion: dissabte, 3 de gener de 2026, 19:46:00
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -63,10 +63,8 @@ objeto_t* objcpy(struct objeto_s objcar) {
 }
 
 int objdis(objeto_t* a,objeto_t* b) {
-	if(a && b && a->c!=-1 && a->r!=-1 && b->c!=-1 && b->r!=-1) {
-		return ABS(a->c-b->c)+ABS(a->r-b->r);
-	}
-	return -1;
+	if(a && b) return mapdis(a->r,a->c,b->r,b->c);
+	else return -1;
 }
 
 Bool objinipos(objeto_t* o,int r,int c) {

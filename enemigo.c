@@ -2,7 +2,7 @@
 ============================================================
   Fichero: enemigo.c
   Creado: 29-12-2025
-  Ultima Modificacion: divendres, 2 de gener de 2026, 10:38:44
+  Ultima Modificacion: dissabte, 3 de gener de 2026, 20:46:45
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -190,10 +190,125 @@ void enelev(uint es) {
 	for(int k=0;k<res;k++) razporniv();
 }
 
+/* inteligencia artificial */
 
+static int nhab=-1;
+static Bool iaivno(objeto_t* o) {
+	/* condicion de item visto en zona no oscura */
+	if(o && o->npc==0) {
+		localidad_t* l=mapget(o->r,o->c);
+		if(l && l->hab==nhab) return TRUE;
+	}
+	return FALSE;
+}
+static objeto_t* oene=NULL;
+static Bool iaivo(objeto_t* o) {
+	/* condicion de item visto en zona oscura */
+	return (objdis(oene,o)==1);
+}	
 
+static uint iaitvi(objeto_t* e,objeto_t* vis[]) {
+	/* determina los objetos visibles por un enemigo */
+	if(e) {
+		localidad_t* l=mapget(e->r,e->c);
+		if(l) {
+			Condicion c=NULL;
+			if(l->osc) {
+				c=iaivo;
+				oene=e;
+			} else {
+				nhab=l->hab;
+				c=iaivno;
+			}
+			return objfnd(vis,c);
+		}
+	}
+	return 0;
+}
 
-	
+static Bool iajugvis(objeto_t* e) {
+	/* dice si el jugador es visible por el enemigo */
+	if(e) {
+		localidad_t* l=mapget(e->r,e->c);
+		if(l && l->vis==2) return TRUE;
+	}
+	return FALSE;
+}
 
+static int pr=-1;
+static int pc=-1;
+static Bool eninpos(objeto_t* o) {
+	return (o && o->npc==1 && o->r==pr && o->c==pc);
+}
 
+static Bool iamoveto(objeto_t* e,int r,int c) {
+	/* intenta mover el objeto a la posicion r,c */
+	if(e) {
+		int er=e->r;
+		int ec=e->c;
+		int dr=SGN(r,er);
+		int dc=SGN(c,ec);
+		if(rnd(0,1)) {
+			if(dr!=0 && objmov(e,dr,0)) return TRUE;
+			else if (dc!=0 && objmov(e,0,dc)) return TRUE;
+		} else {
+			if(dc!=0 && objmov(e,0,dc)) return TRUE;
+			else if(dr!=0 && objmov(e,dr,0)) return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+static void posord(int ro,int co,int rf,int cf,int* r,int* c,int* d) {
+	/* ordena los vecinos de ro,co por distancia creciente a rf,cf dando tambien la distancia */
+	const int DR[]={0,0,-1,1};
+	for(int k=0;k<4;k++) {
+		d[k]=-1;
+	}
+	for(int k=0;k<4;k++) {
+		int nr=ro+DR[k];
+		int nc=co+DR[3-k];
+		int dis=mapdis(rf,cf,ro,co);
+		for(int n=0;n<4;n++) {
+			if(d[n]==-1 || d[n]>dis) {
+				for(int m=n;m<3;m++) {
+					d[m+1]=d[m];
+					r[m+1]=r[m];
+					c[m+1]=c[m];
+				}
+				d[n]=dis;
+				r[n]=nr;
+				c[n]=nc;
+			}
+		}
+	}
+}
+
+static Bool iamovlej(objeto_t* e,int rf,int cf) {
+	/* intentamos alejarnos de la posicion rf,cf*/
+	int r[4];
+	int c[4];
+	int d[4];
+	posord(e->r,e->c,rf,cf,r,c,d);
+	int disa=mapdis(e->r,e->c,rf,cf);
+	for(int k=3;k>=0 && d[k]>disa;k++) {
+		if(iamoveto(e,r[k],c[k])) return TRUE;
+	}
+	return FALSE;
+}
+
+static Bool iamovcer(objeto_t* e,int rf,int cf) {
+	/* intentamos acercarnos a la posicion rf,cf */
+	int r[4];
+	int c[4];
+	int d[4];
+	posord(e->r,e->c,rf,cf,r,c,d);
+	int disa=mapdis(e->r,e->c,rf,cf);
+	for(int k=0;k<4 && d[k]<disa;k++) {
+		if(iamoveto(e,r[k],c[k])) return TRUE;
+	}
+	return FALSE;
+}
+
+//TODO Programar una rutina que evalue la efectividad del ataque cuerpo a cuerpo
 		
