@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: dissabte, 3 de gener de 2026, 19:46:00
+  Ultima Modificacion: diumenge, 4 de gener de 2026, 09:58:52
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -283,10 +283,10 @@ Bool objmue(objeto_t* o) {
 #undef oij
 
 Bool objcanact(objeto_t* o) {
-	if(o && o->npc) {
+	if(o && o->npc && o->vid>0) {
 		localidad_t* l=mapget(o->r,o->c);
 		if(l) {
-			if(o->cve==o->vel) {
+			if(o->cve==(VMC-o->vel)) {
 				o->cve=0;
 				return TRUE;
 			} else {

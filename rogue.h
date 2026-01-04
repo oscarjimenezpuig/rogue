@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dissabte, 3 de gener de 2026, 19:42:54
+  Ultima Modificacion: diumenge, 4 de gener de 2026, 08:46:27
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -59,6 +59,7 @@
 #define RNM 2 /* diferencia maxima por nivel aceptada */
 #define EmH 1 /* numero minimo de enemigos por nivel por habitacion */
 #define EMH 3 /* numero maximo de enemigos por nivel por habitacion */
+#define ATS 100 /* ataques simulados */
 
 /* jugador */
 #define JHI 1 /* habitacion inicial del jugador */
@@ -312,6 +313,9 @@ void anilev(uint anillo);
 
 void enelev(uint num);
 /* creacion de enemigos por nivel */
+
+Bool eneact();
+/* actuacion de todos los enemigos del nivel */
 
 /* nivel.c */
 

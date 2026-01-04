@@ -2,7 +2,7 @@
 ============================================================
   Fichero: debug.c
   Creado: 01-01-2026
-  Ultima Modificacion: dijous, 1 de gener de 2026, 10:16:42
+  Ultima Modificacion: diumenge, 4 de gener de 2026, 09:50:30
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -31,7 +31,7 @@ void dbgprt(const char* s,...) {
 	if(inkey('Q')) exit(0);
 }
 
-void dbgclr() {
+void dbgcls() {
 	cls();
 	deb_row=0;
 }

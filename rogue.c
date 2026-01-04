@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.c
   Creado: 10-12-2025
-  Ultima Modificacion: dijous, 25 de desembre de 2025, 09:13:18
+  Ultima Modificacion: diumenge, 4 de gener de 2026, 08:48:56
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -14,6 +14,7 @@ void curse() {
 	while(jugador) {
 		if(jugshw()) {
 			jugact();
+			eneact();
 		} else break;
 	}
 }

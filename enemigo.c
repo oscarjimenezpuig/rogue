@@ -2,7 +2,7 @@
 ============================================================
   Fichero: enemigo.c
   Creado: 29-12-2025
-  Ultima Modificacion: dissabte, 3 de gener de 2026, 20:46:45
+  Ultima Modificacion: diumenge, 4 de gener de 2026, 10:10:39
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -192,6 +192,8 @@ void enelev(uint es) {
 
 /* inteligencia artificial */
 
+/* funciones ia auxiliares */
+
 static int nhab=-1;
 static Bool iaivno(objeto_t* o) {
 	/* condicion de item visto en zona no oscura */
@@ -233,12 +235,6 @@ static Bool iajugvis(objeto_t* e) {
 		if(l && l->vis==2) return TRUE;
 	}
 	return FALSE;
-}
-
-static int pr=-1;
-static int pc=-1;
-static Bool eninpos(objeto_t* o) {
-	return (o && o->npc==1 && o->r==pr && o->c==pc);
 }
 
 static Bool iamoveto(objeto_t* e,int r,int c) {
@@ -310,5 +306,87 @@ static Bool iamovcer(objeto_t* e,int rf,int cf) {
 	return FALSE;
 }
 
-//TODO Programar una rutina que evalue la efectividad del ataque cuerpo a cuerpo
+static int iaefeata(objeto_t* e) {
+	/* evalua las probabilidades de lucha cuerpo a cuerpo con el jugador */
+	/* si el resultado es positivo, es favorable a e, si es negativo, es favorable a jugador */
+	/* se tiene en cuenta la velocidad añadiendo un factor de proporcionalidad */
+	int danj=0;
+	int dane=0;
+	int fj,fe;
+	fj=fe=1;
+	if(e->vel>jugador->vel) fe=(e->vel+1)/(jugador->vel+1);
+	else if(e->vel<jugador->vel && fe) fj=(jugador->vel+1)/(e->vel+1);
+	for(int k=0;k<ATS;k++) {
+		if(HAT(e,jugador)) dane+=fe*DAN(e);
+		if(HAT(jugador,e)) danj+=fj*DAN(jugador);
+	}
+	return (dane-danj);
+}
+
+/* funciones ia importantes */
+
+static Bool iaatacac(objeto_t* e) {
+	/* ia que rige el ataque cuerpo a cuerpo */
+	/* en el caso de animal, siempre ataca, en el caso de no animal, se evalua */
+	if(jugador && jugador->vid>0 && iajugvis(e)) {
+		if(e->anm) {
+			if(objdis(jugador,e)==1) return objata(e,jugador);
+			else return iamovcer(e,jugador->r,jugador->c);
+		} else {
+			int ra=iaefeata(e);
+			if(ra>0) {
+				if(objdis(jugador,e)==1) return objata(e,jugador);
+				else return iamovcer(e,jugador->r,jugador->c);
+			} else return iamovlej(e,jugador->r,jugador->c);
+		}
+	}
+	return FALSE;
+}
+
+/* funciones ia principales */
+
+static Bool iaanimal(objeto_t* e) {
+	if(!iaatacac(e)) {
+		return FALSE;
+	}
+	return TRUE;
+}
+
+static Bool iahumano(objeto_t* e) {
+	if(!iaatacac(e)) {
+		return FALSE;
+	}
+	return TRUE;
+}
+
+/* funciones de actuacion */
+
+static Bool oneeneact(objeto_t* e) {
+	if(e->anm) return iaanimal(e);
+	else return iahumano(e);
+}
+
+static Bool iseneact(objeto_t* o) {
+	return (o && o->npc && !o->jug && objcanact(o));
+}
+
+Bool eneact() {
+	objeto_t* oe[objsiz()];
+	uint oes=objfnd(oe,iseneact);
+	Bool ret=FALSE;
+	for(int k=0;k<oes;k++) {
+		ret|=oneeneact(oe[k]);
+	}
+	return ret;
+}
+
+
+
+
+
+
+
+
 		
+
+
