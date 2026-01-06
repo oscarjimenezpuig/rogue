@@ -2,7 +2,7 @@
 ============================================================
   Fichero: enemigo.c
   Creado: 29-12-2025
-  Ultima Modificacion: diumenge, 4 de gener de 2026, 10:10:39
+  Ultima Modificacion: dimarts, 6 de gener de 2026, 12:44:21
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -255,29 +255,32 @@ static Bool iamoveto(objeto_t* e,int r,int c) {
 	return FALSE;
 }
 
+static void swap(int* a,int* b) {
+	int c=*a;
+	*a=*b;
+	*b=c;
+}
+
 static void posord(int ro,int co,int rf,int cf,int* r,int* c,int* d) {
-	/* ordena los vecinos de ro,co por distancia creciente a rf,cf dando tambien la distancia */
+	/* ordena los vecinos de ro,co por distancia creciente a rf,cf, dando tambien la distancia a rf,cf */
 	const int DR[]={0,0,-1,1};
 	for(int k=0;k<4;k++) {
-		d[k]=-1;
+		r[k]=ro+DR[k];
+		c[k]=co+DR[3-k];
+		d[k]=mapdis(rf,cf,r[k],c[k]);
 	}
-	for(int k=0;k<4;k++) {
-		int nr=ro+DR[k];
-		int nc=co+DR[3-k];
-		int dis=mapdis(rf,cf,ro,co);
-		for(int n=0;n<4;n++) {
-			if(d[n]==-1 || d[n]>dis) {
-				for(int m=n;m<3;m++) {
-					d[m+1]=d[m];
-					r[m+1]=r[m];
-					c[m+1]=c[m];
-				}
-				d[n]=dis;
-				r[n]=nr;
-				c[n]=nc;
+	Bool changes;
+	do {
+		changes=FALSE;
+		for(int k=0;k<3;k++) {
+			if(d[k]>d[k+1]) {
+				swap(d+k,d+k+1);
+				swap(r+k,r+k+1);
+				swap(c+k,c+k+1);
+				changes=TRUE;
 			}
 		}
-	}
+	} while(changes);
 }
 
 static Bool iamovlej(objeto_t* e,int rf,int cf) {
@@ -290,7 +293,7 @@ static Bool iamovlej(objeto_t* e,int rf,int cf) {
 	for(int k=3;k>=0 && d[k]>disa;k++) {
 		if(iamoveto(e,r[k],c[k])) return TRUE;
 	}
-	return FALSE;
+	return TRUE;
 }
 
 static Bool iamovcer(objeto_t* e,int rf,int cf) {
@@ -343,6 +346,49 @@ static Bool iaatacac(objeto_t* e) {
 	return FALSE;
 }
 
+static Bool iaacoger(objeto_t* e) {
+	/* funcion que se encarga de coger objetos si se puede */
+	/* los enemigos no cogen ni llaves ni el anillo */
+	objeto_t* inv[objsiz()];
+	uint invs=objinv(e,inv);
+	objeto_t* vis[objsiz()];
+	uint viss=iaitvi(e,vis);
+	if(invs<e->cap && viss>0) {
+		int dis[viss];
+		int chk[viss];
+		for(int k=0;k<viss;k++) {
+			objeto_t* oe=vis[k];
+			dis[k]=objdis(e,oe);
+			if(oe->cog==0 || oe->lla || oe->ior || (oe->prt && objisprt(e))) chk[k]=1;
+			else chk[k]=0;
+		}
+		Bool fin=FALSE;
+		while(!fin) {
+			int omd=-1;
+			uint domd=0;
+			for(int k=0;k<viss;k++) {
+				if(chk[k]==0) {
+					if(omd==-1 || (domd<dis[k])) {
+						omd=k;
+						domd=dis[k];
+					}
+				}
+			}
+			if(!objcog(e,vis[omd])) {
+				chk[omd]=1;
+				int chkd=0;
+				for(int k=0;k<viss;k++) {
+					if(chk[k]) chkd++;
+				}
+				if(viss==chkd) fin=TRUE;
+			} else return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+
+
 /* funciones ia principales */
 
 static Bool iaanimal(objeto_t* e) {
@@ -354,7 +400,9 @@ static Bool iaanimal(objeto_t* e) {
 
 static Bool iahumano(objeto_t* e) {
 	if(!iaatacac(e)) {
-		return FALSE;
+		if(!iaacoger(e)) {
+			return FALSE;
+		}
 	}
 	return TRUE;
 }
@@ -362,8 +410,9 @@ static Bool iahumano(objeto_t* e) {
 /* funciones de actuacion */
 
 static Bool oneeneact(objeto_t* e) {
-	if(e->anm) return iaanimal(e);
-	else return iahumano(e);
+	if(e && e->anm) return iaanimal(e);
+	else if(e) return iahumano(e);
+	else return FALSE;
 }
 
 static Bool iseneact(objeto_t* o) {

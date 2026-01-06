@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: divendres, 2 de gener de 2026, 10:40:18
+  Ultima Modificacion: dimarts, 6 de gener de 2026, 11:25:43
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -480,7 +480,8 @@ static Bool jugqut() {
 
 Bool jugact() {
 	if(objcanact(jugador) && !jugdsc()) {
-		listen(INKEY);
+listen:
+		listen(DELAY);
 		int ckey=chkkey();
 		switch(ckey) {
 			case 0:
@@ -506,6 +507,8 @@ Bool jugact() {
 				return jugues();
 			case 12:
 				return jugata();
+			default:
+				goto listen;
 		}
 	}
 	return FALSE;
