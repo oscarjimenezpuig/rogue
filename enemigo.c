@@ -2,7 +2,7 @@
 ============================================================
   Fichero: enemigo.c
   Creado: 29-12-2025
-  Ultima Modificacion: dimarts, 6 de gener de 2026, 12:44:21
+  Ultima Modificacion: dimecres, 7 de gener de 2026, 13:19:20
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -90,9 +90,9 @@ static void razdef() {
 	rr("xeloth aberrante",6,10,6,8);
 	rr("ydrasil ancestral",14,14,5,15);
 	rr("zarkun del vacio",12,13,10,15);
-	ra("rata",3,0,9);
-	ra("serpiente",2,3,7);
-	ra("tarantula",5,5,2);
+	ra("rata",2,0,7);
+	ra("serpiente",2,2,5);
+	ra("tarantula",4,4,1);
 }
 
 
@@ -356,38 +356,35 @@ static Bool iaacoger(objeto_t* e) {
 	if(invs<e->cap && viss>0) {
 		int dis[viss];
 		int chk[viss];
+		int chkd=0;
 		for(int k=0;k<viss;k++) {
 			objeto_t* oe=vis[k];
 			dis[k]=objdis(e,oe);
-			if(oe->cog==0 || oe->lla || oe->ior || (oe->prt && objisprt(e))) chk[k]=1;
-			else chk[k]=0;
+			if(oe->cog==0 || oe->lla || oe->ior || (oe->prt && objisprt(e))) {
+				chk[k]=1;
+				chkd++;
+			} else chk[k]=0;
 		}
-		Bool fin=FALSE;
-		while(!fin) {
+		while(chkd<viss) {
 			int omd=-1;
 			uint domd=0;
 			for(int k=0;k<viss;k++) {
 				if(chk[k]==0) {
-					if(omd==-1 || (domd<dis[k])) {
+					if(omd==-1 || (domd>dis[k])) {
 						omd=k;
 						domd=dis[k];
 					}
 				}
 			}
+			printf("%s intenta coger %s",e->nom,vis[omd]->nom);//dbg
 			if(!objcog(e,vis[omd])) {
 				chk[omd]=1;
-				int chkd=0;
-				for(int k=0;k<viss;k++) {
-					if(chk[k]) chkd++;
-				}
-				if(viss==chkd) fin=TRUE;
+				chkd++;
 			} else return TRUE;
 		}
 	}
 	return FALSE;
 }
-
-
 
 /* funciones ia principales */
 

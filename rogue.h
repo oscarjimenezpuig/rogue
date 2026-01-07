@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: diumenge, 4 de gener de 2026, 08:46:27
+  Ultima Modificacion: dimecres, 7 de gener de 2026, 12:20:22
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -88,6 +88,8 @@
  * a la defensa (fuerza/CAR) + armadura, el ataque es positivo. Entonces se
  * usa el arma con los dados de daño mas los plus de habilidad y fuerza, en caso de no
  * tener arma se usan los puños */
+/* Regla de descanso: Se descansa ganando puntos de vida si estamos en una habitacion sin
+ * enemigos. Tiene que ser habitacion clara */
 
 
 /* TIPOS */

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: dimarts, 6 de gener de 2026, 11:25:43
+  Ultima Modificacion: dimecres, 7 de gener de 2026, 13:04:51
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -20,15 +20,16 @@
 #define TCOG 'c' /* coger 4*/
 #define TDEJ 'd' /* dejar 5*/
 #define TINV 'I' /* inventario 6*/
-#define TABR 'a' /* abrir una puerta 7*/
+#define TABR 'A' /* abrir una puerta 7*/
 #define TFRZ 'f' /* forzar la puerta 8*/
 #define TQUT 'Q' /* tecla finalizar juego 9*/
 #define TMIR 'm' /* mirar 10 */
 #define TESC 's' /* escalera 11 */
-#define TATQ 'A' /* atacar 12 */
+#define TATQ 'a' /* atacar 12 */
+#define TDSC 'r' /* descansar 13 */
 
-#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR,TESC,TATQ};
-#define KEYS 13
+#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR,TESC,TATQ,TDSC};
+#define KEYS 14
 
 /* posicion inicial pantalla */
 #define RO 0
@@ -330,22 +331,28 @@ static Bool jugmir() {
 
 static void jugitc() {
 	/* dice todos los items que estan bajo el jugador */
+	static Bool something=FALSE;
+	if(something) {
+		ROW=ROWS-1;
+		COL=0;
+		BKG=BLACK;
+		for(int k=0;k<COLS;k++) printc(' ');
+		something=FALSE;
+	}
 	objeto_t* itm[objsiz()];
 	uint itms=objfnd(itm,isitijp);
-	static int conected=0;
 	if(itms) {
+		something=TRUE;
 		INK=WHITE;
-		ATR=NONE;
-		ROW=MAPAR-1;
+		ATR=BOLD;
+		ROW=ROWS-1;
 		COL=0;
-		prints("Aqui puedes ver %s",(*itm)->nom);
-		if(itms>1) prints(" y algunas cosas mas");
-		prints("...");
-		conected=1;
-	} else if(conected) {
-		ROW=MAPAR-1;
-		for(COL=0;COL<MAPAC;COL++) printc(' ');
-		conected=0;
+		prints("Aqui puedes ver: ");
+		ATR=NONE;
+		for(int k=0;k<itms;k++) {
+			prints("%s",itm[k]->nom);
+			if(k!=itms-1) prints(", ");
+		}
 	}
 }
 
@@ -473,54 +480,92 @@ static Bool jugata() {
 	return FALSE;
 }
 
+static int jughab=-1;
+static Bool isnpcvis(objeto_t* o) {
+	if(o && o->npc && !o->jug && o->vid>0) {
+		localidad_t* l=mapget(o->r,o->c);
+		return l->hab==jughab;
+	}
+	return FALSE;
+}
+
+static Bool jugrst() {
+	/* orden que hace descansar al jugador no haciendo nada, gana un punto de vida siempre y cuando no haya enemigos visibles */
+	localidad_t* lj=mapget(jugador->r,jugador->c);
+	menin("Descansas...");
+	if(lj->osc) menin("... pero no ganas ningun punto de vida porque estas en la oscuridad...");
+	else if(jugador->vid==VMC) menin("... pero no ganas ningun punto de vida porque tienes el maximo posible...");
+	else {
+		objeto_t* vis[objsiz()];
+		uint viss=objfnd(vis,isnpcvis);
+		if(viss) menin("... pero no ganas ningun punto de vida porque hay enemigos aqui...");
+		else {
+			jugador->vid++;
+			menin("... y ganas un punto de vida");
+		}
+	}
+	return TRUE;
+}
+
 static Bool jugqut() {
 	jugador=NULL;
 	return TRUE;
 }
 
-Bool jugact() {
-	if(objcanact(jugador) && !jugdsc()) {
-listen:
-		listen(DELAY);
-		int ckey=chkkey();
-		switch(ckey) {
-			case 0:
-			case 1:
-			case 2:
-			case 3:
-				return jugmov(ckey);
-			case 4:
-				return jugcog();
-			case 5:
-				return jugdej();
-			case 6:
-				return juginv();
-			case 7:
-				return jugabr();
-			case 8:
-				return jugfrp();
-			case 9:
-				return jugqut();
-			case 10:
-				return jugmir();
-			case 11:
-				return jugues();
-			case 12:
-				return jugata();
-			default:
-				goto listen;
-		}
-	}
+static Bool jugidk() {
+	/* funcion que dice que la orden introducida no se ha entendido */
+	menin("No te entiendo...");
 	return FALSE;
 }
+
+Bool jugact() {
+	if(objcanact(jugador) && !jugdsc()) {
+		Bool ret=FALSE;
+		while(!ret) {
+			listen(DELAY);
+			int ckey=chkkey();
+			switch(ckey) {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+					return jugmov(ckey);
+				case 4:
+					return jugcog();
+				case 5:
+					return jugdej();
+				case 6:
+					return juginv();
+				case 7:
+					return jugabr();
+				case 8:
+					return jugfrp();
+				case 9:
+					return jugqut();
+				case 10:
+					return jugmir();
+				case 11:
+					return jugues();
+				case 12:
+					return jugata();
+				case 13:
+					return jugrst();
+				default:
+					return jugidk();
+			}
+		}
+	}
+	return TRUE;
+}
+
 
 Bool jugshw() {
 	localidad_t* l=NULL;
 	if(jugador && (l=mapget(jugador->r,jugador->c))) {
 		int ri,ci,rs,cs;
-		jugitc();
 		recjug(&ri,&ci,&rs,&cs);
 		panshw(ri,ci,rs,cs,RO,CO);
+		jugitc();
 		return TRUE;
 	}
 	return FALSE;

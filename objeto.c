@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: diumenge, 4 de gener de 2026, 09:58:52
+  Ultima Modificacion: dimecres, 7 de gener de 2026, 12:43:36
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -242,9 +242,13 @@ Bool objdes(objeto_t* o,objeto_t* itm) {
 Bool objata(objeto_t* o,objeto_t* ene) {
 	if(o && ene && o->npc && ene->npc && (o->jug || ene->jug)) {
 		ene->ata=1;
-		objeto_t* v=objisves(o);
-		if(v) menin("%s ataca a %s con %s...",o->nom,ene->nom,v->nom);
-		else menin("%s ataca a %s a mano descubierta...",o->nom,ene->nom);
+		if(o->anm) {
+			menin("%s muerde a %s...",o->nom,ene->nom);
+		} else {
+			objeto_t* v=objisves(o);
+			if(v) menin("%s ataca a %s con %s...",o->nom,ene->nom,v->nom);
+			else menin("%s ataca a %s a mano descubierta...",o->nom,ene->nom);
+		}
 		if(HAT(o,ene)) {
 			int dano=DAN(o);
 			menin("%s da un golpe de %i puntos a %s...",o->nom,dano,ene->nom);
