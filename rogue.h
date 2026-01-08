@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dimecres, 7 de gener de 2026, 12:20:22
+  Ultima Modificacion: jue 08 ene 2026 11:05:49
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -45,6 +45,7 @@
 
 /* items */
 #define VMC 15 /* valor maximo de cualquier caracteristica */
+#define OMO 65535 /* oro maximo que puede contener un objeto */
 #define OXD 1 /* oro por cada 10 cuadrados de transitable */
 #define OML 9 /* maximo de sacos de oro por nivel */
 #define OmL 1 /* minimo de sacos por nivel */

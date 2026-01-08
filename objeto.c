@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: dimecres, 7 de gener de 2026, 12:43:36
+  Ultima Modificacion: jue 08 ene 2026 12:35:43
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -10,6 +10,9 @@
 #include "rogue.h"
 
 #define OBJETOS 64 /* numero de objetos maximos en un nivel */
+
+#define ATRCAD (atributo_t){'%',BOLD,WHITE,BLACK} /* atributo de un cadaver */
+#define NOMCAD "CADAVER" /* nombre del cadaver */
 
 objeto_t* jugador=NULL;
 
@@ -24,14 +27,18 @@ uint objsiz() {
 	return objetos;
 }
 
+void strcop(char* d,char* o) {
+	char* pd=d;
+	char* po=o;
+	while(*po!=EOS && pd-d<SLEN) *pd++=*po++;
+	*po=EOS;
+}
+
 objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 	objeto_t* new=NULL;
 	if(objetos<OBJETOS) {
 		new=(npc && jug)?objeto:objeto+objetos++;
-		char* p=n;
-		char* q=new->nom;
-		while(*p!=EOS && p-n<SLEN) *q++=*p++;
-		*q=EOS;
+		strcop(new->nom,n);
 		new->atr=a;
 		new->r=new->c=-1;
 		if(npc) {
@@ -85,7 +92,6 @@ Bool objinipos(objeto_t* o,int r,int c) {
 	return FALSE;
 }
 				
-
 uint objfnd(objeto_t* o[],Condicion c) {
 	objeto_t* p=objeto;
 	objeto_t** po=o;
@@ -266,19 +272,57 @@ Bool objata(objeto_t* o,objeto_t* ene) {
 	return FALSE;
 }
 
+static void trscad(objeto_t* o) {
+	/* transfoma un npc en un cadaver (no al jugador) */
+	if(o->jug==0) {
+		strcop(o->nom,NOMCAD);
+		o->atr=ATRCAD;
+		o->npc=0;
+		o->cog=o->ior=o->arm=o->lla=o->ani=o->prt=o->ves=0;
+	}
+}
+
+static Bool isooi(objeto_t* o) {
+	/* condicion de objeto oro no disponible */
+	return (o && o->npc==0 && o->ior && o->r==-1 && o->c==-1);
+}
+
+static void reporo(int r,int c,int oro) {
+	if(oro>0) {
+		objeto_t* tsd[objsiz()];
+		int tsds=objfnd(tsd,isooi);
+		int cout=0;
+		while(cout<tsds && oro) {
+			int coro=0;
+			if(oro>OMO) coro=OMO;
+			else coro=oro;
+			oro-=coro;
+			tsd[cout]->cor=coro;
+			tsd[cout]->r=r;
+			tsd[cout]->c=c;
+			cout++;
+		}
+	}
+}
+
 Bool objmue(objeto_t* o) {
 	if(o && o->npc && o->vid>0 && o->r!=-1 && o->c!=-1) {
 		menin("%s ha muerto...",o->nom);
 		o->vid=0;
-		objeto_t* inv[objsiz()];
-		int invs=objinv(o,inv);
-		for(int k=0;k<invs;k++) {
-			objeto_t* oe=inv[k];
-			oe->con=NULL;
-			oe->r=o->r;
-			oe->c=o->c;
+		if(o->jug) {
+			jugador=NULL;
+		} else {
+			trscad(o);
+			objeto_t* inv[objsiz()];
+			int invs=objinv(o,inv);
+			for(int k=0;k<invs;k++) {
+				objeto_t* oe=inv[k];
+				oe->con=NULL;
+				oe->r=o->r;
+				oe->c=o->c;
+			}
+			reporo(o->r,o->c,o->oro);
 		}
-		o->r=o->c=-1;
 		return TRUE;
 	}
 	return FALSE;
