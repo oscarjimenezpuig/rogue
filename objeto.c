@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: jue 08 ene 2026 12:35:43
+  Ultima Modificacion: vie 09 ene 2026 12:20:35
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -31,7 +31,7 @@ void strcop(char* d,char* o) {
 	char* pd=d;
 	char* po=o;
 	while(*po!=EOS && pd-d<SLEN) *pd++=*po++;
-	*po=EOS;
+	*pd=EOS;
 }
 
 objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
@@ -52,6 +52,7 @@ objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 			new->ata=0;
 			new->oro=0;
 			new->vid=VMC;
+			new->dr=new->dc=-1;
 		} else {
 			new->npc=0;
 			new->cog=new->ior=new->arm=new->lla=new->ani=new->ves=0;

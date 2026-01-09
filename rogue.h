@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: jue 08 ene 2026 11:05:49
+  Ultima Modificacion: vie 09 ene 2026 12:24:10
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -61,6 +61,7 @@
 #define EmH 1 /* numero minimo de enemigos por nivel por habitacion */
 #define EMH 3 /* numero maximo de enemigos por nivel por habitacion */
 #define ATS 100 /* ataques simulados */
+#define CDR DAI /* dado que da el cambio de direccion random */
 
 /* jugador */
 #define JHI 1 /* habitacion inicial del jugador */
@@ -131,6 +132,7 @@ struct objeto_s {
 			uint vid : 4; /* contador de vida */
 			uint oro : 12; /* oro */
 			uint ata : 1; /* indicador de estar siendo atacado */
+			int dr,dc; /* destino del npc no jugador */
 		};
 		struct {
 			uint cog : 1; /* 1: es cogible */

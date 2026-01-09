@@ -2,7 +2,7 @@
 ============================================================
   Fichero: enemigo.c
   Creado: 29-12-2025
-  Ultima Modificacion: dimecres, 7 de gener de 2026, 13:19:20
+  Ultima Modificacion: vie 09 ene 2026 12:25:33
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -131,7 +131,7 @@ static int enepos(objeto_t* enemigo) {
 		}
 	}
 	return ret;
-}		
+}
 
 static int razporniv() {
 	/* escoge una raza al azar que se adecue el nivel */
@@ -309,6 +309,12 @@ static Bool iamovcer(objeto_t* e,int rf,int cf) {
 	return FALSE;
 }
 
+static Bool iamovrnd(objeto_t* e) {
+	/* se mueve aleatoriamente */
+	if(e->dr==-1 || e->dc==-1 || CDR==1) maprndpos(&e->dr,&e->dc,TRUE);
+	return iamovcer(e,e->dr,e->dc);
+}
+
 static int iaefeata(objeto_t* e) {
 	/* evalua las probabilidades de lucha cuerpo a cuerpo con el jugador */
 	/* si el resultado es positivo, es favorable a e, si es negativo, es favorable a jugador */
@@ -390,7 +396,7 @@ static Bool iaacoger(objeto_t* e) {
 
 static Bool iaanimal(objeto_t* e) {
 	if(!iaatacac(e)) {
-		return FALSE;
+		return iamovrnd(e);
 	}
 	return TRUE;
 }
@@ -398,7 +404,7 @@ static Bool iaanimal(objeto_t* e) {
 static Bool iahumano(objeto_t* e) {
 	if(!iaatacac(e)) {
 		if(!iaacoger(e)) {
-			return FALSE;
+			return iamovrnd(e);
 		}
 	}
 	return TRUE;

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: nivel.c
   Creado: 23-12-2025
-  Ultima Modificacion: divendres, 2 de gener de 2026, 10:29:56
+  Ultima Modificacion: vie 09 ene 2026 12:09:25
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
