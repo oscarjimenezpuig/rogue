@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: vie 09 ene 2026 12:24:10
+  Ultima Modificacion: dissabte, 10 de gener de 2026, 12:19:22
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -85,6 +85,8 @@
 #define CAR 5 /* puntos de armadura por cada punto de fuerza (siempre se cuentan) */
 #define HAT(A,D) regla_ataque((A),(D)) /* condicion de ataque fructifero A: atacante, D: defensor */
 #define DAN(A) regla_dano(A) /* daño que inflinge un atacante */
+#define PIC 25 /* precio inicial de venta de una caracteristica */
+#define PAC 10 /* aumento de precio de la caracteristica cada vez que se realiza una compra */
 
 /* Reglas lucha: Se lanza 1D20 +(fuerza_ataque/PFA) , si este supera
  * a la defensa (fuerza/CAR) + armadura, el ataque es positivo. Entonces se

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: dimecres, 7 de gener de 2026, 13:04:51
+  Ultima Modificacion: dissabte, 10 de gener de 2026, 13:18:43
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -27,9 +27,10 @@
 #define TESC 's' /* escalera 11 */
 #define TATQ 'a' /* atacar 12 */
 #define TDSC 'r' /* descansar 13 */
+#define TCMP 'C' /* compra de una caracteristica 14 */
 
-#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR,TESC,TATQ,TDSC};
-#define KEYS 14
+#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR,TESC,TATQ,TDSC,TCMP};
+#define KEYS 15
 
 /* posicion inicial pantalla */
 #define RO 0
@@ -507,6 +508,75 @@ static Bool jugrst() {
 	return TRUE;
 }
 
+#define chkm(A,C) (res==(A) && jugador->C<VMC)
+
+static Bool jugcmp() {
+	/* funcion de compra de caracteristicas */
+	const int CRS=4;
+	char* nom[]={"FUERZA   ","HABILIDAD","VELOCIDAD","CAPACIDAD"};
+	static int prc[]={PIC,PIC,PIC,PIC};
+	Bool ret=FALSE;
+	cls();
+	INK=WHITE;
+	ATR=BOLD;
+	ROW=COL=0;
+	prints("PRECIO CARACTERISTICAS");
+	for(int k=0;k<CRS;k++) {
+		ROW++;
+		COL=0;
+		prints("  %i. ",k+1);
+		ATR=BOLD;
+		prints("%s",nom[k]);
+		ATR=NONE;
+		prints(": %i oros",prc[k]);
+	}
+	ROW+=2;
+	COL=0;
+	prints("Tienes %i oros, pulsa el numero de la caracteristica a comprar o en su defecto 0",jugador->oro);
+	listen(DELAY);
+	char sres[2];
+	bufget(1,sres);
+	int res=0;
+	sscanf(sres,"%i",&res);
+	res--;
+	INK=YELLOW;
+	ATR=NONE;
+	COL=0;
+	ROW+=2;
+	if(res<CRS && res>=0) {
+		if(chkm(0,fue) || chkm(1,hab) || chkm(2,vel) || chkm(3,cap)) {
+			if(jugador->oro>=prc[res]) {
+				jugador->oro-=prc[res];
+				prints("Aumentas +1 en %s",nom[res]);
+				switch(res) {
+					case 0:
+						jugador->fue++;
+						break;
+					case 1:
+						jugador->hab++;
+						break;
+					case 2:
+						jugador->vel++;
+						break;
+					case 3:
+						jugador->cap++;
+						break;
+				}
+				prc[res]+=PAC;
+				ret=TRUE;
+			} else {
+				prints("No tienes suficiente oro...");
+			}
+		} else {
+			prints("Ya tienes el maximo de valor en %s...",nom[res]);
+		}
+	}
+	while(listen(INKEY)==0);
+	return ret;
+}
+
+#undef chkm
+	
 static Bool jugqut() {
 	jugador=NULL;
 	return TRUE;
@@ -550,6 +620,8 @@ Bool jugact() {
 					return jugata();
 				case 13:
 					return jugrst();
+				case 14:
+					return jugcmp();
 				default:
 					return jugidk();
 			}
