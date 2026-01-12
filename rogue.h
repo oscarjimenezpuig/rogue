@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: dissabte, 10 de gener de 2026, 12:19:22
+  Ultima Modificacion: lun 12 ene 2026 13:38:55
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -87,6 +87,8 @@
 #define DAN(A) regla_dano(A) /* daño que inflinge un atacante */
 #define PIC 25 /* precio inicial de venta de una caracteristica */
 #define PAC 10 /* aumento de precio de la caracteristica cada vez que se realiza una compra */
+#define VmE num_nivel /* la vidad minima posible de cualquier enemigo es el nivel en el que se encuentra */
+#define VME VMC /* la vida maxima de un enemigo es el valor maximo de la caracteristica */
 
 /* Reglas lucha: Se lanza 1D20 +(fuerza_ataque/PFA) , si este supera
  * a la defensa (fuerza/CAR) + armadura, el ataque es positivo. Entonces se
@@ -319,7 +321,7 @@ void anilev(uint anillo);
 /* enemigo.c */
 
 void enelev(uint num);
-/* creacion de enemigos por nivel */
+/* creacion de enemigos por nivel. Si nuevo_nivel TRUE, el nivel se acaba de definir y la vida del enemigo va desde el nivel al maximo */
 
 Bool eneact();
 /* actuacion de todos los enemigos del nivel */

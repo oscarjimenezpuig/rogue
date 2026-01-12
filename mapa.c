@@ -2,7 +2,7 @@
 ============================================================
   Fichero: mapa.c
   Creado: 01-12-2025
-  Ultima Modificacion: dissabte, 3 de gener de 2026, 19:44:23
+  Ultima Modificacion: lun 12 ene 2026 13:52:10
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -323,7 +323,7 @@ static void coloca_escalera(int escalera) {
 		r=rnd(0,MAPAR-1);
 		c=rnd(0,MAPAC-1);
 		l=mapget(r,c);
-	} while(l->trs!=1 || (l->trs==1 && l->hab==0) || (escalera==-1 && escalera_baja==l->hab));
+	} while(l->trs!=1 || (l->trs==1 && l->hab==0) || (l->trs==1 && num_nivel==NIN && l->hab==JHI) || (escalera==-1 && escalera_baja==l->hab));
 	l->esc=escalera;
 	if(escalera==1) escalera_baja=l->hab;
 }

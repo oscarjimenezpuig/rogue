@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: dissabte, 10 de gener de 2026, 13:18:43
+  Ultima Modificacion: lun 12 ene 2026 14:08:39
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -513,7 +513,7 @@ static Bool jugrst() {
 static Bool jugcmp() {
 	/* funcion de compra de caracteristicas */
 	const int CRS=4;
-	char* nom[]={"FUERZA   ","HABILIDAD","VELOCIDAD","CAPACIDAD"};
+	char* nom[]={"FUE","HAB","VEL","CAP"};
 	static int prc[]={PIC,PIC,PIC,PIC};
 	Bool ret=FALSE;
 	cls();
@@ -524,6 +524,7 @@ static Bool jugcmp() {
 	for(int k=0;k<CRS;k++) {
 		ROW++;
 		COL=0;
+		ATR=NONE;
 		prints("  %i. ",k+1);
 		ATR=BOLD;
 		prints("%s",nom[k]);
@@ -532,7 +533,12 @@ static Bool jugcmp() {
 	}
 	ROW+=2;
 	COL=0;
-	prints("Tienes %i oros, pulsa el numero de la caracteristica a comprar o en su defecto 0",jugador->oro);
+	prints("Tienes %i oros.",jugador->oro);
+	ATR=REVERSE;
+	ROW++;
+	COL=0;
+	prints("Pulsa el numero de caracteristica, o 0");
+	ATR=NONE;
 	listen(DELAY);
 	char sres[2];
 	bufget(1,sres);

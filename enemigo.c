@@ -2,7 +2,7 @@
 ============================================================
   Fichero: enemigo.c
   Creado: 29-12-2025
-  Ultima Modificacion: vie 09 ene 2026 12:25:33
+  Ultima Modificacion: lun 12 ene 2026 14:15:40
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -150,7 +150,11 @@ static int razporniv() {
 		raza_t* r=raza+re;
 		int nr=0;
 		if((maxnivget==TRUE && num_nivel!=NFI) || ((nr=razniv(*r)) && nr>=nniv+RNm && nr<=nniv+RNM)) {
-			return enepos(enenew(*r));
+			objeto_t* en=enenew(*r);
+			if(en) {
+				if(!maxnivget) en->vid=rnd(VmE,VME);
+				return enepos(en);
+			}
 		}
 	}
 	return 0;
@@ -366,7 +370,7 @@ static Bool iaacoger(objeto_t* e) {
 		for(int k=0;k<viss;k++) {
 			objeto_t* oe=vis[k];
 			dis[k]=objdis(e,oe);
-			if(oe->cog==0 || oe->lla || oe->ior || (oe->prt && objisprt(e))) {
+			if(oe->cog==0 || oe->lla || oe->ani || (oe->prt && objisprt(e))) {
 				chk[k]=1;
 				chkd++;
 			} else chk[k]=0;
@@ -382,11 +386,15 @@ static Bool iaacoger(objeto_t* e) {
 					}
 				}
 			}
-			printf("%s intenta coger %s",e->nom,vis[omd]->nom);//dbg
-			if(!objcog(e,vis[omd])) {
-				chk[omd]=1;
-				chkd++;
-			} else return TRUE;
+			if(omd!=-1) {
+				objeto_t* oe=vis[omd];
+				if(!objcog(e,oe)) {
+					if(!iamovcer(e,oe->r,oe->c)) {
+						chk[omd]=1;
+						chkd++;
+					} else return TRUE;
+				} else return TRUE;
+			}
 		}
 	}
 	return FALSE;

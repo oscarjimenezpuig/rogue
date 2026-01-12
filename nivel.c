@@ -2,7 +2,7 @@
 ============================================================
   Fichero: nivel.c
   Creado: 23-12-2025
-  Ultima Modificacion: vie 09 ene 2026 12:09:25
+  Ultima Modificacion: lun 12 ene 2026 13:39:56
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -216,7 +216,6 @@ Bool nivchg(int dir) {
 	}
 	return FALSE;
 }
-
 
 		
 
