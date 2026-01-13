@@ -2,7 +2,7 @@
 ============================================================
   Fichero: nivel.c
   Creado: 23-12-2025
-  Ultima Modificacion: lun 12 ene 2026 13:39:56
+  Ultima Modificacion: mar 13 ene 2026 11:00:56
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -62,7 +62,7 @@ static void nivmap(uint niv,uint seed) {
 static void nivitm(uint niv) {
 	/* colocacion de todos los items segun las cantidades */
 	nivel_t* p=nivel+(niv-NIN);
-	llplev(p->lls);
+	llvlev(p->lls);
 	orolev(p->oro);
 	anilev(p->ani);
 }
@@ -148,13 +148,20 @@ void nivprm() {
 }
 
 static Bool objinniv(objeto_t* o) {
-	return (o && o->r!=-1 && o->c!=-1)?TRUE:FALSE;
+	if(o) {
+		if(o->r!=-1 && o->c!=-1) return TRUE;
+		else if(o->npc==0){
+			objeto_t* npc=o->con;
+			if(npc && npc->jug==0) return TRUE;
+		}
+	}
+	return FALSE;
 }
 
 static void nivres(uint niv) {
 	/* cuenta todos los objetos que se han quedado en el nivel */
 	nivel_t* p=nivel+(niv-NIN);
-	p->lls=p->ars=p->ens=p->ani=p->oro=0;
+	p->lls=p->ars=p->ens=p->ani=p->oro=p->prs=0;
 	objeto_t* oin[objsiz()];
 	uint oins=objfnd(oin,objinniv);
 	for(uint k=0;k<oins;k++) {
@@ -165,6 +172,8 @@ static void nivres(uint niv) {
 			p->oro+=oe->cor;
 		} else if(oe->arm) {
 			p->ars++;
+		} else if(oe->prt) {
+			p->prs++;
 		} else if(oe->lla) {
 			p->lls++;
 		} else if(oe->ani) {

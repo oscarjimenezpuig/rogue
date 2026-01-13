@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: lun 12 ene 2026 13:38:55
+  Ultima Modificacion: mar 13 ene 2026 12:09:27
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -50,6 +50,15 @@
 #define OML 9 /* maximo de sacos de oro por nivel */
 #define OmL 1 /* minimo de sacos por nivel */
 #define PLR 4 /* factor de las llaves (relacionado con el dado que se usa para que se rompa la llave) */
+#define ANT 4 /* numeros de tipos de armas */
+#define ATI 5 /* numero de armas de cada tipo */
+#define MAL 4 /* multiplicador al numero de armas ligeras */
+#define MAE 3 /* multiplicador al numero de armas equilibradas */
+#define MAP 2 /* multiplicador al numero de armas pesadas */
+#define MAM 1 /* multiplicador al numero de armas magicas */
+#define ATO (ATI*(MAL+MAE+MAP+MAM)) /* numero de armas totales */
+#define APN (ATO/(NFI-NIN+1)) /* numero de armas medio por nivel */
+#define ADM 2 /* desviacion de la media del numero de armas por nivel */
 
 /* enemigos */
 #define CEE 4 /* numero de caracteristicas evaluables de enemigo */
@@ -89,6 +98,9 @@
 #define PAC 10 /* aumento de precio de la caracteristica cada vez que se realiza una compra */
 #define VmE num_nivel /* la vidad minima posible de cualquier enemigo es el nivel en el que se encuentra */
 #define VME VMC /* la vida maxima de un enemigo es el valor maximo de la caracteristica */
+#define DRA(A) regla_arma_rotura(A) /* regla para la rotura de armas */
+#define DRP(P) regla_proteccion_rotura(P) /* regla para la rotura de la proteccion */
+#define RDS regla_descanso() /* regla de descanso del jugador */
 
 /* Reglas lucha: Se lanza 1D20 +(fuerza_ataque/PFA) , si este supera
  * a la defensa (fuerza/CAR) + armadura, el ataque es positivo. Entonces se
@@ -152,6 +164,7 @@ struct objeto_s {
 					uint cor : 8; /* cantidad de oro del tesoro */
 				};
 				struct { /* caracteristicas del arma */
+					uint tia : 2; /* tipo del arma : 1: normal 2: especial 3: magica */
 					uint dad : 3; /* tipo de dado daño (1: 1D4, 2: 1D6, 3: 1D8, 4: 1D12, 5: 1D20) */
 					uint nad : 2; /* numero de dados daño */
 					uint pfu : 4; /* cada cuantos puntos de fuerza nos de un plus de fuerza */
@@ -176,6 +189,7 @@ typedef struct {
 	uint num : 4; /* nivel (max 15) */
 	uint lls : 4; /* llaves (max 15) */ 
 	uint ars : 4; /* armas (max 15) */
+	uint prs : 4; /* protecciones (max 15) */
 	uint ens : 8; /* enemigos (max 256) */
 	uint ani : 1; /* anillo o no */
 	uint oro : 16; /* cantidad total de oro restante */
@@ -309,7 +323,7 @@ Bool jugshw();
 
 /* item.c */
 
-void llplev(uint num);
+void llvlev(uint num);
 /* crea todas las llaves de un nivel */
 
 void orolev(uint oro);
@@ -317,6 +331,9 @@ void orolev(uint oro);
 
 void anilev(uint anillo);
 /* creacion del anillo, inicialmente en el ultimo nivel */
+
+void itmrmp(objeto_t* item);
+/* rotura de un item */
 
 /* enemigo.c */
 
@@ -341,6 +358,15 @@ Bool regla_ataque(objeto_t* atacante,objeto_t* defensor);
 
 int regla_dano(objeto_t* atacante);
 /* regla que inflinge el dano al defensor, devuelve el dano */
+
+Bool regla_arma_rotura(objeto_t* arma);
+/* se decide si despues de un ataque el arma */
+
+Bool regla_proteccion_rotura(objeto_t* proteccion);
+/* se decide en que momento se rompe una armadura */
+
+int regla_descanso();
+/* descanso del jugador -1: error 0: descansa 1: no descansa porque maximo 2: no descansa porque oscuro 3: no descansa porque no esta solo */
 
 /* rogue.c */
 

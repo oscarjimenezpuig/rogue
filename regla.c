@@ -2,7 +2,7 @@
 ============================================================
   Fichero: regla.c
   Creado: 28-12-2025
-  Ultima Modificacion: diumenge, 28 de desembre de 2025, 22:15:40
+  Ultima Modificacion: mar 13 ene 2026 11:13:52
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -53,3 +53,47 @@ int regla_dano(objeto_t* a) {
 	}
 	return pe;
 }
+
+Bool regla_arma_rotura(objeto_t* a) {
+	int dados=a->tia;
+	for(int k=0;k<dados;k++) {
+		if(DAI!=1) return FALSE;
+	}
+	return TRUE;
+}
+
+Bool regla_proteccion_rotura(objeto_t* p) {
+	//TODO: Falta programar
+	return TRUE;
+}
+
+static int nhab=-1;
+static Bool eneinrom(objeto_t* o) {
+	if(o && o->npc && !o->jug && o->vid>0) {
+		localidad_t* l=mapget(o->r,o->c);
+		if(l) {
+			return (l->hab==nhab);
+		}
+	}
+	return FALSE;
+}
+
+int regla_descanso() {
+	if(jugador->vid<VMC) {
+		localidad_t* l=mapget(jugador->r,jugador->c);
+		if(l) {
+			if(l->osc==1) return 2;
+			else {
+				nhab=l->hab;
+				objeto_t* ene[objsiz()];
+				int enes=objfnd(ene,eneinrom);
+				if(enes) return 3;
+				else return 0;
+			}
+		}
+		return -1;
+	} else return 1;
+}
+
+
+	

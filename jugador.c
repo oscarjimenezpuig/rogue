@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: lun 12 ene 2026 14:08:39
+  Ultima Modificacion: mar 13 ene 2026 11:22:54
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -440,7 +440,7 @@ static Bool jugabr() {
 			p->trs=1;
 			if(CRL) {
 				menin("... pero la llave se ha roto...");
-				ll->con=NULL;
+				itmrmp(ll);
 			}
 			return TRUE;
 		} else menin("No tienes una llave adecuada para esta puerta...");
@@ -481,30 +481,17 @@ static Bool jugata() {
 	return FALSE;
 }
 
-static int jughab=-1;
-static Bool isnpcvis(objeto_t* o) {
-	if(o && o->npc && !o->jug && o->vid>0) {
-		localidad_t* l=mapget(o->r,o->c);
-		return l->hab==jughab;
-	}
-	return FALSE;
-}
-
 static Bool jugrst() {
 	/* orden que hace descansar al jugador no haciendo nada, gana un punto de vida siempre y cuando no haya enemigos visibles */
-	localidad_t* lj=mapget(jugador->r,jugador->c);
 	menin("Descansas...");
-	if(lj->osc) menin("... pero no ganas ningun punto de vida porque estas en la oscuridad...");
-	else if(jugador->vid==VMC) menin("... pero no ganas ningun punto de vida porque tienes el maximo posible...");
-	else {
-		objeto_t* vis[objsiz()];
-		uint viss=objfnd(vis,isnpcvis);
-		if(viss) menin("... pero no ganas ningun punto de vida porque hay enemigos aqui...");
-		else {
-			jugador->vid++;
-			menin("... y ganas un punto de vida");
-		}
-	}
+	int rrd=RDS;
+	if(rrd==2) menin("... pero no ganas ningun punto de vida porque estas en la oscuridad...");
+	else if(rrd==1) menin("... pero no ganas ningun punto de vida porque tienes el maximo posible...");
+	else if(rrd==3) menin("... pero no ganas ningun punto de vida porque hay enemigos aqui...");
+	else if(rrd==0) {
+		jugador->vid++;
+		menin("... y ganas un punto de vida");
+	} else return FALSE;
 	return TRUE;
 }
 

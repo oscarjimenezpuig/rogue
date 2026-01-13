@@ -2,7 +2,7 @@
 ============================================================
   Fichero: item.c
   Creado: 18-12-2025
-  Ultima Modificacion: diumenge, 28 de desembre de 2025, 19:38:13
+  Ultima Modificacion: mar 13 ene 2026 13:29:43
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -14,6 +14,26 @@
 #define LLPA (atributo_t){'?',BOLD,CYAN,BLACK} /* atributo de una llave de puerta */
 #define OROA (atributo_t){'$',BOLD,YELLOW,BLACK} /* atributo de tesoro */
 #define ANIA (atributo_t){'o',BOLD,YELLOW,BLACK} /* atributo de anillo */
+
+/* colores de los diferentes tipos de armas */
+#define CAL MAGENTA
+#define CAE BLUE
+#define CAP RED;
+#define CAM YELLOW;
+
+typedef struct {
+	char nom[SLEN+1]; /* nombre */
+	a.chr; /* caracter asociado al arma */
+	a.ink; /* color asociado al arma */
+	uint tia: 2; /* tipo del arma */
+	uint dad: 3; /* tipo del dado de daño */
+	uint nad: 2; /* numero de dados de daño */
+	uint pfu: 4; /* puntos de fuerza necesarios para darnos extra */
+	uint pha: 4; /* puntos de habilidad necesarios para darnos extra */
+	uint und: 3; /* unidades disponibles iniciales */
+} arma_t;
+
+static arma_t arma[ANT*ATI];
 
 static Bool itmplc(objeto_t* item,Bool pasadizo) {
 	int r,c;
@@ -42,7 +62,7 @@ static objeto_t* llvnew() {
 	return ll;
 }
 
-void llplev(uint n) {
+void llvlev(uint n) {
 	for(int k=0;k<n;k++) {
 		objeto_t* ll=llvnew();
 		if(!ll || !itmplc(ll,TRUE)) break; 
@@ -92,6 +112,61 @@ void anilev(uint a) {
 		}
 	}
 }
+
+static void arftin(char* name,char chr,uint tipo,uint dado,uint dados,uint fuex,uint haex) {
+	/* introduccion de las caracteristicas del arma */
+	static uint armas=0;
+	arma_t a;
+	char* pn=name;
+	char* pa=a.nom;
+	while(*pn!=EOS) *pa++=*pn++;
+	*pa=EOS;
+	a.chr=chr;
+	a.tia=tipo;
+	a.dad=dado;
+	a.nda=dados;
+	a.pfu=fuex;
+	a.pha=haex;
+	switch(tipo) {
+		case 1:
+			a.und=MAL;
+			a.ink=CAL;
+			break;
+		case 2:
+			a.und=MAE;
+			a.ink=CAE;
+			break;
+		case 3:
+			a.und=MAP;
+			a.ink=CAP;
+			break;
+		case 4:
+			a.und=MAM;
+			a.ink=CAM;
+			break;
+	}
+	arma[armas++]=a;
+}
+
+#define nta(T,C,N,D,S,F,H) arftin(N,(C),(T),(D),(S),(F),(H))
+
+static void artoti() {
+	/* define todos los tipos de armas */
+	nta(1,'-',"Daga ritual",1,2,6,3);
+}
+
+#undef nta
+
+
+void itmrmp(objeto_t* o) {
+	if(o && o->npc==0 && o->ior==0) {
+		o->r=o->c=-1;
+		o->con=NULL;
+		o->ves=0;
+	}
+}
+
+
 
 
 

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: vie 09 ene 2026 12:20:35
+  Ultima Modificacion: mar 13 ene 2026 11:18:16
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -249,23 +249,33 @@ Bool objdes(objeto_t* o,objeto_t* itm) {
 Bool objata(objeto_t* o,objeto_t* ene) {
 	if(o && ene && o->npc && ene->npc && (o->jug || ene->jug)) {
 		ene->ata=1;
+		objeto_t* oata=NULL; //objeto de ataque
+		objeto_t* odef=NULL; //armadura de defensa
 		if(o->anm) {
 			menin("%s muerde a %s...",o->nom,ene->nom);
 		} else {
-			objeto_t* v=objisves(o);
-			if(v) menin("%s ataca a %s con %s...",o->nom,ene->nom,v->nom);
+			oata=objisves(o);
+			if(oata) menin("%s ataca a %s con %s...",o->nom,ene->nom,oata->nom);
 			else menin("%s ataca a %s a mano descubierta...",o->nom,ene->nom);
 		}
 		if(HAT(o,ene)) {
 			int dano=DAN(o);
 			menin("%s da un golpe de %i puntos a %s...",o->nom,dano,ene->nom);
 			jugshw();
+			if(odef && DRP(odef)) {
+				menin("A %s se le rompe %s...",ene->nom,odef->nom);
+				itmrmp(odef);
+			}
 			if(dano>=ene->vid) objmue(ene);
 			else ene->vid-=dano;
 		} else {
-			objeto_t* p=objisprt(ene);
-			if(p) menin("%s lleva puesta %s, que le protege del ataque...",ene->nom,p->nom);
+			odef=objisprt(ene);
+			if(odef) menin("%s lleva puesta %s, que le protege del ataque...",ene->nom,odef->nom);
 			else menin("%s repele el ataque...",ene->nom);
+			if(oata && DRA(oata)) {
+				menin("A %s se le rompe %s...",o->nom,oata->nom);
+				itmrmp(oata);
+			}
 			jugshw();
 		}
 		return TRUE;
