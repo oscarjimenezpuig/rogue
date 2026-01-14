@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: mar 13 ene 2026 11:22:54
+  Ultima Modificacion: mié 14 ene 2026 16:37:47
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -28,9 +28,11 @@
 #define TATQ 'a' /* atacar 12 */
 #define TDSC 'r' /* descansar 13 */
 #define TCMP 'C' /* compra de una caracteristica 14 */
+#define TVES 'v' /* vestir un arma 15 */
+#define TDVS 'V' /* quitarte un arma 16 */
 
-#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR,TESC,TATQ,TDSC,TCMP};
-#define KEYS 15
+#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR,TESC,TATQ,TDSC,TCMP,TVES,TDVS};
+#define KEYS 17
 
 /* posicion inicial pantalla */
 #define RO 0
@@ -483,14 +485,13 @@ static Bool jugata() {
 
 static Bool jugrst() {
 	/* orden que hace descansar al jugador no haciendo nada, gana un punto de vida siempre y cuando no haya enemigos visibles */
-	menin("Descansas...");
 	int rrd=RDS;
-	if(rrd==2) menin("... pero no ganas ningun punto de vida porque estas en la oscuridad...");
-	else if(rrd==1) menin("... pero no ganas ningun punto de vida porque tienes el maximo posible...");
-	else if(rrd==3) menin("... pero no ganas ningun punto de vida porque hay enemigos aqui...");
+	if(rrd==2) menin("No puedes descansar, esta oscuro...");
+	else if(rrd==1) menin("El tiempo pasa...");
+	else if(rrd==3) menin("Como vas a descansar con enemigos tan cerca???");
 	else if(rrd==0) {
 		jugador->vid++;
-		menin("... y ganas un punto de vida");
+		menin("Descansas y ganas un punto de vida");
 	} else return FALSE;
 	return TRUE;
 }
@@ -569,6 +570,53 @@ static Bool jugcmp() {
 }
 
 #undef chkm
+
+static Bool objinvarm(objeto_t* o) {
+	/* condicion para que un objeto sea del jugador y arma */
+	return (o && o->npc==0 && o->arm && o->con==jugador);
+}
+
+static Bool jugves() {
+	/* funcion de vestir objeto */
+	objeto_t* inv[objsiz()];
+	uint invs=objfnd(inv,objinvarm);
+	if(invs) {
+		char* nom[invs];
+		uint noms=0;
+		for(int k=0;k<invs;k++) {
+			objeto_t* oe=inv[k];
+			if(oe->ves) {
+				menin("Ya llevas puesto %s",oe->nom);
+				return FALSE;
+			} else {
+				nom[noms++]=oe->nom;
+			}
+		}
+		if(noms==1) {
+			return objves(jugador,inv[0]);
+		} else if(noms>1) {
+			uint sel=menu("Que te quieres poner?",invs,nom);
+			if(sel<invs) return objves(jugador,inv[sel]);
+		} else menin("No tienes nada que te puedas poner...");
+	}
+	return FALSE;
+}
+
+static Bool objinvarmves(objeto_t* o) {
+	/* busca objeto arma,vestido */
+	return (o && o->npc==0 && o->arm && o->ves && o->con==jugador);
+}
+
+static Bool jugdvs() {
+	objeto_t* ves[1];
+	uint vess=objfnd(ves,objinvarmves);
+	if(vess) {
+		return objdes(jugador,ves[0]);
+	} else {
+		menin("No llevas nada puesto...");
+	}
+	return FALSE;
+}
 	
 static Bool jugqut() {
 	jugador=NULL;
@@ -615,6 +663,10 @@ Bool jugact() {
 					return jugrst();
 				case 14:
 					return jugcmp();
+				case 15:
+					return jugves();
+				case 16:
+					return jugdvs();
 				default:
 					return jugidk();
 			}

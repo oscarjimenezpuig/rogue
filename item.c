@@ -2,7 +2,7 @@
 ============================================================
   Fichero: item.c
   Creado: 18-12-2025
-  Ultima Modificacion: mar 13 ene 2026 13:29:43
+  Ultima Modificacion: mié 14 ene 2026 16:53:31
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -23,14 +23,14 @@
 
 typedef struct {
 	char nom[SLEN+1]; /* nombre */
-	a.chr; /* caracter asociado al arma */
-	a.ink; /* color asociado al arma */
+	char chr; /* caracter asociado al arma */
+	uint ink; /* color asociado al arma */
 	uint tia: 2; /* tipo del arma */
 	uint dad: 3; /* tipo del dado de daño */
 	uint nad: 2; /* numero de dados de daño */
 	uint pfu: 4; /* puntos de fuerza necesarios para darnos extra */
 	uint pha: 4; /* puntos de habilidad necesarios para darnos extra */
-	uint und: 3; /* unidades disponibles iniciales */
+	uint aus: 1; /* este bit dice si un arma magica ha salido o no */
 } arma_t;
 
 static arma_t arma[ANT*ATI];
@@ -124,39 +124,108 @@ static void arftin(char* name,char chr,uint tipo,uint dado,uint dados,uint fuex,
 	a.chr=chr;
 	a.tia=tipo;
 	a.dad=dado;
-	a.nda=dados;
+	a.nad=dados;
 	a.pfu=fuex;
 	a.pha=haex;
+	a.aus=0;
 	switch(tipo) {
-		case 1:
-			a.und=MAL;
+		case 0:
 			a.ink=CAL;
 			break;
-		case 2:
-			a.und=MAE;
+		case 1:
 			a.ink=CAE;
 			break;
-		case 3:
-			a.und=MAP;
+		case 2:
 			a.ink=CAP;
 			break;
-		case 4:
-			a.und=MAM;
+		case 3:
 			a.ink=CAM;
 			break;
 	}
 	arma[armas++]=a;
 }
 
-#define nta(T,C,N,D,S,F,H) arftin(N,(C),(T),(D),(S),(F),(H))
+#define nta(T,C,N,D,S,F,H) arftin(N,(C),(T),(D),(S),(F),(H)) 
+/* T: Tipo, C: Caracter, N: Nombre, D: Dado, S: Numero de dados, F: Puntos extras de fuerza, H: Puntos extra de habilidad */
 
 static void artoti() {
 	/* define todos los tipos de armas */
-	nta(1,'-',"Daga ritual",1,2,6,3);
+	nta(0,'-',"daga ritual",1,2,6,3);
+	nta(0,'~',"daga curva",1,3,7,3);
+	nta(0,';',"cuchilla elfica",2,1,6,2);
+	nta(0,'/',"espada corta",2,2,5,4);
+	nta(0,'=',"cuchillas gemelas",1,3,6,3);
+	nta(1,'_',"espada larga",3,1,4,4);
+	nta(1,'(',"sable de mercenario",2,2,5,4);
+	nta(1,'|',"lanza de guerra",3,2,4,5);
+	nta(1,'&',"maza de hierro",4,1,3,6);
+	nta(1,'/',"baston de combate",2,3,5,4);
+	nta(2,'=',"mandoble",4,1,3,6);
+	nta(2,']',"hacha de dos manos",4,2,2,7);
+	nta(2,'!',"martillo de guerra",4,2,3,7);
+	nta(2,'&',"gran maza",5,1,2,8);
+	nta(2,'|',"rompecraneos",4,3,2,8);
+	nta(3,')',"latigo de sombras",2,2,6,3);
+	nta(3,'~',"guanteletes runicos",3,2,4,5);
+	nta(3,'/',"hoja espectral",4,1,5,3);
+	nta(3,'*',"garra demoniaca",3,3,4,4);
+	nta(3,'!',"martillo de titan",5,1,2,9);
 }
 
 #undef nta
 
+static arma_t* seltipar() {
+	arma_t* res=NULL;
+	while(!res) {
+		int val=rnd(0,MAL+MAE+MAP+MAM-1);
+		int tip=-1;
+		if(val<MAL) tip=0;
+		else if(val<MAL+MAE) tip=1;
+		else if(val<MAL+MAE+MAP) tip=2;
+		else tip=3;
+		arma_t* tiarm[ATI];
+		int tiarms=0;
+		for(int k=0;k<ATI*ANT;k++) {
+			if(arma[k].tia==tip) tiarm[tiarms++]=arma+k;
+		}
+		int tiar=rnd(0,tiarms-1);
+		res=tiarm[tiar];
+		if(tip==3 && res->aus==1) res=NULL;
+		else if(tip==3) res->aus=1;
+	}
+	return res;
+}
+
+static Bool armnew(){
+	static Bool tad=FALSE;
+	if(!tad) {
+		artoti();
+		tad=TRUE;
+	}
+	arma_t* at=seltipar();
+	if(at) {
+		atributo_t ata={at->chr,BOLD,at->ink,BLACK};
+		objeto_t* no=itmnew(at->nom,ata);
+		if(no) {
+			no->cog=1;
+			no->arm=1;
+			no->tia=at->tia;
+			no->dad=at->dad;
+			no->nad=at->nad;
+			no->pfu=at->pfu;
+			no->pha=at->pha;
+			itmplc(no,FALSE);
+		} else return FALSE;
+	}
+	return TRUE;
+}
+
+void armlev(uint num) {
+	Bool yes=TRUE;
+	for(int k=0;k<num && yes;k++) {
+		yes=armnew();
+	}
+}
 
 void itmrmp(objeto_t* o) {
 	if(o && o->npc==0 && o->ior==0) {

@@ -2,7 +2,7 @@
 ============================================================
   Fichero: enemigo.c
   Creado: 29-12-2025
-  Ultima Modificacion: lun 12 ene 2026 14:15:40
+  Ultima Modificacion: mié 14 ene 2026 16:18:09
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -35,21 +35,13 @@ static int razniv(raza_t r) {
 	return (int)y;
 }
 
-static void tocap(char* d,char* o) {
-	char* po=o;
-	char* pd=d;
-	while(*po!=EOS) {
-		if(*po>='a' && *po<='z') *pd=*po-'a'+'A';
-		else *pd=*po;
-		pd++;
-		po++;
-	}
-}
-
 static Bool raznew(raza_t r) {
 	if(razas<RZS) {
 		raza_t* pr=raza+razas++;
-		tocap(pr->nom,r.nom);
+		char* nd=pr->nom;
+		char* no=r.nom;
+		while(*no!=EOS) *nd++=*no++;
+		*nd=EOS;
 		pr->anm=r.anm;
 		pr->fue=r.fue;
 		pr->hab=r.hab;
@@ -100,7 +92,7 @@ static objeto_t* enenew(raza_t r) {
 	/* definicion de un enemigo a partir de sus caracteristicas y su nivel */
 	uint ink=rnd(RED,CYAN);
 	char chr=*(r.nom);
-	if(r.anm) chr=chr-'A'+'a';
+	if(r.anm==0) chr=chr-'a'+'A';
 	atributo_t a={chr,BOLD,ink,BLACK};
 	objeto_t* o=objnew(r.nom,a,TRUE,FALSE);
 	if(o) {

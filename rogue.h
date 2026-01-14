@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: mar 13 ene 2026 12:09:27
+  Ultima Modificacion: mié 14 ene 2026 16:08:23
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -59,6 +59,7 @@
 #define ATO (ATI*(MAL+MAE+MAP+MAM)) /* numero de armas totales */
 #define APN (ATO/(NFI-NIN+1)) /* numero de armas medio por nivel */
 #define ADM 2 /* desviacion de la media del numero de armas por nivel */
+#define ADm -2 /* desviacion de la media minima */
 
 /* enemigos */
 #define CEE 4 /* numero de caracteristicas evaluables de enemigo */
@@ -331,6 +332,9 @@ void orolev(uint oro);
 
 void anilev(uint anillo);
 /* creacion del anillo, inicialmente en el ultimo nivel */
+
+void armlev(uint num);
+/* creacion de todos las armas del nivel */
 
 void itmrmp(objeto_t* item);
 /* rotura de un item */

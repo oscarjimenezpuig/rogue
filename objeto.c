@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: mar 13 ene 2026 11:18:16
+  Ultima Modificacion: mié 14 ene 2026 12:15:22
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -27,18 +27,19 @@ uint objsiz() {
 	return objetos;
 }
 
-void strcop(char* d,char* o) {
-	char* pd=d;
-	char* po=o;
-	while(*po!=EOS && pd-d<SLEN) *pd++=*po++;
-	*pd=EOS;
-}
-
 objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 	objeto_t* new=NULL;
 	if(objetos<OBJETOS) {
 		new=(npc && jug)?objeto:objeto+objetos++;
-		strcop(new->nom,n);
+		char* nd=new->nom;
+		char* no=n;
+		while(*no!=EOS) {
+			if(*no>='a' && *no<='z') *nd=*no-'a'+'A';
+			else *nd=*no;
+			nd++;
+			no++;
+		}
+		*nd=EOS;
 		new->atr=a;
 		new->r=new->c=-1;
 		if(npc) {
@@ -286,7 +287,10 @@ Bool objata(objeto_t* o,objeto_t* ene) {
 static void trscad(objeto_t* o) {
 	/* transfoma un npc en un cadaver (no al jugador) */
 	if(o->jug==0) {
-		strcop(o->nom,NOMCAD);
+		char* on=NOMCAD;
+		char* dn=o->nom;
+		while(*on!=EOS) *dn++=*on++;
+		*dn=EOS;
 		o->atr=ATRCAD;
 		o->npc=0;
 		o->cog=o->ior=o->arm=o->lla=o->ani=o->prt=o->ves=0;
