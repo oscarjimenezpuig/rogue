@@ -2,7 +2,7 @@
 ============================================================
   Fichero: item.c
   Creado: 18-12-2025
-  Ultima Modificacion: mié 14 ene 2026 16:53:31
+  Ultima Modificacion: jue 15 ene 2026 11:21:42
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -18,8 +18,14 @@
 /* colores de los diferentes tipos de armas */
 #define CAL MAGENTA
 #define CAE BLUE
-#define CAP RED;
-#define CAM YELLOW;
+#define CAP RED
+#define CAM YELLOW
+
+/* colores de los diferentes tipos de proteccion */
+#define CPB MAGENTA
+#define CPR BLUE
+#define CPA RED
+#define CPM YELLOW
 
 typedef struct {
 	char nom[SLEN+1]; /* nombre */
@@ -33,7 +39,18 @@ typedef struct {
 	uint aus: 1; /* este bit dice si un arma magica ha salido o no */
 } arma_t;
 
+typedef struct {
+	char nom[SLEN+1]; /* nombre */
+	char chr; /* caracter asociado */
+	uint ink; /* color asociado a la proteccion */
+	uint tip : 2; /* tipo del arma */
+	uint nar : 4; /* valor de la armadura */
+	uint aus : 1; /* este bit dice si la proteccion magica ha salido o no */
+} proteccion_t;
+
+
 static arma_t arma[ANT*ATI];
+static proteccion_t proteccion[NTP];
 
 static Bool itmplc(objeto_t* item,Bool pasadizo) {
 	int r,c;
@@ -197,6 +214,7 @@ static arma_t* seltipar() {
 }
 
 static Bool armnew(){
+	/* se crea un arma nueva */
 	static Bool tad=FALSE;
 	if(!tad) {
 		artoti();
@@ -224,6 +242,115 @@ void armlev(uint num) {
 	Bool yes=TRUE;
 	for(int k=0;k<num && yes;k++) {
 		yes=armnew();
+	}
+}
+
+static void prftin(char* name,char chr,uint tipo,uint valor) {
+	/* define un tipo de proteccion */
+	static int protecciones=0;
+	proteccion_t p;
+	char* nd=p.nom;
+	char* no=name;
+	while(*no!=EOS) *nd++=*no++;
+	*nd=EOS;
+	p.chr=chr;
+	p.tip=tipo;
+	p.nar=valor;
+	switch(tipo) {
+		case 0:
+			p.ink=CPB;
+			break;
+		case 1:
+			p.ink=CPR;
+			break;
+		case 2:
+			p.ink=CPA;
+			break;
+		default:
+			p.ink=CPM;
+	}
+	proteccion[protecciones++]=p;
+}
+
+#define ntp(T,C,N,V) prftin(N,(C),(T),(V))
+
+static void prtoti() {
+	/* define todos los tipos de proteccion */
+	ntp(0,'"',"ropas andrajosas",1);
+	ntp(0,'"',"tunica de mendigo",1);
+	ntp(0,'^',"chaleco de cuero",2);
+	ntp(0,')',"coselete de cuero",3);
+	ntp(0,'}',"armadura de cuero",4);
+	ntp(0,']',"cota ligera",5);
+	ntp(1,'^',"armadura de explorador",6);
+	ntp(1,'^',"pechera de bronce",6);
+	ntp(1,')',"cota de escamas",7);
+	ntp(1,'}',"armadura de soldado",8);
+	ntp(1,']',"cota de malla",9);
+	ntp(1,']',"pechera de acero",9);
+	ntp(2,'"',"armadura de caballero",10);
+	ntp(2,'^',"armadura del dragon",11);
+	ntp(2,')',"cota negra",12);
+	ntp(2,'}',"armadura del bastion",13);
+	ntp(3,')',"armadura del campeon",14);
+	ntp(3,')',"placas del titan",14);
+	ntp(3,']',"armadura celestial",15);
+	ntp(3,']',"coraza infinita",15);
+}
+
+#undef ntp
+
+static proteccion_t* seltipro() {
+	/* escoge un tipo de proteccion */
+	proteccion_t* res=NULL;
+	while(!res) {
+		int val=rnd(0,MPB+MPR+MPA+MPM-1);
+		int tip=-1;
+		if(val<MPB) tip=0;
+		else if(val<MPB+MPR) tip=1;
+		else if(val<MPB+MPR+MPA) tip=2;
+		else tip=3;
+		proteccion_t* prt[NTP];
+		int prts=0;
+		for(int k=0;k<NTP;k++) {
+			if(proteccion[k].tip==tip) {
+				prt[prts++]=proteccion+k;
+			}
+		}
+		int npe=rnd(0,prts-1);
+		res=prt[npe];
+		if(tip==3 && res->aus==1) res=NULL;
+		else if(tip==3) res->aus=1;
+	}
+	return res;
+}
+
+static Bool prtnew() {
+	/* se crea una proteccion nueva */
+	static Bool tpd=FALSE;
+	if(!tpd) {
+		prtoti();
+		tpd=TRUE;
+	}
+	proteccion_t* pt=seltipro();
+	if(pt) {
+		atributo_t ata={pt->chr,REVERSE|BOLD,pt->ink,WHITE};
+		objeto_t* no=itmnew(pt->nom,ata);
+		if(no) {
+			no->cog=1;
+			no->prt=1;
+			no->tip=pt->tip;
+			no->nar=pt->nar;
+			itmplc(no,FALSE);
+		} else return FALSE;
+	}
+	return TRUE;
+}
+
+void prtlev(uint num) {
+	Bool yes=TRUE;
+	for(int k=0;k<num && yes;k++) {
+		yes=prtnew();
 	}
 }
 

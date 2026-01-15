@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: mié 14 ene 2026 12:15:22
+  Ultima Modificacion: jue 15 ene 2026 11:16:28
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -163,7 +163,8 @@ Bool objcog(objeto_t* o,objeto_t* itm) {
 						if(oij) menin("Coges %i monedas de oro...",itm->cor);
 						o->oro+=itm->cor;
 					} else if(itm->prt) {
-						if(oij) menin("Cogers %s y te la pones...",itm->nom);
+						if(oij) menin("Coges %s y te la pones...",itm->nom);
+						itm->con=o;
 					} else {
 						if(oij) menin("Coges %s...",itm->nom);
 						itm->con=o;

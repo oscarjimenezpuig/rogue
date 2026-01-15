@@ -2,7 +2,7 @@
 ============================================================
   Fichero: regla.c
   Creado: 28-12-2025
-  Ultima Modificacion: mar 13 ene 2026 11:13:52
+  Ultima Modificacion: jue 15 ene 2026 12:17:30
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -55,7 +55,7 @@ int regla_dano(objeto_t* a) {
 }
 
 Bool regla_arma_rotura(objeto_t* a) {
-	int dados=a->tia;
+	int dados=a->tia+1;
 	for(int k=0;k<dados;k++) {
 		if(DAI!=1) return FALSE;
 	}
@@ -63,7 +63,10 @@ Bool regla_arma_rotura(objeto_t* a) {
 }
 
 Bool regla_proteccion_rotura(objeto_t* p) {
-	//TODO: Falta programar
+	int dados=p->tip+1;
+	for(int k=0;k<dados;k++) {
+		if(DAI!=1) return FALSE;
+	}
 	return TRUE;
 }
 

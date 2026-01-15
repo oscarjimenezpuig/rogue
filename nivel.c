@@ -2,7 +2,7 @@
 ============================================================
   Fichero: nivel.c
   Creado: 23-12-2025
-  Ultima Modificacion: mié 14 ene 2026 16:15:00
+  Ultima Modificacion: jue 15 ene 2026 11:07:41
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -66,6 +66,7 @@ static void nivitm(uint niv) {
 	orolev(p->oro);
 	anilev(p->ani);
 	armlev(p->ars);
+	prtlev(p->prs);
 }
 
 static void nivene(uint niv) {
@@ -96,8 +97,11 @@ static Bool nivnue(uint niv) {
 		/* anillo */
 		p->ani=(niv==NFI)?1:0;
 		/* armas */
-		int num=rnd(ADm,ADM)+APN;
-		p->ars=(num<=0)?1:num;
+		int nua=rnd(ADm,ADM)+APN;
+		p->ars=(nua<=0)?1:(nua>15)?15:nua;
+		/* protecciones */
+		int nup=rnd(PDm,PDM)+PPN;
+		p->prs=(nup<=0)?1:(nup>15)?15:nup;
 		/* colocacion de todos los objetos */
 		nivitm(niv);
 		/* enemigos */

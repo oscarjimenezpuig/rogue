@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: mié 14 ene 2026 16:08:23
+  Ultima Modificacion: jue 15 ene 2026 11:22:09
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -20,7 +20,7 @@
 
 /* generales */
 #define EOS '\0' /* final de string */
-#define SLEN 20 /* longitud de los string definidos */
+#define SLEN 25 /* longitud de los string definidos */
 
 /* mapa */
 #define MAPAC 159 /* columnas totales del mapa */
@@ -60,6 +60,14 @@
 #define APN (ATO/(NFI-NIN+1)) /* numero de armas medio por nivel */
 #define ADM 2 /* desviacion de la media del numero de armas por nivel */
 #define ADm -2 /* desviacion de la media minima */
+#define NTP 20 /* numero de tipos de armas de proteccion */
+#define MPB 4 /* multiplicadores de proteccion bajo */
+#define MPR 3 /* multiplicador de proteccion medio */
+#define MPA 2 /* multiplicador de proteccion alto */
+#define MPM 1 /* multiplicador de proteccion magica */
+#define PPN APN /* numero de protecciones por nivel */
+#define PDM 2 /* desviacion maxima del numero de protecciones */
+#define PDm -2 /* desviacion minima del numero de protecciones */
 
 /* enemigos */
 #define CEE 4 /* numero de caracteristicas evaluables de enemigo */
@@ -165,13 +173,14 @@ struct objeto_s {
 					uint cor : 8; /* cantidad de oro del tesoro */
 				};
 				struct { /* caracteristicas del arma */
-					uint tia : 2; /* tipo del arma : 1: normal 2: especial 3: magica */
+					uint tia : 2; /* tipo del arma: 0:normal 1:equilibrada 2:pesada 3:magica */
 					uint dad : 3; /* tipo de dado daño (1: 1D4, 2: 1D6, 3: 1D8, 4: 1D12, 5: 1D20) */
 					uint nad : 2; /* numero de dados daño */
 					uint pfu : 4; /* cada cuantos puntos de fuerza nos de un plus de fuerza */
 					uint pha : 4; /* cada cuantos puntos de habilidad nos da un plus de habilidad */
 				};
 				struct { /* caracteristica de armadura */
+					uint tip : 2; /* tipo de proteccion: 0:baja 1:media 2:alta 3:magica */
 					uint nar: 4; /* valor de la armadura (extra) */
 				};
 			};
@@ -335,6 +344,9 @@ void anilev(uint anillo);
 
 void armlev(uint num);
 /* creacion de todos las armas del nivel */
+
+void prtlev(uint num);
+/* creacion de todas las armaduras del nivel */
 
 void itmrmp(objeto_t* item);
 /* rotura de un item */
