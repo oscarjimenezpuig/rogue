@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: jue 15 ene 2026 11:16:28
+  Ultima Modificacion: vie 16 ene 2026 12:07:53
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -328,7 +328,6 @@ Bool objmue(objeto_t* o) {
 		if(o->jug) {
 			jugador=NULL;
 		} else {
-			trscad(o);
 			objeto_t* inv[objsiz()];
 			int invs=objinv(o,inv);
 			for(int k=0;k<invs;k++) {
@@ -338,6 +337,7 @@ Bool objmue(objeto_t* o) {
 				oe->c=o->c;
 			}
 			reporo(o->r,o->c,o->oro);
+			trscad(o);
 		}
 		return TRUE;
 	}

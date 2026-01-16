@@ -2,7 +2,7 @@
 ============================================================
   Fichero: item.c
   Creado: 18-12-2025
-  Ultima Modificacion: jue 15 ene 2026 11:21:42
+  Ultima Modificacion: vie 16 ene 2026 11:56:29
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -191,15 +191,36 @@ static void artoti() {
 
 #undef nta
 
+static int seltip(int* pesos) {
+	/* selecciona tipo de arma y armadura dependiendo del nivel que esta */
+	const int NUMTIPS=4;
+	const int LEVELS=NFI-NIN+1;
+	const int VARLEV=1+(LEVELS/NUMTIPS);
+	const int PRB[]={100,25,10,1}; //probabilidad segun la diferencia de nivel
+	int total=0;
+	for(int k=0;k<NUMTIPS;k++) total+=pesos[k];
+	int tip=-1;
+	while(tip==-1) {
+		int val=rnd(0,total-1);
+		int lim=0;
+		int pretip=-1;
+		for(int k=0;k<NUMTIPS && pretip==-1;k++) {
+			lim+=pesos[k];
+			if(val<=lim) pretip=k;
+		}
+		int levtip=num_nivel/VARLEV;
+		int dif=ABS(levtip-pretip);
+		int prob=PRB[dif];
+		if(rnd(0,99)<prob) tip=pretip;
+	}
+	return tip;
+}
+
 static arma_t* seltipar() {
 	arma_t* res=NULL;
 	while(!res) {
-		int val=rnd(0,MAL+MAE+MAP+MAM-1);
-		int tip=-1;
-		if(val<MAL) tip=0;
-		else if(val<MAL+MAE) tip=1;
-		else if(val<MAL+MAE+MAP) tip=2;
-		else tip=3;
+		int pesos[]={MAL,MAE,MAP,MAM};
+		int tip=seltip(pesos);
 		arma_t* tiarm[ATI];
 		int tiarms=0;
 		for(int k=0;k<ATI*ANT;k++) {
@@ -300,16 +321,13 @@ static void prtoti() {
 
 #undef ntp
 
+
 static proteccion_t* seltipro() {
 	/* escoge un tipo de proteccion */
 	proteccion_t* res=NULL;
 	while(!res) {
-		int val=rnd(0,MPB+MPR+MPA+MPM-1);
-		int tip=-1;
-		if(val<MPB) tip=0;
-		else if(val<MPB+MPR) tip=1;
-		else if(val<MPB+MPR+MPA) tip=2;
-		else tip=3;
+		int pesos[]={MPB,MPR,MPA,MPM};
+		int tip=seltip(pesos);
 		proteccion_t* prt[NTP];
 		int prts=0;
 		for(int k=0;k<NTP;k++) {

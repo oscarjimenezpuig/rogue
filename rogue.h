@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: jue 15 ene 2026 11:22:09
+  Ultima Modificacion: vie 16 ene 2026 11:56:16
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
