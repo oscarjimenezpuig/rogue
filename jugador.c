@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: mié 14 ene 2026 16:37:47
+  Ultima Modificacion: lun 19 ene 2026 14:33:29
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -79,7 +79,7 @@ static void visset() {
 	}
 }
 
-static void nomset() {
+static void nomset(char* nombre) {
 	/*funcion que escoge el nombre del jugador */
 	cls();
 	INK=WHITE;
@@ -89,7 +89,7 @@ static void nomset() {
 	show();
 	ATR=NONE;
 	listen(INPUT);
-	bufget(SLEN,jugador->nom);
+	bufget(SLEN,nombre);
 }
 
 static void carrndset(int points) {
@@ -208,9 +208,10 @@ static void carset() {
 }
 
 Bool jugnew() {
-	objnew("",JATR,TRUE,TRUE);
+	char n[SLEN+1];
+	nomset(n);
+	objnew(n,JATR,TRUE,TRUE);
 	if(jugador) {
-		nomset();
 		carset();
 		return TRUE;
 	}
@@ -318,18 +319,25 @@ static Bool jugfrp() {
 	return FALSE;
 }
 
-static Bool isitijp(objeto_t* o) {
-	return (o && o->npc==0 && mapget(o->r,o->c) && o->r==jugador->r && o->c==jugador->c);
+static Bool isjugvis(objeto_t* o) {
+	/* dice si el objeto es visible */
+	if(o) {
+		localidad_t* l=mapget(o->r,o->c);
+		if(l && l->vis==2) return TRUE;
+	}
+	return FALSE;
 }
 
 static Bool jugmir() {
 	/* mira la posicion para examinar si hay algun objeto */
+
 	objeto_t* itm[objsiz()];
-	uint itms=objfnd(itm,isitijp);
-	if(itms==1) menin("Aqui puedes ver %s...",(*itm)->nom);
-	else if(itms>1) menin("Aqui puedes ver, a parte de %s, algunas cosas mas...",(*itm)->nom);
-	else menin("No veo nada aqui...");
-	return (itms>0)?TRUE:FALSE;
+	uint itms=objfnd(itm,isjugvis);
+	//TODO Acabar
+}
+
+static Bool isitijp(objeto_t* o) {
+	return (o && o->npc==0 && mapget(o->r,o->c) && o->r==jugador->r && o->c==jugador->c);
 }
 
 static void jugitc() {

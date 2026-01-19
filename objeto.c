@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: vie 16 ene 2026 12:07:53
+  Ultima Modificacion: lun 19 ene 2026 14:28:09
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -118,7 +118,7 @@ Bool objmov(objeto_t* o,int dr,int dc) {
 	if(o && o->npc) {
 		localidad_t* l=mapget(o->r,o->c);
 		if(l) {
-			onr=o->r+dr;
+onr=o->r+dr;
 			onc=o->c+dc;
 			localidad_t* nl=mapget(onr,onc);
 			if(nl && nl->trs==1) {
@@ -361,7 +361,55 @@ Bool objcanact(objeto_t* o) {
 	return FALSE;
 }
 
+Bool objdsc(objeto_t* obj) {
+	if(obj) {
+		prints("%s ",obj->nom);
+		if(obj->npc && obj->jug==0) {
+			if(obj->vid>0) {
+				prints("%s ",obj->nom);
+				if(obj->anm) prints("(animal)");
+				prints("A:%i H:%i V:%i",obj->fue,obj->hab,obj->vel);
+				objeto_t* aa=objisves(obj);
+				if(aa) {
+					COL=2;
+					ROW++;
+					prints("Arma de ataque: ");
+					objdsc(aa);
+				}
+				objeto_t* dd=objisprt(obj);
+				if(dd) {
+					COL=2;
+					ROW++;
+					prints("Arma de defensa: ");
+					objdsc(dd);
+				}
+			} else prints("seco como la mojama...");
+		} else if(obj->npc==0) {
+			if(obj->ior) {
+				prints("contiene %i monedas de oro...",obj->cor);
+			} else if(obj->lla) {
+				prints("para abrir las puertas...");
+			} else if(obj->arm) {
+				prints("arma de ataque");
+				prints("D:%iD",obj->nad);
+				int td=obj->dad;
+				prints("%i ",(td==1)?4:(td==2)?6:(td==3)?8:(td==4)?12:20);
+				prints("F: +1c%i H: +1c%i",obj->pfu,obj->pha);
+			} else if(obj->prt) {
+				prints("E: +%i",obj->nar);
+			} else if(obj->ani) {
+				prints("EL ANILLO UNICO!!!");
+			}
+		}
+		return TRUE;
+	}
+	return FALSE;
+}
+								
 
+				
+
+				
 
 
 

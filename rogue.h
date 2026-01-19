@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: vie 16 ene 2026 11:56:16
+  Ultima Modificacion: lun 19 ene 2026 14:27:08
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -316,6 +316,9 @@ Bool objmue(objeto_t* obj);
 
 Bool objcanact(objeto_t* obj);
 /* dice si un objeto npc esta en disposicion de actuar */
+
+Bool objdsc(objeto_t* obj);
+/* describe un objeto dependiendo del tipo que sea */
 
 /* jugador.c */
 

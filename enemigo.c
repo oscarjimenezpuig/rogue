@@ -2,7 +2,7 @@
 ============================================================
   Fichero: enemigo.c
   Creado: 29-12-2025
-  Ultima Modificacion: mié 14 ene 2026 16:18:09
+  Ultima Modificacion: lun 19 ene 2026 13:46:21
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -26,8 +26,8 @@ static objeto_t* sauron=NULL;
 
 static int razniv(raza_t r) {
 	/* calcula el nivel de un enemigo */
-	const double IN=(NFI-NIN);
-	const double IP=(PFE-PIE);
+	const double IN=(NFI-NIN+1);
+	const double IP=(PFE-PIE+1);
 	const double M=IN/(IP*CEE);
 	const double N=(NIN*IP-IN*PIE)/IP;
 	double x=r.fue+r.hab+r.vel+r.cap;
@@ -140,8 +140,8 @@ static int razporniv() {
 	while(tries--) {
 		int re=rnd(0,razas-1);
 		raza_t* r=raza+re;
-		int nr=0;
-		if((maxnivget==TRUE && num_nivel!=NFI) || ((nr=razniv(*r)) && nr>=nniv+RNm && nr<=nniv+RNM)) {
+		int nr=razniv(*r);
+		if((maxnivget==TRUE && num_nivel!=NFI) || (nr>=nniv+RNm && nr<=nniv+RNM)) {
 			objeto_t* en=enenew(*r);
 			if(en) {
 				if(!maxnivget) en->vid=rnd(VmE,VME);
@@ -334,15 +334,16 @@ static Bool iaatacac(objeto_t* e) {
 	/* ia que rige el ataque cuerpo a cuerpo */
 	/* en el caso de animal, siempre ataca, en el caso de no animal, se evalua */
 	if(jugador && jugador->vid>0 && iajugvis(e)) {
-		if(e->anm) {
-			if(objdis(jugador,e)==1) return objata(e,jugador);
-			else return iamovcer(e,jugador->r,jugador->c);
+		int dis=objdis(jugador,e);
+		int ra=iaefeata(e);
+		int va=e->vel-jugador->vel;
+		if(dis==1) {
+			if(ra>=0 || (ra<0 && va<=0)) return objata(e,jugador);
+			else if(!iamovlej(e,jugador->r,jugador->c)) return objata(e,jugador);
+			else return TRUE;
 		} else {
-			int ra=iaefeata(e);
-			if(ra>0) {
-				if(objdis(jugador,e)==1) return objata(e,jugador);
-				else return iamovcer(e,jugador->r,jugador->c);
-			} else return iamovlej(e,jugador->r,jugador->c);
+			if(ra>=0) return iamovcer(e,jugador->r,jugador->c);
+			else return iamovlej(e,jugador->r,jugador->c);
 		}
 	}
 	return FALSE;
