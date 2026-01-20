@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: lun 19 ene 2026 14:33:29
+  Ultima Modificacion: mar 20 ene 2026 14:28:38
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -23,7 +23,7 @@
 #define TABR 'A' /* abrir una puerta 7*/
 #define TFRZ 'f' /* forzar la puerta 8*/
 #define TQUT 'Q' /* tecla finalizar juego 9*/
-#define TMIR 'm' /* mirar 10 */
+#define TMIR 'x' /* mirar 10 */
 #define TESC 's' /* escalera 11 */
 #define TATQ 'a' /* atacar 12 */
 #define TDSC 'r' /* descansar 13 */
@@ -62,18 +62,15 @@ static void visset() {
 	if(lj && lj->trs==1) {
 		lj->vis=2;
 		int hab=lj->hab;
+		localidad_t* n[4];
+		mapngh(jugador->r,jugador->c,n);
+		for(int k=0;k<4;k++) if(n[k]) n[k]->vis=2;
 		if(lj->osc==0) {
 			for(int r=0;r<rs;r++) {
 				for(int c=0;c<cs;c++) {
 					localidad_t* l=mapget(r+ri,c+ci);
 					if(l && l->hab==hab) l->vis=2;
 				}
-			}
-		} else {
-			localidad_t* n[4];
-			mapngh(jugador->r,jugador->c,n);
-			for(int k=0;k<4;k++) {
-				if(n[k]) n[k]->vis=2;
 			}
 		}
 	}
@@ -321,7 +318,7 @@ static Bool jugfrp() {
 
 static Bool isjugvis(objeto_t* o) {
 	/* dice si el objeto es visible */
-	if(o) {
+	if(o && (o->npc==0 || o->jug==0)) {
 		localidad_t* l=mapget(o->r,o->c);
 		if(l && l->vis==2) return TRUE;
 	}
@@ -330,10 +327,23 @@ static Bool isjugvis(objeto_t* o) {
 
 static Bool jugmir() {
 	/* mira la posicion para examinar si hay algun objeto */
-
 	objeto_t* itm[objsiz()];
 	uint itms=objfnd(itm,isjugvis);
-	//TODO Acabar
+	if(itms) {
+		COL=0;
+		ROW=0;
+		INK=WHITE;
+		ATR=BOLD;
+		prints("Aqui puedes ver:");
+		ATR=NONE;
+		for(int k=0;k<itms;k++) {
+			COL=0;
+			ROW++;
+			objdsc(itm[k]);
+		}
+		listen(DELAY);
+	} else menin("No hay nada aqui para poder examinar...");
+	return TRUE;
 }
 
 static Bool isitijp(objeto_t* o) {
@@ -352,17 +362,22 @@ static void jugitc() {
 	}
 	objeto_t* itm[objsiz()];
 	uint itms=objfnd(itm,isitijp);
-	if(itms) {
+	localidad_t* l=mapget(jugador->r,jugador->c);
+	if(itms || (l && l->esc)) {
 		something=TRUE;
 		INK=WHITE;
-		ATR=BOLD;
 		ROW=ROWS-1;
 		COL=0;
-		prints("Aqui puedes ver: ");
+		ATR=BOLD;
+		prints("Aqui: ");
 		ATR=NONE;
 		for(int k=0;k<itms;k++) {
 			prints("%s",itm[k]->nom);
 			if(k!=itms-1) prints(", ");
+		}
+		if(!itms) {
+			if(l->esc==1) prints("ESCALERA DE DESCENSO");
+			else if(l->esc==-1) prints("ESCALERA DE ASCENSO");
 		}
 	}
 }
@@ -409,25 +424,26 @@ static Bool juginv() {
 	ROW=COL=0;
 	prints("INVENTARIO");
 	ATR=NONE;
-	COL=0;
-	ROW++;
 	objeto_t* inv[objsiz()];
 	uint invs=objinv(jugador,inv);
 	uint resto=jugador->cap-invs;
 	if(invs) {
 		for(int k=0;k<invs;k++) {
-			prints(" -%s",inv[k]->nom);
 			ROW++;
 			COL=0;
+			objdsc(inv[k]);
+			if(inv[k]->ves || inv[k]->prt) prints(" (VESTIDO)");
 		}
 	} else {
-		prints("No llevas nada...");
 		ROW++;
 		COL=0;
+		prints("No llevas nada...");
 	}
+	ROW++;
+	COL=0;
 	if(resto==0) prints("No puedes llevar nada mas...");
 	else prints("Todavia puedes llevar %i objetos mas...",resto);
-	while(listen(INKEY)==0);
+	listen(DELAY);
 	return TRUE;
 }
 

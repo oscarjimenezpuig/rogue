@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: lun 19 ene 2026 14:27:08
+  Ultima Modificacion: mar 20 ene 2026 14:04:22
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -57,15 +57,13 @@
 #define MAP 2 /* multiplicador al numero de armas pesadas */
 #define MAM 1 /* multiplicador al numero de armas magicas */
 #define ATO (ATI*(MAL+MAE+MAP+MAM)) /* numero de armas totales */
-#define APN (ATO/(NFI-NIN+1)) /* numero de armas medio por nivel */
-#define ADM 2 /* desviacion de la media del numero de armas por nivel */
-#define ADm -2 /* desviacion de la media minima */
+#define APN (rnd(1,2)*num_hab) /* numero de armas por nivel */
 #define NTP 20 /* numero de tipos de armas de proteccion */
 #define MPB 4 /* multiplicadores de proteccion bajo */
 #define MPR 3 /* multiplicador de proteccion medio */
 #define MPA 2 /* multiplicador de proteccion alto */
 #define MPM 1 /* multiplicador de proteccion magica */
-#define PPN APN /* numero de protecciones por nivel */
+#define PPN (rnd(1,2)*num_hab) /* numero de protecciones por nivel */
 #define PDM 2 /* desviacion maxima del numero de protecciones */
 #define PDm -2 /* desviacion minima del numero de protecciones */
 

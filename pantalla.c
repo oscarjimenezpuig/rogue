@@ -2,7 +2,7 @@
 ============================================================
   Fichero: pantalla.c
   Creado: 04-12-2025
-  Ultima Modificacion: divendres, 2 de gener de 2026, 08:17:54
+  Ultima Modificacion: mar 20 ene 2026 14:20:24
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -14,8 +14,8 @@
 #define ATRHAB (atributo_t){'.',NONE,WHITE,BLACK} /* atributo de suelo de habitacion */
 #define ATRPAS (atributo_t){'#',DIM,WHITE,BLACK} /* atributo de pasadizo de habitacion */
 #define ATRPUE (atributo_t){'?',REVERSE,WHITE,BLACK} /* atributo de la puerta */
-#define ATRESU (atributo_t){'>',NONE,MAGENTA,BLACK} /* escalera de subida */
-#define ATREBA (atributo_t){'<',NONE,MAGENTA,BLACK} /* escalera de bajada */
+#define ATRESU (atributo_t){'>',BOLD,MAGENTA,BLACK} /* escalera de subida */
+#define ATREBA (atributo_t){'<',BOLD,MAGENTA,BLACK} /* escalera de bajada */
 
 #define COLVIS BLUE /*color de lo visibilizado */
 

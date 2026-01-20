@@ -2,7 +2,7 @@
 ============================================================
   Fichero: enemigo.c
   Creado: 29-12-2025
-  Ultima Modificacion: lun 19 ene 2026 13:46:21
+  Ultima Modificacion: mar 20 ene 2026 11:52:17
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -328,6 +328,30 @@ static int iaefeata(objeto_t* e) {
 	return (dane-danj);
 }
 
+static Bool isennovis(objeto_t* o) {
+	/* mira si objetos no animales y no jugadores estan en visible */
+	if(o && o->npc==1 && o->jug==0 && o->anm==0 && o->vid>0) {
+		localidad_t* l=mapget(o->r,o->c);
+		return (l && l->vis==2);
+	}
+	return FALSE;
+}
+
+static int iaenesmuls() {
+	/* evalua el numero de enemigos no animales visibles*/
+	objeto_t* vis[objsiz()];
+	return objfnd(vis,isennovis);
+}
+
+static double armcalc(objeto_t* e,objeto_t* a) {
+	/*da un valor del arma de ataque a partir de las caracteristicas */
+	const double MD[]={0.0,2.5,3.5,4.5,6.5,10.5};
+	double hab=e->hab+(a->pha==0)?0:(e->hab/a->pha);
+	double fue=e->fue+(a->pfu==0)?0:(e->fue/a->pfu);
+	double dad=MD[a->dad]*(double)a->nad;
+	return hab+fue+dad;
+}
+	
 /* funciones ia importantes */
 
 static Bool iaatacac(objeto_t* e) {
@@ -337,13 +361,18 @@ static Bool iaatacac(objeto_t* e) {
 		int dis=objdis(jugador,e);
 		int ra=iaefeata(e);
 		int va=e->vel-jugador->vel;
-		if(dis==1) {
-			if(ra>=0 || (ra<0 && va<=0)) return objata(e,jugador);
-			else if(!iamovlej(e,jugador->r,jugador->c)) return objata(e,jugador);
-			else return TRUE;
+		if(e->anm || iaenesmuls()>1) {
+			if(dis==1) return objata(e,jugador);
+			else return iamovcer(e,jugador->r,jugador->c);
 		} else {
-			if(ra>=0) return iamovcer(e,jugador->r,jugador->c);
-			else return iamovlej(e,jugador->r,jugador->c);
+			if(dis==1) {
+				if(ra>=0 || (ra<0 && va<=0)) return objata(e,jugador);
+				else if(!iamovlej(e,jugador->r,jugador->c)) return objata(e,jugador);
+				else return TRUE;
+			} else {
+				if(ra>=0) return iamovcer(e,jugador->r,jugador->c);
+				else return iamovlej(e,jugador->r,jugador->c);
+			}
 		}
 	}
 	return FALSE;
@@ -393,6 +422,31 @@ static Bool iaacoger(objeto_t* e) {
 	return FALSE;
 }
 
+static Bool iaavestir(objeto_t* e) {
+	/* busca si tiene un objeto para vestir mejor del que tiene */
+	objeto_t* inv[objsiz()];
+	uint invs=objinv(e,inv);
+	objeto_t* aa=NULL;
+	double paa=0;
+	for(int k=0;k<invs;k++) {
+		objeto_t* ae=inv[k];
+		if(ae && ae->arm) {
+			double pae=armcalc(e,ae);
+			if(pae>paa) {
+				if(aa && aa->ves) return objdes(e,aa);
+				else {
+					aa=ae;
+					paa=pae;
+				}
+			} else if(pae<paa) {
+				if(ae->ves) return objdes(e,ae);
+			}
+		}
+	}
+	if(aa) return objves(e,aa);
+	return FALSE;
+}
+
 /* funciones ia principales */
 
 static Bool iaanimal(objeto_t* e) {
@@ -405,7 +459,9 @@ static Bool iaanimal(objeto_t* e) {
 static Bool iahumano(objeto_t* e) {
 	if(!iaatacac(e)) {
 		if(!iaacoger(e)) {
-			return iamovrnd(e);
+			if(!iaavestir(e)) {
+				return iamovrnd(e);
+			}
 		}
 	}
 	return TRUE;

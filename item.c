@@ -2,7 +2,7 @@
 ============================================================
   Fichero: item.c
   Creado: 18-12-2025
-  Ultima Modificacion: vie 16 ene 2026 11:56:29
+  Ultima Modificacion: mar 20 ene 2026 14:19:56
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -16,13 +16,13 @@
 #define ANIA (atributo_t){'o',BOLD,YELLOW,BLACK} /* atributo de anillo */
 
 /* colores de los diferentes tipos de armas */
-#define CAL MAGENTA
+#define CAL GREEN
 #define CAE BLUE
 #define CAP RED
 #define CAM YELLOW
 
 /* colores de los diferentes tipos de proteccion */
-#define CPB MAGENTA
+#define CPB GREEN
 #define CPR BLUE
 #define CPA RED
 #define CPM YELLOW
@@ -253,7 +253,7 @@ static Bool armnew(){
 			no->nad=at->nad;
 			no->pfu=at->pfu;
 			no->pha=at->pha;
-			itmplc(no,FALSE);
+			itmplc(no,TRUE);
 		} else return FALSE;
 	}
 	return TRUE;
@@ -359,7 +359,7 @@ static Bool prtnew() {
 			no->prt=1;
 			no->tip=pt->tip;
 			no->nar=pt->nar;
-			itmplc(no,FALSE);
+			itmplc(no,TRUE);
 		} else return FALSE;
 	}
 	return TRUE;

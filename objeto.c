@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: lun 19 ene 2026 14:28:09
+  Ultima Modificacion: mar 20 ene 2026 11:41:11
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -363,6 +363,7 @@ Bool objcanact(objeto_t* o) {
 
 Bool objdsc(objeto_t* obj) {
 	if(obj) {
+		COL=0;
 		prints("%s ",obj->nom);
 		if(obj->npc && obj->jug==0) {
 			if(obj->vid>0) {
@@ -390,13 +391,12 @@ Bool objdsc(objeto_t* obj) {
 			} else if(obj->lla) {
 				prints("para abrir las puertas...");
 			} else if(obj->arm) {
-				prints("arma de ataque");
-				prints("D:%iD",obj->nad);
+				prints("arma de ataque D:%iD",obj->nad);
 				int td=obj->dad;
 				prints("%i ",(td==1)?4:(td==2)?6:(td==3)?8:(td==4)?12:20);
-				prints("F: +1c%i H: +1c%i",obj->pfu,obj->pha);
+				prints("F:+1c%i H:+1c%i",obj->pfu,obj->pha);
 			} else if(obj->prt) {
-				prints("E: +%i",obj->nar);
+				prints("arma de defensa E:+%i",obj->nar);
 			} else if(obj->ani) {
 				prints("EL ANILLO UNICO!!!");
 			}
