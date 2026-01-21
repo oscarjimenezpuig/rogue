@@ -1,3 +1,3 @@
 # rogue
 Una aplicacion de curse.
-20/1/26: Poner el fantasma. Enemigo que no se puede derrotar. Este fantasma puede derrotar a todos los enemigos excepto el Dragon y Sauron (que lo matan)
+20/1/26: Corregir fantasma. No puede matar a Sauron ni al Dragon.
