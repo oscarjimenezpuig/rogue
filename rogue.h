@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: mar 20 ene 2026 14:04:22
+  Ultima Modificacion: mié 21 ene 2026 12:24:11
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -79,6 +79,9 @@
 #define ATS 100 /* ataques simulados */
 #define CDR DAI /* dado que da el cambio de direccion random */
 
+/* fantasma */
+#define SQV 5 /* radio de vision del fantasma medido en distancia Manhattan */
+
 /* jugador */
 #define JHI 1 /* habitacion inicial del jugador */
 
@@ -87,7 +90,7 @@
 #define MAX(A,B) (((A)>(B))?(A):(B))
 #define MIN(A,B) (((A)>(B))?(B):(A))
 #define ABS(A) (((A)>0)?(A):(-(A)))
-#define SGN(A,B) ((A)==(B))?0:((A)>(B))?1:-1;
+#define SGN(A,B) (((A)==(B))?0:((A)>(B))?1:-1)
 
 /* REGLAS */
 #define CFP (DAI<=jugador->hab) && (DAI<=jugador->fue) /* condicion de jugador para forzar puerta */
@@ -108,6 +111,7 @@
 #define DRA(A) regla_arma_rotura(A) /* regla para la rotura de armas */
 #define DRP(P) regla_proteccion_rotura(P) /* regla para la rotura de la proteccion */
 #define RDS regla_descanso() /* regla de descanso del jugador */
+#define AFN regla_fantasma() /* regla que determina si hay o no fantasma */
 
 /* Reglas lucha: Se lanza 1D20 +(fuerza_ataque/PFA) , si este supera
  * a la defensa (fuerza/CAR) + armadura, el ataque es positivo. Entonces se
@@ -147,6 +151,7 @@ struct objeto_s {
 		struct {
 			uint jug : 1; /* 1: es jugador */
 			uint anm : 1; /* 1: es animal */
+			uint fan : 1; /* 1: es fantasma */
 			uint fue : 4; /* fuerza */
 			uint hab : 4; /* habilidad */
 			uint vel : 4; /* velocidad */
@@ -208,6 +213,8 @@ typedef struct {
 extern objeto_t* jugador; /* variable que guarda la direccion del jugador */
 
 extern uint num_nivel; /* planta en la que se encuentra el jugador */
+
+extern objeto_t* fantasma; /* dice si el fantasma ya ha aparecido o no */
 
 /* FUNCIONES */
 
@@ -360,6 +367,11 @@ void enelev(uint num);
 Bool eneact();
 /* actuacion de todos los enemigos del nivel */
 
+/* fantasma.c */
+
+void fanact();
+/* establece la aparicion del fantasma si no estaba */
+
 /* nivel.c */
 
 void nivprm();
@@ -384,6 +396,9 @@ Bool regla_proteccion_rotura(objeto_t* proteccion);
 
 int regla_descanso();
 /* descanso del jugador -1: error 0: descansa 1: no descansa porque maximo 2: no descansa porque oscuro 3: no descansa porque no esta solo */
+
+Bool regla_fantasma();
+/* dice si el fantasma aparece o no aparece */
 
 /* rogue.c */
 

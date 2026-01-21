@@ -2,7 +2,7 @@
 ============================================================
   Fichero: regla.c
   Creado: 28-12-2025
-  Ultima Modificacion: jue 15 ene 2026 12:17:30
+  Ultima Modificacion: mié 21 ene 2026 11:34:48
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -98,5 +98,14 @@ int regla_descanso() {
 	} else return 1;
 }
 
-
+Bool regla_fantasma() {
+	const uint CARAS=20; /* tipo de dado */
+	const uint DADOS=4; /* numero de dados */
+	for(int k=0;k<DADOS;k++) {
+		int res=rnd(1,CARAS);
+		if(res!=1) return FALSE;
+	}
+	return TRUE;
+}
+			
 	

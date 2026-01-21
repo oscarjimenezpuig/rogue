@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: mar 20 ene 2026 11:41:11
+  Ultima Modificacion: mié 21 ene 2026 11:21:54
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -44,6 +44,7 @@ objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 		new->r=new->c=-1;
 		if(npc) {
 			new->npc=1;
+			new->fan=0;
 			new->anm=0;
 			if(jug) {
 				jugador=new;

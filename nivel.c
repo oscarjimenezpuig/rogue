@@ -2,7 +2,7 @@
 ============================================================
   Fichero: nivel.c
   Creado: 23-12-2025
-  Ultima Modificacion: mar 20 ene 2026 14:04:46
+  Ultima Modificacion: mié 21 ene 2026 12:20:58
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -230,6 +230,8 @@ Bool nivchg(int dir) {
 			randomize(-1);
 			return TRUE;
 		}
+		/* se quita al fantasma */
+		fantasma=NULL;
 	}
 	return FALSE;
 }
