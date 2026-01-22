@@ -2,7 +2,7 @@
 ============================================================
   Fichero: enemigo.c
   Creado: 29-12-2025
-  Ultima Modificacion: mar 20 ene 2026 11:52:17
+  Ultima Modificacion: jue 22 ene 2026 12:06:03
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -469,33 +469,8 @@ static Bool iahumano(objeto_t* e) {
 
 /* funciones de actuacion */
 
-static Bool oneeneact(objeto_t* e) {
+Bool eneact(objeto_t* e) {
 	if(e && e->anm) return iaanimal(e);
 	else if(e) return iahumano(e);
 	else return FALSE;
 }
-
-static Bool iseneact(objeto_t* o) {
-	return (o && o->npc && !o->jug && objcanact(o));
-}
-
-Bool eneact() {
-	objeto_t* oe[objsiz()];
-	uint oes=objfnd(oe,iseneact);
-	Bool ret=FALSE;
-	for(int k=0;k<oes;k++) {
-		ret|=oneeneact(oe[k]);
-	}
-	return ret;
-}
-
-
-
-
-
-
-
-
-		
-
-

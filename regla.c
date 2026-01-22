@@ -2,7 +2,7 @@
 ============================================================
   Fichero: regla.c
   Creado: 28-12-2025
-  Ultima Modificacion: mié 21 ene 2026 11:34:48
+  Ultima Modificacion: jue 22 ene 2026 12:29:59
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */

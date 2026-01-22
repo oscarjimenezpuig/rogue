@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: mié 21 ene 2026 12:24:11
+  Ultima Modificacion: jue 22 ene 2026 12:15:36
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -336,8 +336,8 @@ Bool jugpos(int dir);
 Bool jugact();
 /* accion del jugador determinada por el teclado */
 
-Bool jugshw();
-/* se muestra la pantalla cogiendo como centro la posicion del jugador */
+Bool jugshw(objeto_t* obj);
+/* se muestra la pantalla cogiendo como centro la posicion del jugador si el objeto obj esta en parte visible*/
 
 /* item.c */
 
@@ -364,10 +364,13 @@ void itmrmp(objeto_t* item);
 void enelev(uint num);
 /* creacion de enemigos por nivel. Si nuevo_nivel TRUE, el nivel se acaba de definir y la vida del enemigo va desde el nivel al maximo */
 
-Bool eneact();
+Bool eneact(objeto_t* ene);
 /* actuacion de todos los enemigos del nivel */
 
 /* fantasma.c */
+
+void fanset();
+/* conecta el fantasma y lo pone en el listado de objetos */
 
 void fanact();
 /* establece la aparicion del fantasma si no estaba */

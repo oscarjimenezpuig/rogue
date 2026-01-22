@@ -2,7 +2,7 @@
 ============================================================
   Fichero: jugador.c
   Creado: 05-12-2025
-  Ultima Modificacion: mar 20 ene 2026 14:28:38
+  Ultima Modificacion: jue 22 ene 2026 12:24:44
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -40,12 +40,10 @@
 
 static void recjug(int* ri,int* ci,int* rs,int* cs) { 
 	/* rectangulo de visibilidad donde el centro es la posicion del jugador */
-	int jr=jugador->r;
-	int jc=jugador->c;
 	*rs=ROWS-3;
-	*ri=jr-*rs/2;
+	*ri=jugador->r-*rs/2;
 	*cs=COLS;
-	*ci=jc-*cs/2;
+	*ci=jugador->c-*cs/2;
 }	
 
 static void visset() {
@@ -655,64 +653,66 @@ static Bool jugidk() {
 
 Bool jugact() {
 	if(objcanact(jugador) && !jugdsc()) {
-		Bool ret=FALSE;
-		while(!ret) {
-			listen(DELAY);
-			int ckey=chkkey();
-			switch(ckey) {
-				case 0:
-				case 1:
-				case 2:
-				case 3:
-					return jugmov(ckey);
-				case 4:
-					return jugcog();
-				case 5:
-					return jugdej();
-				case 6:
-					return juginv();
-				case 7:
-					return jugabr();
-				case 8:
-					return jugfrp();
-				case 9:
-					return jugqut();
-				case 10:
-					return jugmir();
-				case 11:
-					return jugues();
-				case 12:
-					return jugata();
-				case 13:
-					return jugrst();
-				case 14:
-					return jugcmp();
-				case 15:
-					return jugves();
-				case 16:
-					return jugdvs();
-				default:
-					return jugidk();
-			}
+		listen(DELAY);
+		int ckey=chkkey();
+		switch(ckey) {
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+				return jugmov(ckey);
+			case 4:
+				return jugcog();
+			case 5:
+				return jugdej();
+			case 6:
+				return juginv();
+			case 7:
+				return jugabr();
+			case 8:
+				return jugfrp();
+			case 9:
+				return jugqut();
+			case 10:
+				return jugmir();
+			case 11:
+				return jugues();
+			case 12:
+				return jugata();
+			case 13:
+				return jugrst();
+			case 14:
+				return jugcmp();
+			case 15:
+				return jugves();
+			case 16:
+				return jugdvs();
+			default:
+				return jugidk();
 		}
 	}
 	return TRUE;
 }
 
-
-Bool jugshw() {
-	localidad_t* l=NULL;
-	if(jugador && (l=mapget(jugador->r,jugador->c))) {
-		int ri,ci,rs,cs;
-		recjug(&ri,&ci,&rs,&cs);
-		panshw(ri,ci,rs,cs,RO,CO);
-		jugitc();
-		return TRUE;
+Bool jugshw(objeto_t* o) {
+	localidad_t* lj=NULL;
+	localidad_t* lo=NULL;
+	if(jugador) {
+		lj=mapget(jugador->r,jugador->c);
+		if(o) {
+			lo=mapget(o->r,o->c);
+			if(lj && lo && lo->vis==2) {
+				int ri,ci,rs,cs;
+				recjug(&ri,&ci,&rs,&cs);
+				panshw(ri,ci,rs,cs,RO,CO);
+				jugitc();
+				return TRUE;
+			}
+		}
 	}
 	return FALSE;
 }
 
-	
 				
 
 

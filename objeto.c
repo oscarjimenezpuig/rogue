@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: mié 21 ene 2026 11:21:54
+  Ultima Modificacion: jue 22 ene 2026 12:13:56
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -264,7 +264,7 @@ Bool objata(objeto_t* o,objeto_t* ene) {
 		if(HAT(o,ene)) {
 			int dano=DAN(o);
 			menin("%s da un golpe de %i puntos a %s...",o->nom,dano,ene->nom);
-			jugshw();
+			jugshw(jugador);
 			if(odef && DRP(odef)) {
 				menin("A %s se le rompe %s...",ene->nom,odef->nom);
 				itmrmp(odef);
@@ -279,7 +279,7 @@ Bool objata(objeto_t* o,objeto_t* ene) {
 				menin("A %s se le rompe %s...",o->nom,oata->nom);
 				itmrmp(oata);
 			}
-			jugshw();
+			jugshw(jugador);
 		}
 		return TRUE;
 	}
@@ -324,7 +324,8 @@ static void reporo(int r,int c,int oro) {
 
 Bool objmue(objeto_t* o) {
 	if(o && o->npc && o->vid>0 && o->r!=-1 && o->c!=-1) {
-		menin("%s ha muerto...",o->nom);
+		localidad_t* l=mapget(o->r,o->c);
+		if(l->vis==2) menin("%s ha muerto...",o->nom);
 		o->vid=0;
 		if(o->jug) {
 			jugador=NULL;
@@ -406,11 +407,9 @@ Bool objdsc(objeto_t* obj) {
 	}
 	return FALSE;
 }
-								
 
-				
 
-				
+	
 
 
 

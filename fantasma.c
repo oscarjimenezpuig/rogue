@@ -2,7 +2,7 @@
 ============================================================
   Fichero: fantasma.c
   Creado: 21-01-2026
-  Ultima Modificacion: mié 21 ene 2026 12:25:32
+  Ultima Modificacion: jue 22 ene 2026 12:12:26
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -74,6 +74,10 @@ static Bool fanchk() {
 		if(dnpcs==0) {
 			localidad_t* l=mapget(fantasma->r,fantasma->c);
 			if(l->vis==2) menin("El fantasma arranca el alma a %s...",npcs->nom);
+			else {
+				menin("La presencia malefica se ha desvanecido...");
+				fantasma->vid=0;
+			}
 			objmue(npcs);
 		} else {
 			fantasma->dr=npcs->r;
@@ -92,20 +96,21 @@ static void fanmov() {
 		fantasma->c+=dir[1];
 		fanchk();
 	} else {
-		fantasma->r=par;
-		fantasma->c=pac;
+		fantasma->dr=par;
+		fantasma->dc=pac;
+	}
+}
+
+void fanset() {
+	if(!fantasma || fantasma->vid==0) {
+		if(regla_fantasma()) {
+			menin("Una presencia malefica aparece en el nivel...");
+			if(!fantasma) fannew();
+			else fantasma->vid=VMC;
+		}
 	}
 }
 
 void fanact() {
-	if(!fantasma && regla_fantasma()) {
-		menin("Notas un escalofrio en el cuerpo... ");
-		fannew();
-	}
-	if(fantasma) {
-		fanmov();
-	}
+	fanmov();
 }
-		
-
-
