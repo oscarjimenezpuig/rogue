@@ -2,7 +2,7 @@
 ============================================================
   Fichero: objeto.c
   Creado: 09-12-2025
-  Ultima Modificacion: jue 22 ene 2026 12:13:56
+  Ultima Modificacion: vie 23 ene 2026 12:12:55
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -49,12 +49,15 @@ objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 			if(jug) {
 				jugador=new;
 				new->jug=1;
-			} else new->jug=0;
+				mem=(memoria_t){0,0,0};
+			} else {
+				new->jug=0;
+				new->dr=new->dc=-1;
+			}
 			new->fue=new->hab=new->vel=new->cap=new->cve=0;
 			new->ata=0;
 			new->oro=0;
 			new->vid=VMC;
-			new->dr=new->dc=-1;
 		} else {
 			new->npc=0;
 			new->cog=new->ior=new->arm=new->lla=new->ani=new->ves=0;
@@ -371,7 +374,7 @@ Bool objdsc(objeto_t* obj) {
 			if(obj->vid>0) {
 				prints("%s ",obj->nom);
 				if(obj->anm) prints("(animal)");
-				prints("A:%i H:%i V:%i",obj->fue,obj->hab,obj->vel);
+				prints("F:%i H:%i V:%i",obj->fue,obj->hab,obj->vel);
 				objeto_t* aa=objisves(obj);
 				if(aa) {
 					COL=2;

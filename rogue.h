@@ -2,7 +2,7 @@
 ============================================================
   Fichero: rogue.h
   Creado: 30-11-2025
-  Ultima Modificacion: jue 22 ene 2026 12:15:36
+  Ultima Modificacion: vie 23 ene 2026 12:22:59
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -85,6 +85,9 @@
 /* jugador */
 #define JHI 1 /* habitacion inicial del jugador */
 
+/* memoria */
+#define MSIZ 10 /* numero maximo de memorias aceptado */
+
 /* MACROS */
 
 #define MAX(A,B) (((A)>(B))?(A):(B))
@@ -142,13 +145,23 @@ typedef struct {
 	int esc : 2; /* 1: escalera descenso, -1: escalera ascenso */
 } localidad_t;
 
+typedef struct {
+	int pme; /* puntuacion del enemigo de maximo valor */
+	uint ani: 1; /* tiene el anillo */
+	uint scp: 1; /* ha escapado */
+	uint oro: 12; /* cantidad de oro final */
+	char nme[SLEN+1]; /* nombre del enemigo de maximo valor derrotado */
+	char nem[SLEN+1]; /* nombre del enemigo que mata al jugador */
+	char* nom[SLEN+1]; /* nombre del jugador */
+} memoria_t;
+
 struct objeto_s {
 	char nom[SLEN+1];
 	atributo_t atr;
 	int r,c;
 	uint npc : 1; /* 1: es npc 0: es item */
 	union {
-		struct {
+		struct { /* npc */
 			uint jug : 1; /* 1: es jugador */
 			uint anm : 1; /* 1: es animal */
 			uint fan : 1; /* 1: es fantasma */
@@ -160,9 +173,14 @@ struct objeto_s {
 			uint vid : 4; /* contador de vida */
 			uint oro : 12; /* oro */
 			uint ata : 1; /* indicador de estar siendo atacado */
-			int dr,dc; /* destino del npc no jugador */
+			union {
+				struct { /* npc no jugador*/
+					int dr,dc; /* destino del npc no jugador */
+				};
+				memoria_t mem; /* memoria, solo de jugador */
+			};
 		};
-		struct {
+		struct { /* no npc */
 			uint cog : 1; /* 1: es cogible */
 			uint ior : 1; /* 1: es oro */
 			uint arm : 1; /* 1: es arma */
@@ -402,6 +420,17 @@ int regla_descanso();
 
 Bool regla_fantasma();
 /* dice si el fantasma aparece o no aparece */
+
+/* memoria. c */
+
+Bool memlod();
+/* se carga la memoria de huesos */
+
+Bool memsav();
+/* se guarda la memoria de huesos */
+
+void memprt();
+/* se imprime la memoria de los huesos */
 
 /* rogue.c */
 

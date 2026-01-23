@@ -2,7 +2,7 @@
 ============================================================
   Fichero: fantasma.c
   Creado: 21-01-2026
-  Ultima Modificacion: jue 22 ene 2026 12:12:26
+  Ultima Modificacion: vie 23 ene 2026 11:47:40
   oSCAR jIMENEZ pUIG                                       
 ============================================================
 */
@@ -51,9 +51,15 @@ another:
 	return FALSE;
 }
 
+static Bool isespecial(objeto_t* o) {
+	/* se comprueba si el enemigo es especial o no*/
+	/* especiales son el dragon y sauron */
+	return (o->atr.chr=='S' || o->atr.chr=='D');
+}
+
 static Bool cnpcvis(objeto_t* o) {
 	/* condicion para detectar un npc vivo cercano al fantasma */
-	return (o && o->npc && o->vid>0 && objdis(fantasma,o)<=SQV);
+	return (o && o->npc && o->vid>0 && objdis(fantasma,o)<=SQV && !isespecial(o));
 }
 
 static Bool fanchk() {
