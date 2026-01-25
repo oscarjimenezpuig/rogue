@@ -87,6 +87,7 @@
 
 /* memoria */
 #define MSIZ 10 /* numero maximo de memorias aceptado */
+#define MNAM ".archhues.mem" /* nombre del archivo de memoria */
 
 /* MACROS */
 
@@ -144,16 +145,6 @@ typedef struct {
 	uint hab : 4; /* numero habitacion */
 	int esc : 2; /* 1: escalera descenso, -1: escalera ascenso */
 } localidad_t;
-
-typedef struct {
-	int pme; /* puntuacion del enemigo de maximo valor */
-	uint ani: 1; /* tiene el anillo */
-	uint scp: 1; /* ha escapado */
-	uint oro: 12; /* cantidad de oro final */
-	char nme[SLEN+1]; /* nombre del enemigo de maximo valor derrotado */
-	char nem[SLEN+1]; /* nombre del enemigo que mata al jugador */
-	char* nom[SLEN+1]; /* nombre del jugador */
-} memoria_t;
 
 struct objeto_s {
 	char nom[SLEN+1];
@@ -225,6 +216,16 @@ typedef struct {
 	uint ani : 1; /* anillo o no */
 	uint oro : 16; /* cantidad total de oro restante */
 } nivel_t;
+
+typedef struct {
+  	char* nom[SLEN+1]; /* nombre del jugador */
+    char nme[SLEN+1]; /* nombre del enemigo de maximo valor derrotado */
+	char nem[SLEN+1]; /* nombre del enemigo que mata al jugador */
+    int pme; /* puntuacion del enemigo de maximo valor */
+	uint ani: 1; /* tiene el anillo */
+	uint scp: 1; /* ha escapado */
+	uint oro: 12; /* cantidad de oro final */
+} memoria_t;
 
 /* VARIABLES */
 
@@ -429,7 +430,10 @@ Bool memlod();
 Bool memsav();
 /* se guarda la memoria de huesos */
 
-void memprt();
+int memins(memoria_t memoria);
+/* se inserta la memoria en la memoria actual, devuelve la posicion que ocupa en la lista ordenada */
+
+void memprt(int posicion);
 /* se imprime la memoria de los huesos */
 
 /* rogue.c */
