@@ -1,11 +1,4 @@
-/*
-============================================================
-  Fichero: objeto.c
-  Creado: 09-12-2025
-  Ultima Modificacion: vie 23 ene 2026 12:12:55
-  oSCAR jIMENEZ pUIG                                       
-============================================================
-*/
+/* ROGUE 9/12/25 */
 
 #include "rogue.h"
 
@@ -50,7 +43,6 @@ objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 			if(jug) {
 				jugador=new;
 				new->jug=1;
-				mem=(memoria_t){0,0,0};
 			} else {
 				new->jug=0;
 				new->dr=new->dc=-1;
@@ -273,7 +265,11 @@ Bool objata(objeto_t* o,objeto_t* ene) {
 				menin("A %s se le rompe %s...",ene->nom,odef->nom);
 				itmrmp(odef);
 			}
-			if(dano>=ene->vid) objmue(ene);
+			if(dano>=ene->vid) {
+                if(o==jugador) meminsmat(ene);
+                else asesino=o;
+                objmue(ene);
+            }
 			else ene->vid-=dano;
 		} else {
 			odef=objisprt(ene);
@@ -332,12 +328,13 @@ Bool objmue(objeto_t* o) {
 		if(l->vis==2) menin("%s ha muerto...",o->nom);
 		o->vid=0;
 		if(o->jug) {
-			jugador=NULL;
+			end_game=1;
 		} else {
 			objeto_t* inv[objsiz()];
 			int invs=objinv(o,inv);
 			for(int k=0;k<invs;k++) {
 				objeto_t* oe=inv[k];
+                oe->ves=0;
 				oe->con=NULL;
 				oe->r=o->r;
 				oe->c=o->c;

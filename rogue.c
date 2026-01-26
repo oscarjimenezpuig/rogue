@@ -32,8 +32,10 @@ static void npcsact() {
 
 void curse() {
 	nivprm();
+    memlod();
+    memini();
 	static Bool first=TRUE;
-	while(jugador) {
+	while(end_game==0) {
 		if(first) {
 			jugshw(jugador);
 			first=FALSE;
@@ -41,6 +43,11 @@ void curse() {
 		npcsact(); /* actuan todos los npcs */
 		fanset(); /* conexion de fantasma si no esta conectado */
 	}
-}
+    if(end_game!=-1) {
+        if(memend()) memsav();
+        memprt();
+        while(listen(INKEY)==0 || !inkey('Q'));
+    }
+ }
 
 

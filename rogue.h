@@ -1,11 +1,4 @@
-/*
-============================================================
-  Fichero: rogue.h
-  Creado: 30-11-2025
-  Ultima Modificacion: vie 23 ene 2026 12:22:59
-  oSCAR jIMENEZ pUIG                                       
-============================================================
-*/
+/* ROGUE 30/11/25 */
 
 #ifndef ROGUE_H
 #define ROGUE_H
@@ -178,7 +171,6 @@ struct objeto_s {
 				struct { /* npc no jugador*/
 					int dr,dc; /* destino del npc no jugador */
 				};
-				memoria_t mem; /* memoria, solo de jugador */
 			};
 		};
 		struct { /* no npc */
@@ -228,7 +220,7 @@ typedef struct {
 } nivel_t;
 
 typedef struct {
-  	char* nom[SLEN+1]; /* nombre del jugador */
+  	char nom[SLEN+1]; /* nombre del jugador */
     char nme[SLEN+1]; /* nombre del enemigo de maximo valor derrotado */
 	char nem[SLEN+1]; /* nombre del enemigo que mata al jugador */
     int pme; /* puntuacion del enemigo de maximo valor */
@@ -246,6 +238,8 @@ extern int num_nivel; /* planta en la que se encuentra el jugador */
 extern objeto_t* fantasma; /* dice si el fantasma ya ha aparecido o no */
 
 extern objeto_t* asesino; /* guarda el nombre del asesino del jugador */
+
+extern int end_game; /* final de la partida 0: No hay final, -1: final forzado 1 : final de derrota 2: final de victoria */
 
 /* FUNCIONES */
 
@@ -448,10 +442,10 @@ Bool memsav();
 void meminsmat(objeto_t* npc);
 /* se inserta en la memoria el npc muerto por el jugador */
 
-void memend();
+Bool memend();
 /* se insertan al final de la partida todas las condiciones y inserta si corresponde en la lista de huesos */
 
-void memprt(int posicion);
+void memprt();
 /* se imprime la memoria de los huesos */
 
 /* rogue.c */

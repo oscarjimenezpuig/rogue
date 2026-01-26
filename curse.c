@@ -1,11 +1,4 @@
-/*
-============================================================
-  Fichero: curse.c
-  Creado: 27-11-2025
-  Ultima Modificacion: dimecres, 17 de desembre de 2025, 18:47:53
-  oSCAR jIMENEZ pUIG                                       
-============================================================
-*/
+/* ROGUE 27/11/25 */
 
 #include <ncurses.h>
 #include <stdlib.h>

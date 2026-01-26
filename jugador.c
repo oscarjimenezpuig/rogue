@@ -1,11 +1,4 @@
-/*
-============================================================
-  Fichero: jugador.c
-  Creado: 05-12-2025
-  Ultima Modificacion: jue 22 ene 2026 12:24:44
-  oSCAR jIMENEZ pUIG                                       
-============================================================
-*/
+/* ROGUE 5/12/25 */
 
 #include "rogue.h"
 
@@ -37,6 +30,8 @@
 /* posicion inicial pantalla */
 #define RO 0
 #define CO 0
+
+int end_game=0;
 
 static void recjug(int* ri,int* ci,int* rs,int* cs) { 
 	/* rectangulo de visibilidad donde el centro es la posicion del jugador */
@@ -641,7 +636,7 @@ static Bool jugdvs() {
 }
 	
 static Bool jugqut() {
-	jugador=NULL;
+	end_game=-1;;
 	return TRUE;
 }
 

@@ -1,11 +1,4 @@
-/*
-============================================================
-  Fichero: menu.c
-  Creado: 07-12-2025
-  Ultima Modificacion: dimarts, 23 de desembre de 2025, 18:21:03
-  oSCAR jIMENEZ pUIG                                       
-============================================================
-*/
+/* ROGUE 7/12/25 */
 
 #include "rogue.h"
 

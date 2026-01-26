@@ -1,11 +1,4 @@
-/*
-============================================================
-  Fichero: mensaje.c
-  Creado: 06-12-2025
-  Ultima Modificacion: dimarts, 23 de desembre de 2025, 18:13:37
-  oSCAR jIMENEZ pUIG                                       
-============================================================
-*/
+/* ROGUE 6/12/25 */
 
 #include <stdarg.h>
 
