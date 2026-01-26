@@ -15,6 +15,7 @@
 #define NOMCAD "CADAVER" /* nombre del cadaver */
 
 objeto_t* jugador=NULL;
+objeto_t* asesino=NULL;
 
 static objeto_t objeto[OBJETOS];
 static uint objetos=1;

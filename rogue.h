@@ -124,6 +124,16 @@
 /* Regla de descanso: Se descansa ganando puntos de vida si estamos en una habitacion sin
  * enemigos. Tiene que ser habitacion clara */
 
+/* Clasificacion de memoria de huesos:
+ *  1. Sale con anillo
+ *  2. Consigue anillo pero no sale
+ *  3. No consigue anillo
+ *  En caso de empate:
+ *      1. Enemigo con mayor entidad
+ *      2. Numero de oro poseido
+ *  En caso de quit no se guarda en la memoria la partida
+ */
+
 
 /* TIPOS */
 
@@ -231,9 +241,11 @@ typedef struct {
 
 extern objeto_t* jugador; /* variable que guarda la direccion del jugador */
 
-extern uint num_nivel; /* planta en la que se encuentra el jugador */
+extern int num_nivel; /* planta en la que se encuentra el jugador */
 
 extern objeto_t* fantasma; /* dice si el fantasma ya ha aparecido o no */
+
+extern objeto_t* asesino; /* guarda el nombre del asesino del jugador */
 
 /* FUNCIONES */
 
@@ -424,14 +436,20 @@ Bool regla_fantasma();
 
 /* memoria. c */
 
+void memini();
+/* se inicia la memoria de la partida */
+
 Bool memlod();
 /* se carga la memoria de huesos */
 
 Bool memsav();
 /* se guarda la memoria de huesos */
 
-int memins(memoria_t memoria);
-/* se inserta la memoria en la memoria actual, devuelve la posicion que ocupa en la lista ordenada */
+void meminsmat(objeto_t* npc);
+/* se inserta en la memoria el npc muerto por el jugador */
+
+void memend();
+/* se insertan al final de la partida todas las condiciones y inserta si corresponde en la lista de huesos */
 
 void memprt(int posicion);
 /* se imprime la memoria de los huesos */

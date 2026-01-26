@@ -11,7 +11,7 @@
 
 #define NIVS (NFI-NIN+1)
 
-uint num_nivel=0;
+int num_nivel=0;
 
 static nivel_t nivel[NIVS];
 
