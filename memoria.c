@@ -4,8 +4,6 @@
 
 static memoria_t memoria[MSIZ]; /* memorias de huesos */
 
-static int posicion=-1; /* posicion ocupada por la memoria en la lista de huesos */
-
 static memoria_t actual; /* memoria actual del juego */
 
 static void copyname(char* d,char* o) {
@@ -38,15 +36,12 @@ static void memclr() {
     }
 }
 
-void memini() {
-    onememclr(&actual);
-    copyname(actual.nom,jugador->nom);
-}   
-
-Bool memlod() {
+static Bool memlod() {
+    /* carga las memoria de huesos guardada */
     memclr();
     FILE* f=fopen(MNAM,"rb");
     if(f) {
+        dbgprt("MEMLOAD");//dbg
         fread(memoria,MSIZ,sizeof(memoria_t),f);
         fclose(f);
         return TRUE;
@@ -54,9 +49,11 @@ Bool memlod() {
     return FALSE;
 }
 
-Bool memsav() {
+static Bool memsav() {
+    /* guarda el archivo de la memoria de huesos */
     FILE* f=fopen(MNAM,"wb");
     if(f) {
+        dbgprt("MEMSAV");//dbg
         fwrite(memoria,MSIZ,sizeof(memoria_t),f);
         fclose(f);
         return TRUE;
@@ -64,10 +61,21 @@ Bool memsav() {
     return FALSE;
 }
 
+void memini() {
+    onememclr(&actual);
+    copyname(actual.nom,jugador->nom);
+    dbgprt("JUGNAME=%s",jugador->nom);//dbg
+    memlod();
+    dbgprt("MEMINI <%s>",actual.nom);//dbg
+}   
+
+
+
 void meminsmat(objeto_t* npc) {
     if(npc) {
         uint points=npc->fue+npc->hab+npc->vel+npc->cap;
         if(points>actual.pme) {
+            dbgprt("MEMINSMAT");//dbg
             actual.pme=points;
             copyname(actual.nme,npc->nom);
         }
@@ -88,36 +96,32 @@ static int abetb(memoria_t a,memoria_t b) {
     return r;
 }
 
+#undef cmp
+
+static void memcopy(memoria_t* d,memoria_t o) {
+    copyname(d->nom,o.nom);
+    copyname(d->nme,o.nme);
+    copyname(d->nem,o.nem);
+    d->pme=o.pme;
+    d->ani=o.ani;
+    d->scp=o.scp;
+    d->oro=o.oro;
+}
+
 static int memord() {
-    /* coloca la memoria actual dentro del array siguiendo el orden */
+    /* coloca la memoria actual dentro del array siguiendo el orden */   
     for(int k=0;k<MSIZ;k++) {
-        if(abetb(actual,memoria[k])) {
+        memoria_t* pm=memoria+k;
+        if(*(pm->nom)==EOS || abetb(actual,*pm)) {
             for(int n=k;n<MSIZ-1;n++) {
-                memoria[n+1]=memoria[n];
+                memcopy(memoria+(n+1),memoria[n]);
             }
-            memoria[k]=actual;
+            memcopy(pm,actual);
+            dbgprt("MEMORD=%i",k);//dbg
             return k;
         }
     }
     return -1;
-}
-
-Bool memend() {
-    actual.scp=(num_nivel==-1)?1:0;
-    actual.oro=jugador->oro;
-    if(!actual.scp || !asesino) {
-        objeto_t* inj[objsiz()];
-        uint injs=objinv(jugador,inj);
-        objeto_t** pinj=inj;
-        while(pinj!=inj+injs && !actual.ani) {
-            if((*pinj)->ani) actual.ani=1;
-            pinj++;
-        }
-        if(asesino) copyname(actual.nem,asesino->nom);
-        posicion=memord();
-        return (posicion!=-1);
-    }
-    return FALSE;
 }
 
 static void onememprt(int pos,memoria_t m) {
@@ -150,7 +154,8 @@ static void onememprt(int pos,memoria_t m) {
     }
 }
 
-void memprt() {
+static void memprt(int posicion) {
+    /* impresion del archivo */
     const int ITI=YELLOW;
     const char* TIT="ARCHIVO DE HUESOS";
     const int IFR=WHITE;
@@ -170,6 +175,7 @@ void memprt() {
     ROW=0;
     INK=IFR;
     for(int k=0;k<MSIZ;k++) {
+        dbgprt("MEMPRT=%s",memoria[k].nom);//dbg
         if(*(memoria[k].nom)!=EOS) {
             if(k==posicion) ATR=REVERSE;
             onememprt(k+1,memoria[k]);
@@ -178,7 +184,25 @@ void memprt() {
     }
 }
 
-    
+
+void memend() {
+    actual.scp=(num_nivel==-1)?1:0;
+    actual.oro=jugador->oro;
+    if(!actual.scp || !asesino) {
+        objeto_t* inj[objsiz()];
+        uint injs=objinv(jugador,inj);
+        objeto_t** pinj=inj;
+        while(pinj!=inj+injs && !actual.ani) {
+            if((*pinj)->ani) actual.ani=1;
+            pinj++;
+        }
+        if(asesino) copyname(actual.nem,asesino->nom);
+        int posicion=memord();
+        memprt(posicion);
+        if(posicion!=-1) memsav();
+    }
+}
+
 
 
 

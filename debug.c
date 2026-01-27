@@ -17,6 +17,7 @@ static int deb_row=0;
 void dbgprt(const char* s,...) {
 	ROW=deb_row++;
 	COL=0;
+    ATR=NONE;
 	INK=RED;
 	BKG=BLACK;
 	prints("Debug: ");

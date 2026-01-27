@@ -79,7 +79,7 @@ static void nomset(char* nombre) {
 	show();
 	ATR=NONE;
 	listen(INPUT);
-	bufget(SLEN,nombre);
+    bufget(SLEN,nombre);
 }
 
 static void carrndset(int points) {

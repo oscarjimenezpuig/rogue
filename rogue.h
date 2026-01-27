@@ -77,6 +77,7 @@
 
 /* jugador */
 #define JHI 1 /* habitacion inicial del jugador */
+#define JDN "NONAMED" /* nombre por defecto del jugador */
 
 /* memoria */
 #define MSIZ 10 /* numero maximo de memorias aceptado */
@@ -433,20 +434,11 @@ Bool regla_fantasma();
 void memini();
 /* se inicia la memoria de la partida */
 
-Bool memlod();
-/* se carga la memoria de huesos */
-
-Bool memsav();
-/* se guarda la memoria de huesos */
-
 void meminsmat(objeto_t* npc);
 /* se inserta en la memoria el npc muerto por el jugador */
 
-Bool memend();
+void memend();
 /* se insertan al final de la partida todas las condiciones y inserta si corresponde en la lista de huesos */
-
-void memprt();
-/* se imprime la memoria de los huesos */
 
 /* rogue.c */
 
