@@ -170,9 +170,11 @@ void memprt() {
     ROW=0;
     INK=IFR;
     for(int k=0;k<MSIZ;k++) {
-        if(k==posicion) ATR=REVERSE;
-        onememprt(k+1,memoria[k]);
-        if(k==posicion) ATR=NONE;
+        if(*(memoria[k].nom)!=EOS) {
+            if(k==posicion) ATR=REVERSE;
+            onememprt(k+1,memoria[k]);
+            if(k==posicion) ATR=NONE;
+        } else break;
     }
 }
 

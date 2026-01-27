@@ -200,7 +200,8 @@ static void carset() {
 Bool jugnew() {
 	char n[SLEN+1];
 	nomset(n);
-	objnew(n,JATR,TRUE,TRUE);
+    if(*n==EOS) objnew(JDN,JATR,TRUE,TRUE);
+    else objnew(n,JATR,TRUE,TRUE);
 	if(jugador) {
 		carset();
 		return TRUE;
