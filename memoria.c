@@ -10,7 +10,7 @@ static void copyname(char* d,char* o) {
     /* copia los nombres */
     char* pd=d;
     char* po=o;
-    while(!*po!=EOS && pd-d<SLEN) *pd++=*po++;
+    while(*po!=EOS && pd-d<SLEN) *pd++=*po++;
     *pd=EOS;
 }
 
@@ -41,7 +41,6 @@ static Bool memlod() {
     memclr();
     FILE* f=fopen(MNAM,"rb");
     if(f) {
-        dbgprt("MEMLOAD");//dbg
         fread(memoria,MSIZ,sizeof(memoria_t),f);
         fclose(f);
         return TRUE;
@@ -53,7 +52,6 @@ static Bool memsav() {
     /* guarda el archivo de la memoria de huesos */
     FILE* f=fopen(MNAM,"wb");
     if(f) {
-        dbgprt("MEMSAV");//dbg
         fwrite(memoria,MSIZ,sizeof(memoria_t),f);
         fclose(f);
         return TRUE;
@@ -64,9 +62,7 @@ static Bool memsav() {
 void memini() {
     onememclr(&actual);
     copyname(actual.nom,jugador->nom);
-    dbgprt("JUGNAME=%s",jugador->nom);//dbg
     memlod();
-    dbgprt("MEMINI <%s>",actual.nom);//dbg
 }   
 
 
@@ -75,7 +71,6 @@ void meminsmat(objeto_t* npc) {
     if(npc) {
         uint points=npc->fue+npc->hab+npc->vel+npc->cap;
         if(points>actual.pme) {
-            dbgprt("MEMINSMAT");//dbg
             actual.pme=points;
             copyname(actual.nme,npc->nom);
         }
@@ -113,11 +108,10 @@ static int memord() {
     for(int k=0;k<MSIZ;k++) {
         memoria_t* pm=memoria+k;
         if(*(pm->nom)==EOS || abetb(actual,*pm)) {
-            for(int n=k;n<MSIZ-1;n++) {
-                memcopy(memoria+(n+1),memoria[n]);
+            for(int n=MSIZ-1;n>=k;n++) {
+                memcopy(memoria+(n),memoria[n-1]);
             }
             memcopy(pm,actual);
-            dbgprt("MEMORD=%i",k);//dbg
             return k;
         }
     }
@@ -132,7 +126,7 @@ static void onememprt(int pos,memoria_t m) {
     COL=0;
     ROW++;
     if(m.scp) {
-        prints("Logro escapar con el añillo!!!");
+        prints("Logro escapar con el anillo!!!");
     } else if(m.ani) {
         prints("Consiguio el anillo, pero no pudo huir...");
     } else {
@@ -171,12 +165,12 @@ static void memprt(int posicion) {
     INK=ITI;
     ATR=BOLD;
     prints(TIT);
-    COL+=2;
-    ROW=0;
+    COL+=1;
     INK=IFR;
     for(int k=0;k<MSIZ;k++) {
-        dbgprt("MEMPRT=%s",memoria[k].nom);//dbg
         if(*(memoria[k].nom)!=EOS) {
+            COL++;
+            ROW=0;
             if(k==posicion) ATR=REVERSE;
             onememprt(k+1,memoria[k]);
             if(k==posicion) ATR=NONE;
