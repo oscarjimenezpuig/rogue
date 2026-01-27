@@ -108,7 +108,7 @@ static int memord() {
     for(int k=0;k<MSIZ;k++) {
         memoria_t* pm=memoria+k;
         if(*(pm->nom)==EOS || abetb(actual,*pm)) {
-            for(int n=MSIZ-1;n>=k;n++) {
+            for(int n=MSIZ-1;n>=k;n--) {
                 memcopy(memoria+(n),memoria[n-1]);
             }
             memcopy(pm,actual);
@@ -118,11 +118,11 @@ static int memord() {
     return -1;
 }
 
-static void onememprt(int pos,memoria_t m) {
+static void onememprt(Bool reverse,int pos,memoria_t m) {
     /* imprime una memoria */
-    ATR=BOLD;
+    ATR=(reverse)?BOLD|REVERSE:BOLD;
     prints("%i %s",pos,m.nom);
-    ATR=NONE;
+    ATR=(reverse)?REVERSE:NONE;
     COL=0;
     ROW++;
     if(m.scp) {
@@ -165,22 +165,24 @@ static void memprt(int posicion) {
     INK=ITI;
     ATR=BOLD;
     prints(TIT);
-    COL+=1;
+    ROW+=1;
     INK=IFR;
     for(int k=0;k<MSIZ;k++) {
         if(*(memoria[k].nom)!=EOS) {
-            COL++;
-            ROW=0;
-            if(k==posicion) ATR=REVERSE;
-            onememprt(k+1,memoria[k]);
-            if(k==posicion) ATR=NONE;
+            COL=0;
+            ROW++;
+            onememprt((k==posicion),k+1,memoria[k]);
         } else break;
     }
+    ROW=ROWS-1;
+    COL=0;
+    ATR=BOLD;
+    prints("Pulsa Q para finalizar");
 }
 
 
 void memend() {
-    actual.scp=(num_nivel==-1)?1:0;
+    actual.scp=(end_game==2)?1:0;
     actual.oro=jugador->oro;
     if(!actual.scp || !asesino) {
         objeto_t* inj[objsiz()];

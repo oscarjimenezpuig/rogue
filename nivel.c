@@ -47,8 +47,7 @@ static void nivmap(uint niv,uint seed) {
 	randomize(seed);
 	Bool sup,sdw;
 	sup=sdw=TRUE;
-	if(niv==NIN) sup=FALSE;
-	else if(niv==NFI) sdw=FALSE;
+	if(niv==NFI) sdw=FALSE;
 	mapnew(sup,sdw);
 }
 

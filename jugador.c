@@ -468,14 +468,29 @@ static Bool jugabr() {
 	return FALSE;
 }
 
+static Bool jughasani(objeto_t* o) {
+    return (o && o->npc==0 && o->con==jugador && o->ani);
+}
+
 static Bool jugues() {
 	/* funcion de usar la escalera del jugador */
 	localidad_t* l=mapget(jugador->r,jugador->c);
 	int dir=(l && l->esc)?l->esc:0;
 	if(dir) {
-		if(dir==1) menin("Bajaras por la escalera...");
-		else menin("Subiras por la escalera...");
-		return nivchg(dir);
+        if(num_nivel==1 && dir==-1) {
+            objeto_t* ani[1];
+            if(objfnd(ani,jughasani)) {
+                menin("VICTORIA!!!");
+                end_game=2;
+                return TRUE;
+            } else {
+                menin("No puedes salir por esta escalera a menos que consigas el ANILLO UNICO...");
+            }
+        } else {
+		    if(dir==1) menin("Bajaras por la escalera...");
+		    else menin("Subiras por la escalera...");
+		    return nivchg(dir);
+        }
 	} else menin("No veo aqui ninguna escalera...");
 	return FALSE;
 }
@@ -626,6 +641,7 @@ static Bool objinvarmves(objeto_t* o) {
 }
 
 static Bool jugdvs() {
+    /* funcion desvestir */
 	objeto_t* ves[1];
 	uint vess=objfnd(ves,objinvarmves);
 	if(vess) {

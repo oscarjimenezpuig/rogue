@@ -80,7 +80,7 @@
 #define JDN "NONAMED" /* nombre por defecto del jugador */
 
 /* memoria */
-#define MSIZ 10 /* numero maximo de memorias aceptado */
+#define MSIZ 5 /* numero maximo de memorias aceptado */
 #define MNAM ".archhues.mem" /* nombre del archivo de memoria */
 
 /* MACROS */
