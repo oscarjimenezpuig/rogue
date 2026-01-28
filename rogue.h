@@ -228,6 +228,7 @@ typedef struct {
 	uint ani: 1; /* tiene el anillo */
 	uint scp: 1; /* ha escapado */
 	uint oro: 12; /* cantidad de oro final */
+    uint niv: 4; /* maximo nivel al que llega */
 } memoria_t;
 
 /* VARIABLES */
@@ -436,6 +437,9 @@ void memini();
 
 void meminsmat(objeto_t* npc);
 /* se inserta en la memoria el npc muerto por el jugador */
+
+void memactniv();
+/* actualiza el nivel en el que se encuentra el jugador */
 
 void memend();
 /* se insertan al final de la partida todas las condiciones y inserta si corresponde en la lista de huesos */

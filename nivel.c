@@ -206,6 +206,7 @@ static void nivsetgua(uint caros,objeto_t* caro) {
 }
 
 Bool nivchg(int dir) {
+    Bool ret=FALSE;
 	if((dir==-1 && num_nivel>NIN) || (dir==1 && num_nivel<NFI)) {
 		cls();
 		nivres(num_nivel); /* se guardan objetos que quedan en el nivel */
@@ -217,15 +218,17 @@ Bool nivchg(int dir) {
 		/* se establece el nuevo nivel */
 		if(nivel[num_nivel-NIN].def==0) nivnue(num_nivel);
 		else nivvie(num_nivel);
-		/* se situa al jugador en la posicion adecuada */
+        /* se situa al jugador en la posicion adecuada */
 		if(jugpos(dir)) {
 			randomize(-1);
-			return TRUE;
+			ret=TRUE;
 		}
-		/* se quita al fantasma */
+    	/* se quita al fantasma */
 		fantasma=NULL;
+        /* se actualiza el numero de nivel en la memoria */
+        memactniv();
 	}
-	return FALSE;
+	return ret;
 }
 
 		

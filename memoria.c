@@ -27,6 +27,7 @@ static void onememclr(memoria_t* m) {
     m->pme=0;
     m->ani=m->scp=0;
     m->oro=0;
+    m->niv=0;
 }
 
 static void memclr() {
@@ -62,6 +63,7 @@ static Bool memsav() {
 void memini() {
     onememclr(&actual);
     copyname(actual.nom,jugador->nom);
+    actual.niv=1;
     memlod();
 }   
 
@@ -77,6 +79,10 @@ void meminsmat(objeto_t* npc) {
     }
 }
 
+void memactniv() {
+    if(actual.niv<num_nivel) actual.niv=num_nivel;
+}
+
 #define cmp(A,B) (((A)>(B))?1:((A)<(B))?-1:0)
 
 static int abetb(memoria_t a,memoria_t b) {
@@ -85,7 +91,10 @@ static int abetb(memoria_t a,memoria_t b) {
         r=cmp(a.ani,b.ani);
         if(r==0) {
             r=cmp(a.pme,b.pme);
-            if(r==0) r=cmp(a.oro,b.oro);
+            if(r==0) {
+                r=cmp(a.niv,b.niv);
+                if(r==0) r=cmp(a.oro,b.oro);
+            }
         }
     }
     return r;
@@ -101,6 +110,7 @@ static void memcopy(memoria_t* d,memoria_t o) {
     d->ani=o.ani;
     d->scp=o.scp;
     d->oro=o.oro;
+    d->niv=o.niv;
 }
 
 static int memord() {
@@ -121,30 +131,31 @@ static int memord() {
 static void onememprt(Bool reverse,int pos,memoria_t m) {
     /* imprime una memoria */
     ATR=(reverse)?BOLD|REVERSE:BOLD;
-    prints("%i %s",pos,m.nom);
+    prints("%i %s ",pos,m.nom);
     ATR=(reverse)?REVERSE:NONE;
+    prints("(Nivel %i)",m.niv);
     COL=0;
     ROW++;
     if(m.scp) {
-        prints("Logro escapar con el anillo!!!");
+        prints("    Logro escapar con el anillo!!!");
     } else if(m.ani) {
-        prints("Consiguio el anillo, pero no pudo huir...");
+        prints("    Consiguio el anillo, pero no pudo huir...");
     } else {
-        prints("Fue muerto por %s.",m.nem);
+        prints("    Fue muerto por %s.",m.nem);
     }
     if(m.pme>0) {
         ROW++;
         COL=0;
-        prints("Consiguio matar a %s.",m.nme);
+        prints("    Consiguio matar a %s.",m.nme);
     }
     if(m.oro==1) {
         ROW++;
         COL=0;
-        prints("Acabo con una moneda de oro.");
+        prints("    Acabo con una moneda de oro.");
     } else if(m.oro>1) {
         ROW++;
         COL=0;
-        prints("Acabo con %i monedas de oro.",m.oro);
+        prints("    Acabo con %i monedas de oro.",m.oro);
     }
 }
 

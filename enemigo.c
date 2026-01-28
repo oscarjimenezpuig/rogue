@@ -226,6 +226,43 @@ static Bool iajugvis(objeto_t* e) {
 	return FALSE;
 }
 
+static Bool iaway(Bool ini,uint npcs,objeto_t* npc[],int ri,int ci,int rf,int cf,int* way) {
+    const int DRC[]={0,0,1,-1};
+    const uint DRCS=4;
+    *way=ri;
+    *(way+1)=ci;
+    if(ri!=rf || ci!=cf) {
+        int rn,cn;
+        rn=cn=-1;
+        int dn=0;
+        for(int k=0;k<DRCS;k++) {
+            int rp=ri+DRC[k];
+            int cp=ri=DRC[k];
+            if(!ini || (rp!=*(way-2) && cp!=*(way-1))) {
+                localidad_t* l=mapget(rp,cp);
+                if(l->trs==1) {
+                    Bool free=TRUE;
+                    for(int k=0;k<npcs && free;k++) {
+                        objeto_t* oe=npd[k];
+                        if(oe && oe->r==rp && oe->c==cp) free=FALSE;
+                    }
+                    if(free) {
+                        if(rn==-1 && cn==-1) {
+                            rn=rp;
+                            cn=cp;
+                        } else {
+                            int dp=mapdis(rp,cp,rf,cf);
+                            if(dp<dn) {
+                                rn=rp;
+                                cn=cp;
+                            }
+                        
+
+                
+    
+
+    
+
 static Bool iamoveto(objeto_t* e,int r,int c) {
 	/* intenta mover el objeto a la posicion r,c */
 	if(e) {
