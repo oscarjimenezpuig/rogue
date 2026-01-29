@@ -1,5 +1,7 @@
 /* ROGUE 29/12/25 */
 
+#include <stdlib.h>
+
 #include "rogue.h"
 
 typedef struct {
@@ -181,7 +183,103 @@ void enelev(uint es) {
 
 /* inteligencia artificial */
 
+#define PNX 4 /* numero de pasos siguientes */
+
+struct paso_s {
+    int r,c;
+    struct paso_s* prv;
+    struct paso_s* nxt[PNX];
+};
+
+typedef struct {
+    objeto_t* npc;
+    int rf,cf;
+    struct paso_s* rot;
+} camino_t;
+
+
 /* funciones ia auxiliares */
+
+static struct paso_s* pasnew(int r,int c) {
+    /* creacion de un nuevo paso */
+    struct paso_s* p=malloc(sizeof(struct paso_s));
+    if(p) {
+        p->r=r;
+        p->c=c;
+        p->prv=NULL;
+        for(int k=0;k<PNX;k++) p->nxt[k]=NULL;
+    }
+    return p;
+}
+
+static void pasdel(struct paso_s* p) {
+    if(p) {
+        for(int k=0;k<PNX;k++) {
+            pasdel(p->nxt[k]);
+        }
+        free(p);
+    }
+}
+
+static Bool posrep(struct paso_s* p,int r,int c) {
+    /* mira si la posicion r,c ya esta en el camino */
+    struct paso_s* act=p;
+    while(act) {
+        if(act->r==r && act->c==c) return TRUE;
+        act=act->prv;
+    }
+    return FALSE;
+}
+
+static void camrcs(struct paso_s* paso,int npcs,objeto_t* npc[],int rf,int cf) {
+    /* construccion del arbol de caminos */
+    const int DRD[]={0,0,1,-1};
+    if(paso && (paso->r!=rf || paso->c!=cf)) {
+        for(int k=0;k<PNX;k++) {
+            int nr=paso->r+DRD[k];
+            int nc=paso->c+DRD[PNX-1-k];
+            if(!posrep(paso,nr,nc)) {
+                localidad_t* l=mapget(nr,nc);
+                if(l->trs==1) {
+                    Bool free=TRUE;
+                    for(int n=0;n<npcs && free;n++) if(npc[n]->r==nr && npc[n]->c==nc) free=FALSE;
+                    if(free) {
+                        paso->nxt[k]=pasnew(nr,nc);
+                        camrcs(paso->nxt[k],npcs,npc,rf,cf);
+                    }
+                }
+            }
+        }
+    }
+}
+
+static int camarr(struct paso_s* paso,int rf,int cf) {
+    /* dice si un determinado paso llega al destino y en cuantas iteraciones */
+    if(paso) {
+        if(paso->r==rf && paso->c==cf) return 0;
+        else {
+            int min=-1;
+            for(int k=0;k<PNX;k++) {
+                int dp=camarr(paso->nxt[k],rf,cf);
+                if(dp!=-1 && (min==-1 || min>dp)) min=dp;
+            }
+            return min;
+        }
+    } else return -1;
+}
+
+static objeto_t* npcoe=NULL;
+static Bool isnpcnoe(objeto_t* o) {
+    return (o && o->npc && o->vid>0 && o!=npcoe);
+}
+
+static camino_t camnew(objeto_t* e,int rf,int cf) {
+    camino_t cam={e,rf,cf,pasnew(e->r,e->c)};
+    objeto_t* npc[objsiz()];
+    uint npcs=objfnd(npc,isnpcnoe);
+    camrcs(cam.rot,npcs,npc,rf,cf);
+    return cam;
+}
 
 static int nhab=-1;
 static Bool iaivno(objeto_t* o) {
@@ -226,59 +324,33 @@ static Bool iajugvis(objeto_t* e) {
 	return FALSE;
 }
 
-static Bool iaway(Bool ini,uint npcs,objeto_t* npc[],int ri,int ci,int rf,int cf,int* way) {
-    const int DRC[]={0,0,1,-1};
-    const uint DRCS=4;
-    *way=ri;
-    *(way+1)=ci;
-    if(ri!=rf || ci!=cf) {
-        int rn,cn;
-        rn=cn=-1;
-        int dn=0;
-        for(int k=0;k<DRCS;k++) {
-            int rp=ri+DRC[k];
-            int cp=ri=DRC[k];
-            if(!ini || (rp!=*(way-2) && cp!=*(way-1))) {
-                localidad_t* l=mapget(rp,cp);
-                if(l->trs==1) {
-                    Bool free=TRUE;
-                    for(int k=0;k<npcs && free;k++) {
-                        objeto_t* oe=npd[k];
-                        if(oe && oe->r==rp && oe->c==cp) free=FALSE;
-                    }
-                    if(free) {
-                        if(rn==-1 && cn==-1) {
-                            rn=rp;
-                            cn=cp;
-                        } else {
-                            int dp=mapdis(rp,cp,rf,cf);
-                            if(dp<dn) {
-                                rn=rp;
-                                cn=cp;
-                            }
-                        
-
-                
-    
-
-    
-
 static Bool iamoveto(objeto_t* e,int r,int c) {
-	/* intenta mover el objeto a la posicion r,c */
-	if(e) {
-		int er=e->r;
-		int ec=e->c;
-		int dr=SGN(r,er);
-		int dc=SGN(c,ec);
-		if(rnd(0,1)) {
-			if(dr!=0 && objmov(e,dr,0)) return TRUE;
-			else if (dc!=0 && objmov(e,0,dc)) return TRUE;
-		} else {
-			if(dc!=0 && objmov(e,0,dc)) return TRUE;
-			else if(dr!=0 && objmov(e,dr,0)) return TRUE;
-		}
-	}
-	return FALSE;
+    Bool ret=FALSE;
+    if(e) {
+        if(e->r!=r || e->c!=c) {
+            camino_t cam=camnew(e,r,c);
+            if(cam.rot) {
+                struct paso_s* pi=cam.rot;
+                struct paso_s* ps=NULL;
+                int dps=-1;
+                for(int k=0;k<PNX;k++) {
+                    int de=camarr(pi->nxt[k],r,c);
+                    if(de!=-1 && (dps==-1 || di<dps)) {
+                        dps=di;
+                        ps=pi->nxt[k];
+                    }
+                }
+                if(ps) {
+                    int dr=SGN(ps->r,e->r);
+                    int dc=SGN(ps->c,e->c);
+                    ret=objmov(e,dr,dc);
+                }
+                pasdel(cam.rot);
+                cam.rot=NULL;
+            }
+        }
+    }
+    return ret;
 }
 
 static void swap(int* a,int* b) {
