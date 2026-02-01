@@ -17,7 +17,12 @@ typedef struct {
     uchr def : 1; /* la posicion tiene arma de defensa */
 } visual_t
 
-visual_t vismap[MAPAR][MAPAC]; /* mapa de visibilidad */
+static visual_t vismap[MAPAR][MAPAC]; /* mapa de visibilidad */
+static uint ntes; /* numero de tesoros en visualizacion */
+static uint nata; /* numero de armas de ataque en visualizacion */
+static uint ndef; /* numero de armas de defensa en visualizacion */
+static uint nene; /* numero de enemigos en visualizacion */
+static Bool hjug; /* esta el jugador presente */
 
 #define fr(A,L) for((A)=0;(A)<(L);(A)++)
 
@@ -29,6 +34,8 @@ static void _visini() {
             vismap[r][c]=(visual_t){1,0,0,0,0};
         }
     }
+    ntes=nata=ndef=nene=0;
+    hjug=FALSE;
 }
 
 static void _visosc(int r,int c) {
@@ -63,12 +70,24 @@ static Bool _convisobj(objeto_t* o) {
         visual_t* v=&(vismap[o->r][o->c]);
         if(v->ocp==0) {
             if(o->npc && o->vid>0) {
-                if(o->jug) v->jug=1;
-                else v->ocp=1;
+                if(o->jug) {
+                    v->jug=1;
+                    hjug=TRUE;
+                } else {
+                    v->ocp=1;
+                    nene++;
+                }
             } else {
-                if(o->ior) v->tes=1;
-                else if(o->arm) v->ata=1;
-                else if(o->prt) v->def=1;
+                if(o->ior) {
+                    v->tes=1;
+                    ntes++;
+                } else if(o->arm) {
+                    v->ata=1;
+                    nata++;
+                } else if(o->prt) {
+                    v->def=1;
+                    ndef++;
+                }
             }
         }
     }
@@ -101,16 +120,20 @@ struct paso_s {
 };
 
 struct paso_s* _pasnew(int r,int c) {
-    /* creacion de paso inicial */
-    struct paso_s* p=malloc(sizeof(struct paso_s));
-    if(p) {
-        p->r=r;
-        p->c=c;
-        p->num=0;
-        p->prv=NULL;
-        int k;
-        fr(k,DRCS) p->nxt[k]=NULL;
+    /* creacion de paso inicial, solo si el lugar no esta ocupado */
+    struct paso_s* p=NULL;
+    if(vismap[r][c]==0) {
+        p=malloc(sizeof(struct paso_s));
+        if(p) {
+            p->r=r;
+            p->c=c;
+            p->num=0;
+            p->prv=NULL;
+            int k;
+            fr(k,DRCS) p->nxt[k]=NULL;
+        }
     }
+    return p;
 }
 
 struct void _pasdel(struct paso_s* p) {
@@ -147,7 +170,7 @@ static struct paso_s* _pashij(struct paso_s* padre,int nh,int nr,int nc) {
     return p;
 }
 
-static struct paso_s* _pasrec(struct paso_t* padre,int rf,int cf) {
+static void _pasrec(struct paso_t** retorno,struct paso_t* padre,int rf,int cf) {
     /* funcion recursiva que crea el arbol de pasos hasta que llega al destino */
     const int DRM[]=DRC;
     struct paso_s* ret=NULL;
@@ -155,37 +178,212 @@ static struct paso_s* _pasrec(struct paso_t* padre,int rf,int cf) {
         int pc=padre->c;
         int pr=padre->r;
         if(pr==rf && pc==cf) {
-            ret=padre;
-        } else {
+            *retorno=padre;
+        } else if((*retorno)==NULL || (*retorno)->num>padre->num){
             int k;
             fr(k,DRCS) {
                 int fc=pc+DRM[k];
                 int fr=pr+DRM[DRCS-1-k];
-                if(vismap[fr][fc].ocp==0 && !_pasalr(fr,fc,padre)) {
-                    struct paso_s* pret=NULL;
-                    if((pret=_pasrec(_pashij(padre,k,fr,fc)))) {
-                        if(!ret || ret->num>pret->num) {
-                            ret=pret;
-                        }
+                if(!_pasalr(fr,fc,padre)) {
+                    struct paso_s* hijo=NULL;
+                    if((hijo=_pashij(padre,k,fr,fc))) {
+                        _pasrec(retorno,hijo,rf,cf);
+                    }
+                }
+            }
+        } else {
+            _pasdel(padre);
+        }
+    }
+}
+
+/* funciones secundarias */
+
+static Bool _iamoveto(objeto_t* e,int rf,int cf) {
+    /* funcion que decide de las cuatro direcciones que tiene un objeto una de ellas que nos lleva al destino */
+    const int DRM[]=DRC;
+    int ri=e->r;
+    int ci=e->c;
+    if(rf!=ri || cf!=ci) {
+        int dr,dc;
+        dr=dc=-1;
+        int npas=-1;
+        struct paso_s *root,*rslt;
+        int k;
+        fr(k,DRCS) {
+            int der=DRM[k];
+            int dec=DRM[DRCS-1-k];
+            rslt=NULL;
+            root=_pasnew(ri+der,ci+dec);
+            _pasrec(&rslt,root,rf,cf);
+            if(rslt && (npas==-1 || rslt->num<npas)) {
+                dr=der;
+                dc=dec;
+                npas=rslt->num;
+            }
+            _pasdel(rslt);
+        }
+        if(npas!=-1) return objmov(e,dr,dc);
+    }
+    return FALSE;
+}
+
+static Bool _iamovetojug(objeto_t* e) {
+    /* decide una posicion al lado del jugador para moverse */
+    const int DRM[]=DRC;
+    int rf,cf;
+    int dis=-1;
+    if(objdis(e,jugador)>1) {
+        int k;
+        fr(k,DRCS) {
+            int r=jugador->r+DRM[k];
+            int c=jugador->c+DRM[DRCS-1-k];
+            if(vismap[r][c].obs==0) {
+                int de=mapdis(e->r,e->c,r,c);
+                if(dis==-1 || de<dis) {
+                    rf=r;
+                    cf=f;
+                    dis=de;
+                }
+            }
+        }
+        if(dis!=-1) {
+            return _iamoveto(e,rf,cf);
+        }
+    }
+    return FALSE;
+}
+
+static Bool _iamovnojug(objeto_t* e) {
+    /* nos intentamos alejar del jugador */
+    int rf,rc;
+    int dis=-1;
+    int rr,cc;
+    fr(r,MAPAR) {
+        fr(c,MAPAC) {
+            if(vismap(rr,cc).obs==0) {
+                int de=objdis(e,jugador);
+                if(de>dis || (de==dis && rnd(0,1))) {
+                    rf=r;
+                    cf=c;
+                    dis=de;
+                }
+            }
+        }
+    }
+    if(dis!=-1) return _iamoveto(e,rf,cf);
+    return FALSE;
+}
+
+static int _iaefeata(objeto_t* e) {
+	/* evalua las probabilidades de lucha cuerpo a cuerpo con el jugador */
+	/* si el resultado es positivo, es favorable a e, si es negativo, es favorable a jugador */
+	/* se tiene en cuenta la velocidad añadiendo un factor de proporcionalidad */
+	int danj=0;
+	int dane=0;
+	int fj,fe;
+	fj=fe=1;
+	if(e->vel>jugador->vel) fe=(e->vel+1)/(jugador->vel+1);
+	else if(e->vel<jugador->vel && fe) fj=(jugador->vel+1)/(e->vel+1);
+	for(int k=0;k<ATS;k++) {
+		if(HAT(e,jugador)) dane+=fe*DAN(e);
+		if(HAT(jugador,e)) danj+=fj*DAN(jugador);
+	}
+	return (dane-danj);
+}
+
+static Bool _iafndobj(objeto_t* e,int* rf,int* cf) {
+    /* localiza un objeto cercano si lo hay*/
+    int dis=-1;
+    if(ntes || nata || ndef) {
+        int rr,cc;
+        fr(rr,MAPAR) {
+            fr(cc,MAPAC) {
+                visual_t v=vismap[rr][cc];
+                if(v.tes+v.ata+v.def>0) {
+                    int de=mapdis(e->r,e->c,rr,cc);
+                    if(dis==-1 || de<dis) {
+                        *rf=rr;
+                        *cf=cc;
+                        dis=de;
                     }
                 }
             }
         }
     }
-    return r;
-    //TODO: Se debe devolver la mas pequeño de todas las longitudes
+    return (dis!=-1);
+}
+static objeto_t* estudiado=NULL;
+static Bool isoip(objeto_t* o) {
+    return (o && o->npc==0 && o->r==estudiado->r && o->c==estudiado->c);
 }
 
-static struct paso_s* _camnew(int ri,int ci,int rf,int cf) {
-    /* se hace camino de ri,ci a rf,cf, si no llega, devuelve NULL */
-    struct paso_s* root=_pasnew(ri,ci);
-    struct paso_s* result=_pasrec(root,rf,cf);
-    if(!result) {
-        _pasdel(root);
-        root=NULL;
+static objeto_t* _iaobjip(objeto_t* e) {
+    /* dice si hay algun objeto en la posicion del enemigo y quien es */
+    visual_t v=vismap[e->r][e->c];
+    if(v.tes+v.ata+v.def>0) {
+        estudiado=e;
+        objeto_t* oip[objsiz()];
+        if(objfnd(oip,isolp)) {
+            return *oip;
+        }
+    }
+    return NULL;
+}                   
 
+/* funciones principales */
 
+static Bool iaatac(objeto_t* e) {
+    /* gestiona el ataque de un enemigo si el jugador esta presente */
+    int res=0; /* 0: nada, 1: acercarse 2: alejarse 3: atacar */
+    if(hjug) {
+        uint dje=objdis(e,jugador);
+        if(e->anm) {
+            if(dje==1) res=3;
+            else res=1;
+        } else {
+            int atsim=_iaefeata(e);
+            if(atsim>0 || nene>1) {
+                if(dje==1) res=3;
+                else res=1;
+            } else {
+                if(dje>1 || (dje==1 && ene->vel>jugador->vel)) res=2;
+                else res=3;
+            }
+        }
+        switch(res) {
+            case 1:
+                return _iamovetojug(e);
+            case 2:
+                return _iamovenojug(e);
+            case 3:
+                return objata(e,jugador);
+        }
+    }
+    return FALSE;
+}
 
+static Bool iacog(objeto_t* e) {
+    /* mira si el enemigo puede coger algun objeto */
+    objeto_t* oin[objsiz()];
+    uint oins=objin(e,oin);
+    if(oins<e->cap) {
+        objeto_t* ip=_iaobjip(e);
+        if(ip) {
+            return objcog(e,ip);
+        } else {
+            int rf,cf;
+            if(_iafndobj(e,&rf,&cf)) {
+                return _iamoveto(e,rf,cf);
+            }
+        }
+    }
+    return FALSE;
+}
+
+                
+
+    
 
 
     
