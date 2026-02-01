@@ -168,11 +168,7 @@ struct objeto_s {
 			uint vid : 4; /* contador de vida */
 			uint oro : 12; /* oro */
 			uint ata : 1; /* indicador de estar siendo atacado */
-			union {
-				struct { /* npc no jugador*/
-					int dr,dc; /* destino del npc no jugador */
-				};
-			};
+            int dr,dc; /* destino para npc no jugadores */
 		};
 		struct { /* no npc */
 			uint cog : 1; /* 1: es cogible */
@@ -443,6 +439,14 @@ void memactniv();
 
 void memend();
 /* se insertan al final de la partida todas las condiciones y inserta si corresponde en la lista de huesos */
+
+/* ia.c */
+
+Bool iaanm(objeto_t* e);
+/* ia animal */
+
+Bool iahum(objeto_t* e);
+/* ia humano */
 
 /* rogue.c */
 

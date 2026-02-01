@@ -40,12 +40,11 @@ objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 			new->npc=1;
 			new->fan=0;
 			new->anm=0;
+            new->jug=0;
+            new->dr=new->dc=0;
 			if(jug) {
 				jugador=new;
 				new->jug=1;
-			} else {
-				new->jug=0;
-				new->dr=new->dc=-1;
 			}
 			new->fue=new->hab=new->vel=new->cap=new->cve=0;
 			new->ata=0;
