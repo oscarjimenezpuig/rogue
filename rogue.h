@@ -168,7 +168,7 @@ struct objeto_s {
 			uint vid : 4; /* contador de vida */
 			uint oro : 12; /* oro */
 			uint ata : 1; /* indicador de estar siendo atacado */
-            int dr,dc; /* destino para npc no jugadores */
+            int dr,dc; /* auxiliar de coordenadas para npc no jugadores */
 		};
 		struct { /* no npc */
 			uint cog : 1; /* 1: es cogible */
