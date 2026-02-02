@@ -30,6 +30,7 @@ void dbgprt(const char* s,...) {
 	prints(str);
 	while(listen(INKEY)==0);
 	if(inkey('Q')) exit(0);
+    if(deb_row==ROWS) deb_row=0;
 }
 
 void dbgcls() {
