@@ -103,7 +103,7 @@ static vismap_t _visset(objeto_t* e) {
     /* coloca el jugador */
     if(le->vis==2) {
         vm.jug=TRUE;
-        vm.vis[jugador->r][jugador->c].jug=TRUE;
+        vm.vis[jugador->r][jugador->c].jug=1;
         vm.vis[jugador->r][jugador->c].fre=0;
     }
     /* coloca todos los objetos npc */
@@ -143,23 +143,20 @@ static vismap_t _visset(objeto_t* e) {
 #define con(A) (DRCS-1-(A))
 
 static Bool _moveto(objeto_t* e,vismap_t vm,int rf,int cf) {
-    //dbgprt("move %s from %i,%i to %i,%i",e->nom,e->r,e->c,rf,cf);//dbg
     const int DR[]=DRC;
     int ri=e->r;
     int ci=e->c;
     int ra=e->dr;
     int ca=e->dc;
-    int dis=-1;
+    int disini=mapdis(ri,ci,rf,cf);
+    int dis=disini;
     int par=-1;
     for(int k=0;k<DRCS;k++) {
         int dr=ri+DR[k];
         int dc=ci+DR[con(k)];
-        //dbgprt("propuesta %i,%i",dr,dc);//dbg
         if(vm.vis[dr][dc].fre==1 && (dr!=ra || dc!=ca)) {
-            //dbgprt("aceptada");//dbg
             int die=mapdis(dr,dc,rf,cf);
-            if(dis==-1 || die<dis || (die==dis && rnd(0,1))) {
-                //dbgprt("pasa filtro con die=%i (dis=%i)",die,dis);//dbg
+            if(die<dis || (die==dis && rnd(0,1))) {
                 dis=die;
                 par=k;
             }
@@ -171,12 +168,16 @@ static Bool _moveto(objeto_t* e,vismap_t vm,int rf,int cf) {
         desr=DR[par];
         desc=DR[con(par)];
     } else if(ra!=-1 && ca!=-1) {
-        desr=SGN(ra,ri);
-        desc=SGN(ca,ci);
+        int disra=mapdis(ra,ca,rf,cf);
+        if(disra<disini) {
+            desr=SGN(ra,ri);
+            desc=SGN(ca,ci);
+        }
     }
-    //dbgprt("su move con par %i es %i,%i",par,desr,desc);//dbg
+    //dbgprt("%s va de %i,%i a %i,%i",e->nom,ri,ci,rf,cf);//dbg
     if(desr!=0 || desc!=0) {
         if(objmov(e,desr,desc)) {
+            //dbgprt("    direccion %i,%i",desr,desc);//dbg
             e->dr=ri;
             e->dc=ci;
             return TRUE;
@@ -216,7 +217,6 @@ static Bool _farjug(objeto_t* e,vismap_t vm,int* r,int* c) {
                     if(ve.osc==1) {
                         *r=rr;
                         *c=cc;
-                        return TRUE;
                     } else if(daj>dis) {
                         dis=daj;
                         *r=rr;
@@ -286,10 +286,20 @@ static Bool iaatc(vismap_t vm,objeto_t* e) {
                 else res=3;
             }
         }
-        int r,c;
-        if(res==1 && _nearjug(vm,&r,&c)) return _moveto(e,vm,r,c);
-        else if(res==2 && _farjug(e,vm,&r,&c)) return _moveto(e,vm,r,c);
-        else if(res==3) return objata(e,jugador);
+        dbgprt("%s res=%i",e->nom,res);//dbg
+        if(res==3) {
+            return objata(e,jugador);
+        } else {
+            int r,c;
+            r=c=-1;
+            Bool pos=FALSE;
+            if(res==2) pos=_farjug(e,vm,&r,&c);
+            else if(res==1) pos=_nearjug(vm,&r,&c);
+            dbgprt("->%i,%i",r,c);//dbg
+            if(pos && r!=1 && c!=-1) {
+                return _moveto(e,vm,r,c);
+            }
+        }
     }
     return FALSE;
 }
