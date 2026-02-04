@@ -72,7 +72,7 @@ static vismap_t _visset(objeto_t* e) {
         for(int rr=0;rr<MAPAR;rr++) {
             for(int cc=0;cc<MAPAC;cc++) {
                 localidad_t* l=mapget(rr,cc);
-                if(l->trs==1 && l->hab==e->hab) {
+                if(l->trs==1 && l->hab==le->hab) {
                     vm.vis[rr][cc].fre=1;
                     if(rr<vm.ri) vm.ri=rr;
                     if(rr>vm.rf) vm.rf=rr;
