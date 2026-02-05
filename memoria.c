@@ -117,7 +117,7 @@ static int memord() {
     /* coloca la memoria actual dentro del array siguiendo el orden */   
     for(int k=0;k<MSIZ;k++) {
         memoria_t* pm=memoria+k;
-        if(*(pm->nom)==EOS || abetb(actual,*pm)) {
+        if(*(pm->nom)==EOS || abetb(actual,*pm)==1) {
             for(int n=MSIZ-1;n>=k;n--) {
                 memcopy(memoria+(n),memoria[n-1]);
             }

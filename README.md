@@ -4,3 +4,5 @@ Una aplicacion de curse.
 27/1/26: Volver a mirar el cambio de nivel con revelacion de puertas y opertura de estas
 5/2/26: El orden en el archivo de huesos no esta bien
 5/2/26: El color de los enemigos deberia ser fijo a lo largo de una partida
+5/2/26: Orden help programarla
+5/2/26: El nombre tendra color rojo, amarillo o verde segun la salud restante.
