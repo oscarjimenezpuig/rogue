@@ -369,7 +369,6 @@ Bool objdsc(objeto_t* obj) {
 		prints("%s ",obj->nom);
 		if(obj->npc && obj->jug==0) {
 			if(obj->vid>0) {
-				prints("%s ",obj->nom);
 				if(obj->anm) prints("(animal)");
 				prints("F:%i H:%i V:%i",obj->fue,obj->hab,obj->vel);
 				objeto_t* aa=objisves(obj);

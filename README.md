@@ -2,5 +2,5 @@
 Una aplicacion de curse.
 26/1/26: Programar mensajes de muerte y victoria del jugador
 27/1/26: Volver a mirar el cambio de nivel con revelacion de puertas y opertura de estas
-27/1/26: Poner el nombre del heroe en las caracteristicas
-4/2/26: Revisar IA del enemigo. Cuando hay mas de uno, deberia haber ataque. En la huida, si un enemigo esta cerca de parte no visible, ir alli. Modificar la busqueda de fronteras oscuras, se debe buscar fronteras no visibles.
+5/2/26: El orden en el archivo de huesos no esta bien
+5/2/26: El color de los enemigos deberia ser fijo a lo largo de una partida

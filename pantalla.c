@@ -112,6 +112,9 @@ static void cajshw() {
 	ROW=ROWS-2;
 	COL=0;
 	INK=WHITE;
+    ATR=BOLD;
+    prints("%s  ",jugador->nom);
+    ATR=NONE;
 	for(int k=0;k<SIZ;k++) {
 		ATR=BOLD;
 		prints("%s: ",NAM[k]);

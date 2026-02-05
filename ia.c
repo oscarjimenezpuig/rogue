@@ -30,7 +30,6 @@ typedef struct {
 vismap_t vismap;
 static Bool isobjnpc(objeto_t* o) {
     if(o && o->npc && o->vid>0 && o->jug==0 && vismap.vis[o->r][o->c].fre==1) {
-        vismap.npc++;
         return TRUE;
     }
     return FALSE;
@@ -91,7 +90,7 @@ static vismap_t _visset(objeto_t* e) {
                     mapngh(rr,cc,n);
                     for(int k=0;k<4;k++) {
                         localidad_t* le=n[k];
-                        if(le && le->trs==1 && le->osc==1) {
+                        if(le && le->trs==1 && le->vis!=2) {
                             vm.vis[rr][cc].osc=1;
                             break;
                         }
@@ -101,7 +100,7 @@ static vismap_t _visset(objeto_t* e) {
         }
     }
     /* coloca el jugador */
-    if(le->vis==2) {
+    if(le->vis==2 && jugador->vid>0) {
         vm.jug=TRUE;
         vm.vis[jugador->r][jugador->c].jug=1;
         vm.vis[jugador->r][jugador->c].fre=0;
@@ -109,8 +108,8 @@ static vismap_t _visset(objeto_t* e) {
     /* coloca todos los objetos npc */
     objeto_t* obj[objsiz()];
     vismap=vm;
-    uint npcs=objfnd(obj,isobjnpc);
-    for(int k=0;k<npcs;k++) {
+    vm.npc=objfnd(obj,isobjnpc);
+    for(int k=0;k<vm.npc;k++) {
         objeto_t* npc=obj[k];
         vm.vis[npc->r][npc->c].fre=0;
     }
@@ -174,10 +173,8 @@ static Bool _moveto(objeto_t* e,vismap_t vm,int rf,int cf) {
             desc=SGN(ca,ci);
         }
     }
-    //dbgprt("%s va de %i,%i a %i,%i",e->nom,ri,ci,rf,cf);//dbg
     if(desr!=0 || desc!=0) {
         if(objmov(e,desr,desc)) {
-            //dbgprt("    direccion %i,%i",desr,desc);//dbg
             e->dr=ri;
             e->dc=ci;
             return TRUE;
@@ -204,29 +201,50 @@ static Bool _nearjug(vismap_t vm,int* r,int* c) {
     return (dis!=-1);
 }
 
+static Bool _nernotvis(objeto_t* e,vismap_t vm,int* r,int* c) {
+    /* comprueba si el enemigo esta justo al lado de la parte oscura */
+    const int DRP[]=DRC;
+    for(int k=0;k<4;k++) {
+        int re=DRP[k];
+        int ce=DRP[con(k)];
+        visual_t ve=vm.vis[re][ce];
+        if(ve.fre==1) {
+            localidad_t* le=mapget(re,ce);
+            if(le->vis!=2) {
+                *r=re;
+                *c=ce;
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
+}
+
 static Bool _farjug(objeto_t* e,vismap_t vm,int* r,int* c) {
     /* da las coordenadas de un punto alejado del jugador y si puede ser, fronterizo a oscuridad */
-    int dis=-1;
-    for(int rr=vm.ri;rr<=vm.rf;rr++) {
-        for(int cc=vm.ci;cc<=vm.cf;cc++) {
-            visual_t ve=vm.vis[rr][cc];
-            if(ve.fre==1) {
-                int dae=mapdis(e->r,e->c,rr,cc);
-                int daj=mapdis(jugador->r,jugador->c,rr,cc);
-                if(dae<=daj) {
-                    if(ve.osc==1) {
-                        *r=rr;
-                        *c=cc;
-                    } else if(daj>dis) {
-                        dis=daj;
-                        *r=rr;
-                        *c=cc;
+    if(!_nernotvis(e,vm,r,c)) {
+        int dis=-1;
+        for(int rr=vm.ri;rr<=vm.rf;rr++) {
+            for(int cc=vm.ci;cc<=vm.cf;cc++) {
+                visual_t ve=vm.vis[rr][cc];
+                if(ve.fre==1) {
+                    int dae=mapdis(e->r,e->c,rr,cc);
+                    int daj=mapdis(jugador->r,jugador->c,rr,cc);
+                    if(dae<=daj) {
+                        if(ve.osc==1) {
+                            *r=rr;
+                            *c=cc;
+                        } else if(daj>dis) {
+                            dis=daj;
+                            *r=rr;
+                            *c=cc;
+                        }
                     }
                 }
             }
         }
-    }
-    return (dis!=-1);
+        return (dis!=-1);
+    } else return TRUE;
 }
 
 static Bool _toobj(vismap_t vm,int* r,int* c) {
@@ -286,7 +304,6 @@ static Bool iaatc(vismap_t vm,objeto_t* e) {
                 else res=3;
             }
         }
-        dbgprt("%s res=%i",e->nom,res);//dbg
         if(res==3) {
             return objata(e,jugador);
         } else {
@@ -295,7 +312,6 @@ static Bool iaatc(vismap_t vm,objeto_t* e) {
             Bool pos=FALSE;
             if(res==2) pos=_farjug(e,vm,&r,&c);
             else if(res==1) pos=_nearjug(vm,&r,&c);
-            dbgprt("->%i,%i",r,c);//dbg
             if(pos && r!=1 && c!=-1) {
                 return _moveto(e,vm,r,c);
             }
