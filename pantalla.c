@@ -111,10 +111,13 @@ static void cajshw() {
 	}
 	ROW=ROWS-2;
 	COL=0;
-	INK=WHITE;
     ATR=BOLD;
+    if(jugador->vid>10) INK=GREEN;
+    else if(jugador->vid>5) INK=YELLOW;
+    else INK=RED;
     prints("%s  ",jugador->nom);
     ATR=NONE;
+    INK=WHITE;
 	for(int k=0;k<SIZ;k++) {
 		ATR=BOLD;
 		prints("%s: ",NAM[k]);
