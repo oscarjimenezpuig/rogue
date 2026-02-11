@@ -1,5 +1,7 @@
 /* ROGUE 23/1/26 */
 
+#include <time.h>
+
 #include "rogue.h"
 
 static memoria_t memoria[MSIZ]; /* memorias de huesos */
@@ -24,6 +26,7 @@ static void onememclr(memoria_t* m) {
     initname(m->nme);
     initname(m->nem);
     initname(m->nom);
+    initname(m->tim);
     m->pme=0;
     m->ani=m->scp=0;
     m->oro=0;
@@ -106,6 +109,7 @@ static void memcopy(memoria_t* d,memoria_t o) {
     copyname(d->nom,o.nom);
     copyname(d->nme,o.nme);
     copyname(d->nem,o.nem);
+    copyname(d->tim,o.tim);
     d->pme=o.pme;
     d->ani=o.ani;
     d->scp=o.scp;
@@ -128,33 +132,35 @@ static int memord() {
     return -1;
 }
 
+#define NLN COL=0;ROW++
+
 static void onememprt(Bool reverse,int pos,memoria_t m) {
     /* imprime una memoria */
     ATR=(reverse)?BOLD|REVERSE:BOLD;
-    prints("%i %s ",pos,m.nom);
+    prints("%i %s (%s)",pos,m.nom,m.tim);
     ATR=(reverse)?REVERSE:NONE;
-    prints("(Nivel %i)",m.niv);
-    COL=0;
-    ROW++;
+    NLN;
+    prints("    Llego al nivel %i.",m.niv);
     if(m.scp) {
+        NLN;
         prints("    Logro escapar con el anillo!!!");
-    } else if(m.ani) {
-        prints("    Consiguio el anillo, pero no pudo huir...");
     } else {
+        if(m.ani) {
+            NLN;
+            prints("    Consiguio el anillo, pero no pudo huir...");
+        }
+        NLN;
         prints("    Fue muerto por %s.",m.nem);
     }
     if(m.pme>0) {
-        ROW++;
-        COL=0;
+        NLN;
         prints("    Consiguio matar a %s.",m.nme);
     }
     if(m.oro==1) {
-        ROW++;
-        COL=0;
+        NLN;
         prints("    Acabo con una moneda de oro.");
     } else if(m.oro>1) {
-        ROW++;
-        COL=0;
+        NLN;
         prints("    Acabo con %i monedas de oro.",m.oro);
     }
 }
@@ -178,23 +184,31 @@ static void memprt(int posicion) {
     prints(TIT);
     ROW+=1;
     INK=IFR;
-    for(int k=0;k<MSIZ;k++) {
+    int ndm=MIN(((ROWS-4)/6),MSIZ);
+    for(int k=0;k<ndm;k++) {
         if(*(memoria[k].nom)!=EOS) {
-            COL=0;
-            ROW++;
+            NLN;
             onememprt((k==posicion),k+1,memoria[k]);
         } else break;
     }
     ROW=ROWS-1;
     COL=0;
-    ATR=BOLD;
+    ATR=BLINK;
     prints("Pulsa Q para finalizar");
 }
 
+static void timset() {
+    /* establece el tiempo actual */
+    time_t ti;
+    time(&ti);
+    struct tm* tm=localtime(&ti);
+    strftime(actual.tim,SLEN,"%d/%m/%Y",tm);
+}
 
 void memend() {
     actual.scp=(end_game==2)?1:0;
     actual.oro=jugador->oro;
+    timset();
     if(!actual.scp || !asesino) {
         objeto_t* inj[objsiz()];
         uint injs=objinv(jugador,inj);

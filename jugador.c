@@ -23,9 +23,12 @@
 #define TCMP 'C' /* compra de una caracteristica 14 */
 #define TVES 'v' /* vestir un arma 15 */
 #define TDVS 'V' /* quitarte un arma 16 */
+#define THLP 'H' /* ayuda, un resumen de todas las teclas 17 */
 
-#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR,TESC,TATQ,TDSC,TCMP,TVES,TDVS};
-#define KEYS 17
+#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR,TESC,TATQ,TDSC,TCMP,TVES,TDVS,THLP};
+#define KEXP {"Norte","Sur","Oeste","Este","Coger","Dejar","Inventario","Abrir","Forzar","Finalizar juego","Examinar","Subir/Bajar","Atacar","Descansar","Comprar","Vestir","Desvestir","Ayuda"};
+#define KEYS 18
+
 
 /* posicion inicial pantalla */
 #define RO 0
@@ -651,6 +654,27 @@ static Bool jugdvs() {
 	}
 	return FALSE;
 }
+
+static Bool jughlp() {
+    const char TEC[]=KEYN;
+    const char* EXP[]=KEXP;
+    ROW=COL=0;
+    INK=WHITE;
+    ATR=BOLD;
+    prints("TECLAS DEL JUEGO");
+    ATR=NONE;
+    ROW++;
+    for(int k=0;k<KEYS;k++) {
+        COL=0;
+        ROW++;
+        INK=YELLOW;
+        prints("  %c  ",TEC[k]);
+        INK=WHITE;
+        prints("%s",EXP[k]);
+    }
+    while(listen(INKEY)==0);
+    return FALSE;
+}       
 	
 static Bool jugqut() {
 	end_game=-1;;
@@ -699,6 +723,8 @@ Bool jugact() {
 				return jugves();
 			case 16:
 				return jugdvs();
+            case 17:
+                return jughlp();
 			default:
 				return jugidk();
 		}

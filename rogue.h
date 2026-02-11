@@ -80,7 +80,7 @@
 #define JDN "NONAMED" /* nombre por defecto del jugador */
 
 /* memoria */
-#define MSIZ 5 /* numero maximo de memorias aceptado */
+#define MSIZ 10 /* numero maximo de memorias aceptado */
 #define MNAM ".archhues.mem" /* nombre del archivo de memoria */
 
 /* MACROS */
@@ -220,6 +220,7 @@ typedef struct {
   	char nom[SLEN+1]; /* nombre del jugador */
     char nme[SLEN+1]; /* nombre del enemigo de maximo valor derrotado */
 	char nem[SLEN+1]; /* nombre del enemigo que mata al jugador */
+    char tim[SLEN+1]; /* guarda el dia de la partida */
     int pme; /* puntuacion del enemigo de maximo valor */
 	uint ani: 1; /* tiene el anillo */
 	uint scp: 1; /* ha escapado */

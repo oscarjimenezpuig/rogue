@@ -89,16 +89,14 @@ static vismap_t _visset(objeto_t* e) {
         /* busca fronteras a no visibles del mapa de visibilidad */
         for(int rr=vm.ri;rr<=vm.rf;rr++) {
             for(int cc=vm.ci;cc<=vm.cf;cc++) {
-                if(rr!=e->r || cc!=e->c) {
-                    if(vm.vis[rr][cc].fre==1) {
-                        localidad_t* n[4];
-                        mapngh(rr,cc,n);
-                        for(int k=0;k<4;k++) {
-                            localidad_t* le=n[k];
-                            if(le && le->trs==1 && le->vis!=2) {
-                                vm.vis[rr][cc].fnv=1;
-                                break;
-                            }
+                if(vm.vis[rr][cc].fre==1) {
+                    localidad_t* n[4];
+                    mapngh(rr,cc,n);
+                    for(int k=0;k<4;k++) {
+                        localidad_t* le=n[k];
+                        if(le && le->trs==1 && le->vis!=2) {
+                            vm.vis[rr][cc].fnv=1;
+                            break;
                         }
                     }
                 }
@@ -210,8 +208,7 @@ static Bool _esconderse(objeto_t* e,vismap_t vm) {
     int ec=e->c;
     visual_t ve=vm.vis[er][ec];
     if(ve.fnv) {
-        dbgprt("%s en frontera no visible");//dbg
-        for(int k=0;k<4;k++) {
+        for(int k=0;k<DRCS;k++) {
             int dr=DRP[k];
             int dc=DRP[con(k)];
             localidad_t* l=mapget(er+dr,ec+dc);
@@ -226,49 +223,50 @@ static Bool _esconderse(objeto_t* e,vismap_t vm) {
 }
 
 static Bool _alejarse(objeto_t* e,vismap_t vm) {
-    int rlej,clej,rfnv,cfnv;
-    int dlej=-1;
-    int dfnv=-1;
+    /* busca un sitio para alejarse del jugador */
+    /* si hay frontera oscura, va hacia ahi */
+    const int DRP[]=DRC;
+    int re=e->r;
+    int ce=e->c;
+    int rj=jugador->r;
+    int cj=jugador->c;
+    int dfo=-1;
+    int rfo,cfo;
     for(int rr=vm.ri;rr<=vm.rf;rr++) {
         for(int cc=vm.ci;cc<=vm.cf;cc++) {
             visual_t ve=vm.vis[rr][cc];
-            if(ve.fre==1) {
-                int de=mapdis(e->r,e->c,rr,cc);
-                if(ve.fnv==1) {
-                    if(dfnv==-1 || de<dfnv) {
-                        dfnv=de;
-                        rfnv=rr;
-                        cfnv=cc;
-                    } else if(dlej==-1|| dlej<de) {
-                        dlej=de;
-                        rlej=rr;
-                        clej=cc;
+            if(ve.fnv==1) {
+                int dp=mapdis(re,ce,rr,cc);
+                int dj=mapdis(rj,cj,rr,cc);
+                if(dj>=dp) {
+                    if(dfo==-1 || dfo>dp) {
+                        dfo=dp;
+                        rfo=rr;
+                        cfo=cc;
                     }
                 }
             }
         }
     }
-    int djlej=(dlej==-1)?-1:mapdis(jugador->r,jugador->c,rlej,clej);
-    int djfnv=(dfnv==-1)?-1:mapdis(jugador->r,jugador->c,rfnv,cfnv);
-    int desr,desc;
-    desr=desc=-1;
-    int try=0;
-    if(djfnv!=-1 && djlej!=-1) {
-        if(djfnv>djlej) try=-1;
-        else try=1;
-    } else if(djlej!=-1) try=1;
-    else if(djfnv!=-1) try=-1;
-    if(try==1) {
-        desr=rlej;
-        desc=clej;
-    } else if(try==-1) {
-        desr=rfnv;
-        desc=cfnv;
+    if(dfo==-1) {
+        dfo=objdis(e,jugador);
+        for(int k=0;k<DRCS;k++) {
+            int nr=re+DRP[k];
+            int nc=ce+DRP[con(k)];
+            visual_t ve=vm.vis[nr][nc];
+            if(ve.fre==1) {
+                int de=mapdis(jugador->r,jugador->c,nr,nc);
+                if(de>dfo) {
+                    dfo=de;
+                    rfo=nr;
+                    cfo=nc;
+                }
+            }
+        }
     }
-    if(try) return _moveto(e,vm,desr,desc);
-    return FALSE;
+    return _moveto(e,vm,rfo,cfo);
 }
-
+    
 static Bool _toobj(vismap_t vm,int* r,int* c) {
     /* da las coordenadas del objeto mas cercano (si existe) */
     if(vm.obj) {
@@ -385,16 +383,21 @@ static Bool iavst(objeto_t* e) {
 }
     
 static Bool iawlk(vismap_t vm,objeto_t* e) {
-    static int rndr=-1;
-    static int rndc=-1;
-    if(rndr==-1 && rndc==-1) {
-        maprndpos(&rndr,&rndc,TRUE);
+    const int DR[]=DRC;
+    int t=rnd(0,DRCS-1);
+    for(int k=0;k<DRCS;k++) {
+        int v=(t+k)%DRCS;
+        int dr=DR[v];
+        int dc=DR[con(v)];
+        int desr=e->r+dr;
+        int desc=e->c+dc;
+        if(desr!=e->dr || desc!=e->dc) {
+            localidad_t* l=mapget(desr,desc);
+            if(l->trs==1) return objmov(e,dr,dc);
+        }
     }
-    if((e->r==rndr && e->c==rndc) || (!_moveto(e,vm,rndr,rndc))) {
-        rndr=rndc=-1;
-        return FALSE;
-    }
-    return TRUE;
+    e->dr=e->dc=-1;
+    return FALSE;
 }
 
 /* acciones de ia */

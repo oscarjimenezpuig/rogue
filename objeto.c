@@ -6,6 +6,7 @@
 
 #define ATRCAD (atributo_t){'%',BOLD,WHITE,BLACK} /* atributo de un cadaver */
 #define NOMCAD "CADAVER" /* nombre del cadaver */
+#define DDCOC 3 /* radio de distancia donde caen los objetos del cadaver */
 
 objeto_t* jugador=NULL;
 objeto_t* asesino=NULL;
@@ -286,21 +287,37 @@ Bool objata(objeto_t* o,objeto_t* ene) {
 }
 
 static void trscad(objeto_t* o) {
-	/* transfoma un npc en un cadaver (no al jugador) */
+	/* transfoma un npc en un cadaver siempre y cuando no este en escalera (no al jugador) */
 	if(o->jug==0) {
-		char* on=NOMCAD;
-		char* dn=o->nom;
-		while(*on!=EOS) *dn++=*on++;
-		*dn=EOS;
-		o->atr=ATRCAD;
-		o->npc=0;
-		o->cog=o->ior=o->arm=o->lla=o->ani=o->prt=o->ves=0;
+        localidad_t* l=mapget(o->r,o->c);
+        if(l->esc==0) {
+            char* on=NOMCAD;
+            char* dn=o->nom;
+            while(*on!=EOS) *dn++=*on++;
+            *dn=EOS;
+            o->atr=ATRCAD;
+            o->npc=0;
+            o->cog=o->ior=o->arm=o->lla=o->ani=o->prt=o->ves=0;
+        } else {
+            o->r=o->c=-1;
+        }
 	}
 }
 
 static Bool isooi(objeto_t* o) {
 	/* condicion de objeto oro no disponible */
 	return (o && o->npc==0 && o->ior && o->r==-1 && o->c==-1);
+}
+
+static void disalr(int or,int oc,int* r,int* c) {
+    /* los objetos de los muertos se distribuyen alrededor del cadaver */
+    const int MAXDIS=DDCOC;
+    localidad_t* l=NULL;
+    do {
+        *r=or+rnd(-MAXDIS,MAXDIS);
+        *c=oc+rnd(-MAXDIS,MAXDIS);
+        l=mapget(*r,*c);
+    }while(!l || l->trs!=1);
 }
 
 static void reporo(int r,int c,int oro) {
@@ -314,8 +331,10 @@ static void reporo(int r,int c,int oro) {
 			else coro=oro;
 			oro-=coro;
 			tsd[cout]->cor=coro;
-			tsd[cout]->r=r;
-			tsd[cout]->c=c;
+            int pr,pc;
+            disalr(r,c,&pr,&pc);
+			tsd[cout]->r=pr;
+			tsd[cout]->c=pc;
 			cout++;
 		}
 	}
@@ -335,8 +354,10 @@ Bool objmue(objeto_t* o) {
 				objeto_t* oe=inv[k];
                 oe->ves=0;
 				oe->con=NULL;
-				oe->r=o->r;
-				oe->c=o->c;
+                int r,c;
+                disalr(o->r,o->c,&r,&c);
+				oe->r=r;
+				oe->c=c;
 			}
 			reporo(o->r,o->c,o->oro);
 			trscad(o);
