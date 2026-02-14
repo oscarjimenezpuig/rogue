@@ -71,6 +71,7 @@
 #define EMH 3 /* numero maximo de enemigos por nivel por habitacion */
 #define ATS 100 /* ataques simulados */
 #define CDR DAI /* dado que da el cambio de direccion random */
+#define RCM 2 /* radio de caida de objetos cuando el enemigo muere */
 
 /* fantasma */
 #define SQV 5 /* radio de vision del fantasma medido en distancia Manhattan */

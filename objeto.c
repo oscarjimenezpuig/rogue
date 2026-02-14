@@ -6,7 +6,6 @@
 
 #define ATRCAD (atributo_t){'%',BOLD,WHITE,BLACK} /* atributo de un cadaver */
 #define NOMCAD "CADAVER" /* nombre del cadaver */
-#define DDCOC 3 /* radio de distancia donde caen los objetos del cadaver */
 
 objeto_t* jugador=NULL;
 objeto_t* asesino=NULL;
@@ -74,21 +73,32 @@ int objdis(objeto_t* a,objeto_t* b) {
 }
 
 Bool objinipos(objeto_t* o,int r,int c) {
-	if(o) {
-		localidad_t* l=mapget(r,c);
-		if(l && l->trs==1) {
-			if(o->npc) {
-				for(int k=0;k<objetos;k++) {
-					objeto_t* oe=objeto+k;
-					if(oe->npc && oe->r==r && oe->c==c) return FALSE;
-				}
-			}
-			o->r=r;
-			o->c=c;
-			return TRUE;
-		}
-	}
-	return FALSE;
+    Bool col=FALSE;
+    if(o) {
+        localidad_t* l=mapget(r,c);
+        Bool loc=(l && l->trs==1);
+        if(loc) {
+            Bool ene=(o->npc && o->jug==0);
+            Bool jug=(o->jug);
+            Bool esc=(l->esc!=0); 
+            col=!ene && !jug;
+            if(!col) {
+                col=!ene || !esc;
+                if(col) {
+                    objeto_t* po=objeto;
+                    while(po!=objeto+objetos && col) {
+                        if(po->npc && po->r==r && po->c==c) col=FALSE;
+                        po++;
+                    }
+                }
+            }
+        }
+        if(col) {
+            o->r=r;
+            o->c=c;
+        }
+    }
+    return col;
 }
 				
 uint objfnd(objeto_t* o[],Condicion c) {
@@ -149,34 +159,33 @@ uint objinv(objeto_t* o,objeto_t* c[]) {
 #define oij (o==jugador)
 
 Bool objcog(objeto_t* o,objeto_t* itm) {
-	if(o && o->npc) {
-		objeto_t* inv[objetos];
-		uint cinv=objinv(o,inv);
-		if(cinv<o->cap) {		
-			if(itm && itm->npc==0 && (itm->cog) && itm->r==o->r && itm->c==o->c && itm->con==NULL) {
-				if(!itm->prt || !objisprt(o)) {
-					itm->r=itm->c=-1;
-					if(itm->ior) {
-						if(oij) menin("Coges %i monedas de oro...",itm->cor);
-						o->oro+=itm->cor;
-					} else if(itm->prt) {
-						if(oij) menin("Coges %s y te la pones...",itm->nom);
-						itm->con=o;
-					} else {
-						if(oij) menin("Coges %s...",itm->nom);
-						itm->con=o;
-					}
-					return TRUE;
+    if(o && o->npc && itm && !itm->npc && itm->cog && itm->r==o->r && itm->c==o->c && !itm->con) {
+        objeto_t* inv[objetos];
+        uint cinv=objinv(o,inv);
+        if(cinv<o->cap || (o->jug && itm->ior)) {
+            if(!itm->prt || !objisprt(o)) {
+                itm->r=itm->c=-1;
+                if(itm->ior) {
+					if(oij) menin("Coges %i monedas de oro...",itm->cor);
+					o->oro+=itm->cor;
+				} else if(itm->prt) {
+					if(oij) menin("Coges %s y te la pones...",itm->nom);
+					itm->con=o;
 				} else {
-					if(oij) menin("No puedes coger una armadura, ya llevas una...");
+					if(oij) menin("Coges %s...",itm->nom);
+					itm->con=o;
 				}
+				return TRUE;
+            } else {
+                if(oij) menin("No puedes coger una armadura, ya llevas una...");
 			}
-		} else {
-			if(oij) menin("Llevas demasiadas cosas...");
-		}
-	}
-	if(oij) menin("No puedes cogerlo...");
-	return FALSE;
+        } else {
+            if(oij) menin("Llevas demasiadas cosas...");
+        }
+    } else {
+        if(oij) menin("No puedes cogerlo...");
+    }
+    return FALSE;
 }
 
 Bool objdej(objeto_t* o,objeto_t* itm) {
@@ -311,7 +320,7 @@ static Bool isooi(objeto_t* o) {
 
 static void disalr(int or,int oc,int* r,int* c) {
     /* los objetos de los muertos se distribuyen alrededor del cadaver */
-    const int MAXDIS=DDCOC;
+    const int MAXDIS=RCM;
     localidad_t* l=NULL;
     do {
         *r=or+rnd(-MAXDIS,MAXDIS);
