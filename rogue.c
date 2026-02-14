@@ -15,19 +15,21 @@ static Bool isnpc(objeto_t* o) {
 
 static void npcsact() {
 	static uint npcs=0;
-	jugact();
+	Bool haj=jugact();
 	jugshw(jugador);
-	objeto_t* npc[objsiz()];
-	npcs=objfnd(npc,isnpc);
-	if(npcs) {
-		objeto_t** p=npc;
-		while(p!=npc+npcs) {
-			if((*p)->jug==0 && (*p)->fan==0) eneact(*p);
-			else fanact();
-			jugshw(*p);
-			p++;
-		}
-	}
+    if(haj) {
+        objeto_t* npc[objsiz()];
+        npcs=objfnd(npc,isnpc);
+        if(npcs) {
+            objeto_t** p=npc;
+            while(p!=npc+npcs) {
+                if((*p)->jug==0 && (*p)->fan==0) eneact(*p);
+                else fanact();
+                jugshw(*p);
+                p++;
+            }
+        }
+    }
 }
 
 void curse() {

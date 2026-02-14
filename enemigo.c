@@ -87,7 +87,7 @@ static objeto_t* enenew(raza_t r) {
 	/* definicion de un enemigo a partir de sus caracteristicas y su nivel */
 	char chr=*(r.nom);
 	if(r.anm==0) chr=chr-'a'+'A';
-	atributo_t a={chr,BOLD,WHITE,BLACK};
+	atributo_t a={chr,BOLD,CYAN,BLACK};
 	objeto_t* o=objnew(r.nom,a,TRUE,FALSE);
 	if(o) {
 		o->anm=r.anm;
