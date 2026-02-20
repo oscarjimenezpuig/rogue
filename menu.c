@@ -5,8 +5,8 @@
 /* teclado de menu */
 #define TMSU 'i' /* tecla de sube en menu */
 #define TMBA 'k' /* tecla de baja en menu */
-#define TMFI 'M' /* cerrar menu sin seleccionar */
-#define TMOK 'm' /* cerrar menu seleccionando */
+#define TMFI 'j' /* cerrar menu sin seleccionar */
+#define TMOK 'l' /* cerrar menu seleccionando */
 
 uint menu(char* c,uint os,char* o[]) {
 	uint select=0;
