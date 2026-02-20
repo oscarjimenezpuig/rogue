@@ -11,6 +11,7 @@ typedef struct {
 	uint hab : 4; /* habilidad */
 	uint vel : 4; /* velocidad */
 	uint cap : 4; /* capacidad */
+    uint ink : 3; /* color */
 } raza_t;
 
 static raza_t raza[RZS];
@@ -42,44 +43,47 @@ static Bool raznew(raza_t r) {
 		pr->hab=r.hab;
 		pr->vel=r.vel;
 		pr->cap=r.cap;
+        pr->ink=r.ink;
 		return TRUE;
 	}
 	return FALSE;
 }
 
-#define rf(N,A,F,H,V,C) (raza_t){N,(A),(F),(H),(V),(C)}
-#define rr(N,F,H,V,C) raznew(rf(N,0,F,H,V,C))
-#define ra(N,F,H,V) raznew(rf(N,1,F,H,V,0))
+#define rf(N,A,F,H,V,C,I) (raza_t){N,(A),(F),(H),(V),(C),(I)}
+#define rr(N,F,H,V,C,I) raznew(rf(N,0,F,H,V,C,I))
+#define ra(N,F,H,V,I) raznew(rf(N,1,F,H,V,0,I))
 
 static void razdef() {
 	/* definicion de todas las razas excepto las dos especiales */
-	rr("aeralin caidos",4,5,6,4);
-	rr("bramh igneos",6,3,2,7);
-	rr("cyrn sombrios",3,6,5,2);
-	rr("elyth espectrales",2,6,5,5);
-	rr("feralis salvajes",6,6,5,5);
-	rr("gromnil abismal",8,4,3,9);
-	rr("horror hylari",3,7,4,6);
-	rr("ishkar desertico",5,4,5,6);
-	rr("jorveth helado",7,5,4,8);
-	rr("khaarn demoniaco",10,6,7,9);
-	rr("lunari corrupto",4,7,5,6);
-	rr("mordrek nomuerto",8,5,3,10);
-	rr("nyxar sombrio",5,9,8,4);
-	rr("orkan marino",14,6,7,13);
-	rr("pyron igneo",9,6,7,8);
-	rr("quorim psiquico",3,10,5,10);
-	rr("rhazak invasor",9,7,7,9);
-	rr("thyrimm gigantesco",15,6,4,15);
-	rr("umbrael corruptor",6,9,7,8);
-	rr("valyrr caido",7,7,6,6);
-	rr("wyrn alado",6,5,8,5);
-	rr("xeloth aberrante",6,10,6,8);
-	rr("ydrasil ancestral",14,14,5,15);
-	rr("zarkun del vacio",12,13,10,15);
-	ra("rata",2,0,7);
-	ra("serpiente",2,2,5);
-	ra("tarantula",4,4,1);
+    uint ch=WHITE; /* color humanoides */
+    uint ca=GREEN; /* color animales */
+	rr("aeralin caidos",4,5,6,4,ch);
+	rr("bramh igneos",6,3,2,7,ch);
+	rr("cyrn sombrios",3,6,5,2,ch);
+	rr("elyth espectrales",2,6,5,5,ch);
+	rr("feralis salvajes",6,6,5,5,ch);
+	rr("gromnil abismal",8,4,3,9,ch);
+	rr("horror hylari",3,7,4,6,ch);
+	rr("ishkar desertico",5,4,5,6,ch);
+	rr("jorveth helado",7,5,4,8,ch);
+	rr("khaarn demoniaco",10,6,7,9,ch);
+	rr("lunari corrupto",4,7,5,6,ch);
+	rr("mordrek nomuerto",8,5,3,10,ch);
+	rr("nyxar sombrio",5,9,8,4,ch);
+	rr("orkan marino",14,6,7,13,ch);
+	rr("pyron igneo",9,6,7,8,ch);
+	rr("quorim psiquico",3,10,5,10,ch);
+	rr("rhazak invasor",9,7,7,9,ch);
+	rr("thyrimm gigantesco",15,6,4,15,ch);
+	rr("umbrael corruptor",6,9,7,8,ch);
+	rr("valyrr caido",7,7,6,6,ch);
+	rr("wyrn alado",6,5,8,5,ch);
+	rr("xeloth aberrante",6,10,6,8,ch);
+	rr("ydrasil ancestral",14,14,5,15,ch);
+	rr("zarkun del vacio",12,13,10,15,ch);
+	ra("rata",2,0,7,ca);
+	ra("serpiente",2,2,5,ca);
+	ra("tarantula",4,4,1,ca);
 }
 
 
@@ -87,7 +91,7 @@ static objeto_t* enenew(raza_t r) {
 	/* definicion de un enemigo a partir de sus caracteristicas y su nivel */
 	char chr=*(r.nom);
 	if(r.anm==0) chr=chr-'a'+'A';
-	atributo_t a={chr,BOLD,CYAN,BLACK};
+	atributo_t a={chr,BOLD,r.ink,BLACK};
 	objeto_t* o=objnew(r.nom,a,TRUE,FALSE);
 	if(o) {
 		o->anm=r.anm;
@@ -153,7 +157,7 @@ static int razesp() {
 	int res=0;
 	if(num_nivel==posdragon && (!dragon || dragon->vid>0)) {
 		if(!dragon) {
-			raza_t drg=rf("dragon",0,15,13,13,15);
+			raza_t drg=rf("dragon",0,15,13,13,15,RED);
 			dragon=enenew(drg);
 		}
 		res+=enepos(dragon);
@@ -161,7 +165,7 @@ static int razesp() {
 	}
 	if(num_nivel==possauron && (!sauron || sauron->vid>0)) {
 		if(!sauron) {
-			raza_t sau=rf("sauron",0,15,15,15,15);
+			raza_t sau=rf("sauron",0,15,15,15,15,RED);
 			sauron=enenew(sau);
 		}
 		res+=enepos(sauron);
