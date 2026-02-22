@@ -59,6 +59,7 @@
 #define PPN (rnd(1,2)*num_hab) /* numero de protecciones por nivel */
 #define PDM 2 /* desviacion maxima del numero de protecciones */
 #define PDm -2 /* desviacion minima del numero de protecciones */
+#define PRI (rnd(0,1)==0) /* esta funcion decide si el arma definida sera de enemigos en un inicio */
 
 /* enemigos */
 #define CEE 4 /* numero de caracteristicas evaluables de enemigo */
@@ -118,6 +119,7 @@
  * tener arma se usan los puños */
 /* Regla de descanso: Se descansa ganando puntos de vida si estamos en una habitacion sin
  * enemigos. Tiene que ser habitacion clara */
+/* Regla de retorno a nivel: Si en un nivel quedan enemigos, se cierran todas las puertas, si no se abren todas */
 
 /* Clasificacion de memoria de huesos:
  *  1. Sale con anillo

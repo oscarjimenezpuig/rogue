@@ -246,7 +246,7 @@ static Bool armnew(){
 			no->nad=at->nad;
 			no->pfu=at->pfu;
 			no->pha=at->pha;
-			itmplc(no,TRUE);
+			if(!PRI) itmplc(no,TRUE);
 		} else return FALSE;
 	}
 	return TRUE;
@@ -352,7 +352,7 @@ static Bool prtnew() {
 			no->prt=1;
 			no->tip=pt->tip;
 			no->nar=pt->nar;
-			itmplc(no,TRUE);
+			if(!PRI) itmplc(no,TRUE);
 		} else return FALSE;
 	}
 	return TRUE;

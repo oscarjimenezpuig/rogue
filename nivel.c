@@ -67,6 +67,40 @@ static void nivene(uint niv) {
 	enelev(p->ens);
 }
 
+static Bool isitm(objeto_t* o) {
+    /* condicion para que un objeto este en posicion nula */
+    return (o->npc==0 && (o->prt || o->arm) && o->r==-1 && o->c==-1);
+}
+
+static Bool isnpc(objeto_t* o) {
+    /* condicion para que sea npc diferente de jugador */
+    return (o->npc && !o->jug && !o->anm && !o->fan);
+}
+
+static Bool itmasg(objeto_t* itm,objeto_t* npc) {
+    if(itm && npc && (!itm->prt || !objisprt(npc))) {
+        itm->con=npc;
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static void nivitmene() {
+    /* esta funcion coge los items que no tienen lugar asigando y lo asignan a un enemigo */
+    const int TRIES=10000;
+    int tries=TRIES;
+    objeto_t* npc[objsiz()];
+    uint npcs=objfnd(npc,isnpc);
+    objeto_t* itm[objsiz()];
+    uint itms=objfnd(itm,isitm);
+    objeto_t** ptr=itm;
+    while(ptr!=itm+itms && (tries--)>0) {
+        int nnpc=rnd(0,npcs-1);
+        objeto_t* npce=npc[nnpc];
+        if(itmasg(*ptr,npce)) ptr++;
+    }
+}
+
 static Bool nivnue(uint niv) {
 	/* crea todo lo relativo a un nivel visitado por primera vez */
 	Bool ret=FALSE;
@@ -101,19 +135,20 @@ static Bool nivnue(uint niv) {
 		for(int k=0;k<num_hab;k++) p->ens+=rnd(EmH,EMH);
 		/* colocacion de enemigos */
 		nivene(niv);
+        /* asignacion de armas a enemigos */
+        nivitmene();
 	}
 	return ret;
 }
 
 static void nivopd(nivel_t* p) {
 	/* una vez visitado el nivel se abren las puertas cerradas segun el numero de llaves y todas las ocultas */
-	int probabilidad=p->lls*PLR;
-	for(int r=0;r<MAPAR;r++) {
-		for(int c=0;c<MAPAC;c++) {
-			localidad_t* l=mapget(r,c);
-			if(l && l->trs>1) {
+	if(p->ens==0) {
+    	for(int r=0;r<MAPAR;r++) {
+		    for(int c=0;c<MAPAC;c++) {
+			    localidad_t* l=mapget(r,c);
 				if(l->trs==3) l->trs=1;
-				else if(l->trs==2 && rnd(0,probabilidad)==0) l->trs=1;
+				else if(l->trs==2) l->trs=1;
 			}
 		}
 	}
@@ -131,6 +166,8 @@ static Bool nivvie(uint niv) {
 		nivitm(niv);
 		/* enemigos */
 		nivene(niv);
+        /* colocacion de items en enemigos */
+        nivitmene();
 		/* opertura de ocultas y puertas */
 		nivopd(p);
 	}
@@ -152,7 +189,7 @@ static Bool objinniv(objeto_t* o) {
 		if(o->r!=-1 && o->c!=-1) return TRUE;
 		else if(o->npc==0){
 			objeto_t* npc=o->con;
-			if(npc && npc->jug==0) return TRUE;
+if(npc && npc->jug==0) return TRUE;
 		}
 	}
 	return FALSE;
