@@ -93,11 +93,13 @@ static void nivitmene() {
     uint npcs=objfnd(npc,isnpc);
     objeto_t* itm[objsiz()];
     uint itms=objfnd(itm,isitm);
-    objeto_t** ptr=itm;
-    while(ptr!=itm+itms && (tries--)>0) {
-        int nnpc=rnd(0,npcs-1);
-        objeto_t* npce=npc[nnpc];
-        if(itmasg(*ptr,npce)) ptr++;
+    if(npcs>0 && itms>0) {
+        objeto_t** ptr=itm;
+        while(ptr!=itm+itms && (tries--)>0) {
+            int nnpc=rnd(0,npcs-1);
+            objeto_t* npce=npc[nnpc];
+            if(itmasg(*ptr,npce)) ptr++;
+        }
     }
 }
 
@@ -147,8 +149,8 @@ static void nivopd(nivel_t* p) {
     	for(int r=0;r<MAPAR;r++) {
 		    for(int c=0;c<MAPAC;c++) {
 			    localidad_t* l=mapget(r,c);
-				if(l->trs==3) l->trs=1;
-				else if(l->trs==2) l->trs=1;
+				if(l && l->trs==3) l->trs=1;
+				else if(l && l->trs==2) l->trs=1;
 			}
 		}
 	}

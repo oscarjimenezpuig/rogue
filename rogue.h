@@ -101,10 +101,12 @@
 #define PAC 10 /* aumento de precio de la caracteristica cada vez que se realiza una compra */
 #define VmE num_nivel /* la vidad minima posible de cualquier enemigo es el nivel en el que se encuentra */
 #define VME VMC /* la vida maxima de un enemigo es el valor maximo de la caracteristica */
+#define DDR DAT /* dado usado en la rotura de armas */
 #define DRA(A) regla_arma_rotura(A) /* regla para la rotura de armas */
 #define DRP(P) regla_proteccion_rotura(P) /* regla para la rotura de la proteccion */
 #define RDS regla_descanso() /* regla de descanso del jugador */
 #define AFN regla_fantasma() /* regla que determina si hay o no fantasma */
+
 
 /* Reglas lucha: Se lanza 1D20 +(fuerza_ataque/PFA) , si este supera
  * a la defensa (fuerza/CAR) + armadura, el ataque es positivo. Entonces se
