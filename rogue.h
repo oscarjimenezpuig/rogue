@@ -45,17 +45,9 @@
 #define PLR 4 /* factor de las llaves (relacionado con el dado que se usa para que se rompa la llave) */
 #define ANT 4 /* numeros de tipos de armas */
 #define ATI 5 /* numero de armas de cada tipo */
-#define MAL 4 /* multiplicador al numero de armas ligeras */
-#define MAE 3 /* multiplicador al numero de armas equilibradas */
-#define MAP 2 /* multiplicador al numero de armas pesadas */
-#define MAM 1 /* multiplicador al numero de armas magicas */
 #define ATO (ATI*(MAL+MAE+MAP+MAM)) /* numero de armas totales */
 #define APN (rnd(1,2)*num_hab) /* numero de armas por nivel */
 #define NTP 20 /* numero de tipos de armas de proteccion */
-#define MPB 4 /* multiplicadores de proteccion bajo */
-#define MPR 3 /* multiplicador de proteccion medio */
-#define MPA 2 /* multiplicador de proteccion alto */
-#define MPM 1 /* multiplicador de proteccion magica */
 #define PPN (rnd(1,2)*num_hab) /* numero de protecciones por nivel */
 #define PDM 2 /* desviacion maxima del numero de protecciones */
 #define PDm -2 /* desviacion minima del numero de protecciones */
@@ -80,6 +72,7 @@
 /* jugador */
 #define JHI 1 /* habitacion inicial del jugador */
 #define JDN "NONAMED" /* nombre por defecto del jugador */
+#define JMD "OJPDEBUG" /* con este nombre en el jugador se activa el mode debug */
 
 /* memoria */
 #define MSIZ 10 /* numero maximo de memorias aceptado */
@@ -242,6 +235,8 @@ extern objeto_t* fantasma; /* dice si el fantasma ya ha aparecido o no */
 extern objeto_t* asesino; /* guarda el nombre del asesino del jugador */
 
 extern int end_game; /* final de la partida 0: No hay final, -1: final forzado 1 : final de derrota 2: final de victoria */
+
+extern Bool mode_debug; /* en mode debug el jugador no muere (pero no se registra los datos en el archivo de huesos) */
 
 /* FUNCIONES */
 

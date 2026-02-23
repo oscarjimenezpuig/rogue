@@ -355,7 +355,8 @@ Bool objmue(objeto_t* o) {
 		if(l->vis==2) menin("%s ha muerto...",o->nom);
 		o->vid=0;
 		if(o->jug) {
-			end_game=1;
+            if(mode_debug) o->vid=VMC;
+            else end_game=1;
 		} else {
 			objeto_t* inv[objsiz()];
 			int invs=objinv(o,inv);

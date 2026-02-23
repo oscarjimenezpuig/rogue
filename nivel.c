@@ -68,8 +68,8 @@ static void nivene(uint niv) {
 }
 
 static Bool isitm(objeto_t* o) {
-    /* condicion para que un objeto este en posicion nula */
-    return (o->npc==0 && (o->prt || o->arm) && o->r==-1 && o->c==-1);
+    /* condicion para que un objeto este en posicion nula y no tengan propietario*/
+    return (o->npc==0 && (o->prt || o->arm) && !o->con && o->r==-1 && o->c==-1);
 }
 
 static Bool isnpc(objeto_t* o) {

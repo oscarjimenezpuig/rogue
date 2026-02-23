@@ -36,6 +36,8 @@
 
 int end_game=0;
 
+Bool mode_debug=FALSE;
+
 static void recjug(int* ri,int* ci,int* rs,int* cs) { 
 	/* rectangulo de visibilidad donde el centro es la posicion del jugador */
 	*rs=ROWS-3;
@@ -72,6 +74,21 @@ static void visset() {
 	}
 }
 
+static Bool chkmoddbg(char* nombre) {
+    /* comprueba que el nombre conecta el mode debug */
+    char* NDBG=JMD;
+    char* pd=NDBG;
+    char* pn=nombre;
+    mode_debug=TRUE;
+    while(*pd!=EOS && mode_debug) {
+        if(*pd++!=*pn++) mode_debug=FALSE;
+        
+    }
+    if(mode_debug && *pn==EOS) *nombre=EOS;
+    else mode_debug=FALSE;
+    return mode_debug;
+}
+
 static void nomset(char* nombre) {
 	/*funcion que escoge el nombre del jugador */
 	cls();
@@ -83,6 +100,7 @@ static void nomset(char* nombre) {
 	ATR=NONE;
 	listen(INPUT);
     bufget(SLEN,nombre);
+    if(chkmoddbg(nombre)) dbgprt("Modo debug");
 }
 
 static void carrndset(int points) {

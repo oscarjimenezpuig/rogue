@@ -184,36 +184,35 @@ static void artoti() {
 
 #undef nta
 
-static int seltip(int* pesos) {
-	/* selecciona tipo de arma y armadura dependiendo del nivel que esta */
-	const int NUMTIPS=4;
-	const int LEVELS=NFI-NIN+1;
-	const int VARLEV=1+(LEVELS/NUMTIPS);
-	const int PRB[]={100,25,10,1}; //probabilidad segun la diferencia de nivel
-	int total=0;
-	for(int k=0;k<NUMTIPS;k++) total+=pesos[k];
-	int tip=-1;
-	while(tip==-1) {
-		int val=rnd(0,total-1);
-		int lim=0;
-		int pretip=-1;
-		for(int k=0;k<NUMTIPS && pretip==-1;k++) {
-			lim+=pesos[k];
-			if(val<=lim) pretip=k;
-		}
-		int levtip=num_nivel/VARLEV;
-		int dif=ABS(levtip-pretip);
-		int prob=PRB[dif];
-		if(rnd(0,99)<prob) tip=pretip;
-	}
-	return tip;
+#define RM(I,F) ((double)(F-I)/(double)(NFI-NIN))
+#define RN(I,F) ((double)(I) - (double)RM(I,F)*NIN)
+
+static int seltip() {
+    const int NUMTIPS=4;
+    const int VM[]={RM(1000,100),RM(100,90),RM(10,50),RM(0,5)};
+    const int VN[]={RN(1000,100),RN(100,90),RN(10,50),RN(0,5)};
+    int prb[NUMTIPS];
+    int tprb=0;
+    int x=num_nivel;
+    for(int k=0;k<NUMTIPS;k++) {
+        prb[k]=VM[k]*x+VN[k];
+        tprb+=prb[k];
+    }
+    double nal=rnd(0,tprb-1);
+    for(int k=0;k<NUMTIPS-1;k++) {
+        nal=nal-prb[k];
+        if(nal<0) return k;
+    }
+    return NUMTIPS-1;
 }
+
+#undef RM
+#undef RN
 
 static arma_t* seltipar() {
 	arma_t* res=NULL;
 	while(!res) {
-		int pesos[]={MAL,MAE,MAP,MAM};
-		int tip=seltip(pesos);
+		int tip=seltip();
 		arma_t* tiarm[ATI];
 		int tiarms=0;
 		for(int k=0;k<ATI*ANT;k++) {
@@ -319,8 +318,7 @@ static proteccion_t* seltipro() {
 	/* escoge un tipo de proteccion */
 	proteccion_t* res=NULL;
 	while(!res) {
-		int pesos[]={MPB,MPR,MPA,MPM};
-		int tip=seltip(pesos);
+		int tip=seltip();
 		proteccion_t* prt[NTP];
 		int prts=0;
 		for(int k=0;k<NTP;k++) {

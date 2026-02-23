@@ -206,21 +206,23 @@ static void timset() {
 }
 
 void memend() {
-    actual.scp=(end_game==2)?1:0;
-    actual.oro=jugador->oro;
-    timset();
-    if(!actual.scp || !asesino) {
-        objeto_t* inj[objsiz()];
-        uint injs=objinv(jugador,inj);
-        objeto_t** pinj=inj;
-        while(pinj!=inj+injs && !actual.ani) {
-            if((*pinj)->ani) actual.ani=1;
-            pinj++;
+    if(!mode_debug) {
+        actual.scp=(end_game==2)?1:0;
+        actual.oro=jugador->oro;
+        timset();
+        if(!actual.scp || !asesino) {
+            objeto_t* inj[objsiz()];
+            uint injs=objinv(jugador,inj);
+            objeto_t** pinj=inj;
+            while(pinj!=inj+injs && !actual.ani) {
+                if((*pinj)->ani) actual.ani=1;
+                pinj++;
+            }
+            if(asesino) copyname(actual.nem,asesino->nom);
+            int posicion=memord();
+            memprt(posicion);
+            if(posicion!=-1) memsav();
         }
-        if(asesino) copyname(actual.nem,asesino->nom);
-        int posicion=memord();
-        memprt(posicion);
-        if(posicion!=-1) memsav();
     }
 }
 
