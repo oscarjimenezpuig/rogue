@@ -57,7 +57,7 @@ int regla_dano(objeto_t* a) {
 Bool regla_arma_rotura(objeto_t* a) {
 	int dados=a->tia+1;
 	for(int k=0;k<dados;k++) {
-		if(DAI!=1) return FALSE;
+		if(DDR!=1) return FALSE;
 	}
 	return TRUE;
 }
@@ -65,7 +65,7 @@ Bool regla_arma_rotura(objeto_t* a) {
 Bool regla_proteccion_rotura(objeto_t* p) {
 	int dados=p->tip+1;
 	for(int k=0;k<dados;k++) {
-		if(DAI!=1) return FALSE;
+		if(DDR!=1) return FALSE;
 	}
 	return TRUE;
 }

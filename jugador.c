@@ -100,7 +100,11 @@ static void nomset(char* nombre) {
 	ATR=NONE;
 	listen(INPUT);
     bufget(SLEN,nombre);
-    if(chkmoddbg(nombre)) dbgprt("Modo debug");
+    if(chkmoddbg(nombre)) {
+        cls();
+        dbgprt("MODO DEBUG");
+        cls();
+    }
 }
 
 static void carrndset(int points) {

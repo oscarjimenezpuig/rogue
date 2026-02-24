@@ -191,12 +191,16 @@ static int seltip() {
     const int NUMTIPS=4;
     const int VM[]={RM(1000,100),RM(100,90),RM(10,50),RM(0,5)};
     const int VN[]={RN(1000,100),RN(100,90),RN(10,50),RN(0,5)};
-    int prb[NUMTIPS];
-    int tprb=0;
-    int x=num_nivel;
-    for(int k=0;k<NUMTIPS;k++) {
-        prb[k]=VM[k]*x+VN[k];
-        tprb+=prb[k];
+    static int nivdef=-1;
+    static int prb[]={0,0,0,0};
+    static int tprb=0;
+    if(nivdef!=num_nivel) {
+        int x;
+        x=nivdef=num_nivel;
+        for(int k=0;k<NUMTIPS;k++) {
+            prb[k]=VM[k]*x+VN[k];
+            tprb+=prb[k];
+        }
     }
     double nal=rnd(0,tprb-1);
     for(int k=0;k<NUMTIPS-1;k++) {
@@ -245,7 +249,7 @@ static Bool armnew(){
 			no->nad=at->nad;
 			no->pfu=at->pfu;
 			no->pha=at->pha;
-			if(!PRI) itmplc(no,TRUE);
+			itmplc(no,TRUE);
 		} else return FALSE;
 	}
 	return TRUE;
@@ -350,7 +354,7 @@ static Bool prtnew() {
 			no->prt=1;
 			no->tip=pt->tip;
 			no->nar=pt->nar;
-			if(!PRI) itmplc(no,TRUE);
+			itmplc(no,TRUE);
 		} else return FALSE;
 	}
 	return TRUE;
