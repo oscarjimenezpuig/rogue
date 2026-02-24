@@ -69,36 +69,46 @@ static void nivene(uint niv) {
 
 static Bool isitm(objeto_t* o) {
     /* condicion para que un objeto este en posicion nula y no tengan propietario*/
-    return (o->npc==0 && (o->prt || o->arm) && !o->con && o->r==-1 && o->c==-1);
+    return (o && o->npc==0 && (o->prt || o->arm) && !o->con);
 }
 
 static Bool isnpc(objeto_t* o) {
     /* condicion para que sea npc diferente de jugador */
-    return (o->npc && !o->jug && !o->anm && !o->fan);
+    return (o && o->npc && !o->jug && !o->anm && !o->fan);
 }
 
-static Bool itmasg(objeto_t* itm,objeto_t* npc) {
-    if(itm && npc && (!itm->prt || !objisprt(npc))) {
+static void npcgetit(objeto_t* npc,objeto_t* itm) {
+    if(npc && itm) {
         itm->con=npc;
-        return TRUE;
+        itm->r=itm->c=-1;
     }
-    return FALSE;
 }
 
-static void nivitmene() {
-    /* esta funcion coge los items que no tienen lugar asigando y lo asignan a un enemigo */
-    const int TRIES=10000;
-    int tries=TRIES;
-    objeto_t* npc[objsiz()];
+static void nivitmene(Bool isnuevo) {
+     /* se cogen una serie de objetos que no estan contenidas en ningun sitio y se asigna a npc, si el nivel es viejo se asignan todas las armas */
+    uint siz=objsiz();
+    objeto_t* npc[siz];
+    objeto_t* itm[siz];
+    objeto_t* inv[siz];
     uint npcs=objfnd(npc,isnpc);
-    objeto_t* itm[objsiz()];
     uint itms=objfnd(itm,isitm);
-    if(npcs>0 && itms>0) {
-        objeto_t** ptr=itm;
-        while(ptr!=itm+itms && (tries--)>0) {
-            int nnpc=rnd(0,npcs-1);
-            objeto_t* npce=npc[nnpc];
-            if(itmasg(*ptr,npce)) ptr++;
+    if(npcs>0) {
+        for(uint k=0;k<itms;k++) {
+            if(!isnuevo || PRI) {
+                objeto_t* ite=itm[k];
+                objeto_t* npce=npc[rnd(0,npcs-1)];
+                uint invs=objinv(npce,inv);
+                if(invs<npce->cap) {
+                    Bool getit=TRUE;
+                    if(ite->prt) {
+                        for(int m=0;m<invs && getit;m++) {
+                            objeto_t* inve=inv[m];
+                            if(inve->prt) getit=FALSE;
+                        }
+                    }
+                    if(getit) npcgetit(npce,ite);
+                }
+            }
         }
     }
 }
@@ -138,7 +148,7 @@ static Bool nivnue(uint niv) {
 		/* colocacion de enemigos */
 		nivene(niv);
         /* asignacion de armas a enemigos */
-        nivitmene();
+        nivitmene(TRUE);
 	}
 	return ret;
 }
@@ -169,7 +179,7 @@ static Bool nivvie(uint niv) {
 		/* enemigos */
 		nivene(niv);
         /* colocacion de items en enemigos */
-        nivitmene();
+        nivitmene(FALSE);
 		/* opertura de ocultas y puertas */
 		nivopd(p);
 	}
