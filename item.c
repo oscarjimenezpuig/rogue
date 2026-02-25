@@ -184,34 +184,22 @@ static void artoti() {
 
 #undef nta
 
-#define RM(I,F) ((double)(F-I)/(double)(NFI-NIN))
-#define RN(I,F) ((double)(I) - (double)RM(I,F)*NIN)
-
 static int seltip() {
+    /* selecciona el tipo de arma */
     const int NUMTIPS=4;
-    const int VM[]={RM(1000,100),RM(100,90),RM(10,50),RM(0,5)};
-    const int VN[]={RN(1000,100),RN(100,90),RN(10,50),RN(0,5)};
-    static int nivdef=-1;
-    static int prb[]={0,0,0,0};
-    static int tprb=0;
-    if(nivdef!=num_nivel) {
-        int x;
-        x=nivdef=num_nivel;
-        for(int k=0;k<NUMTIPS;k++) {
-            prb[k]=VM[k]*x+VN[k];
-            tprb+=prb[k];
+    const uint DADIN=NFI-NIN+1;
+    int k=NUMTIPS-1;
+    for(;k>=1;k--) {
+        uint ndad=DADIN/(NUMTIPS-k);
+        ndad=(ndad==0)?1:ndad;
+        Bool find=TRUE;
+        for(int n=0;n<ndad && find;n++) {
+            if(DDA!=1) find=FALSE;
         }
+        if(find) break;
     }
-    double nal=rnd(0,tprb-1);
-    for(int k=0;k<NUMTIPS-1;k++) {
-        nal=nal-prb[k];
-        if(nal<0) return k;
-    }
-    return NUMTIPS-1;
+    return k;
 }
-
-#undef RM
-#undef RN
 
 static arma_t* seltipar() {
 	arma_t* res=NULL;

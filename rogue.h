@@ -52,6 +52,7 @@
 #define PDM 2 /* desviacion maxima del numero de protecciones */
 #define PDm -2 /* desviacion minima del numero de protecciones */
 #define PRI (rnd(0,1)==0) /* esta funcion decide si el arma definida sera de enemigos en un inicio */
+#define DDA DAC /* dado que determinara la aparicion de cada tipo de arma */
 
 /* enemigos */
 #define CEE 4 /* numero de caracteristicas evaluables de enemigo */
