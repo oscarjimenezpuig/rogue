@@ -11,7 +11,7 @@ objeto_t* fantasma=NULL;
 
 static void fannew() {
 	/* define el fantasma como objeto del nivel */
-	fantasma=objnew("fantasma",ATRFAN,FALSE,FALSE);
+	fantasma=objnew("fantasma",ATRFAN,TRUE,FALSE);
 	if(fantasma) {
 		fantasma->fan=1;
 		int r,c;

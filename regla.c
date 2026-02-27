@@ -99,13 +99,15 @@ int regla_descanso() {
 }
 
 Bool regla_fantasma() {
-	const uint CARAS=20; /* tipo de dado */
-	const uint DADOS=4; /* numero de dados */
-	for(int k=0;k<DADOS;k++) {
-		int res=rnd(1,CARAS);
-		if(res!=1) return FALSE;
-	}
-	return TRUE;
+    const int UNOS=1000;
+    static int unos=0;
+    if(unos==UNOS) {
+        unos=0;
+        return TRUE;
+    } else {
+        unos+=(DAI==1)?1:0;
+        return FALSE;
+    }
 }
 			
 	

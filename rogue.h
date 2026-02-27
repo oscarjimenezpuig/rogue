@@ -116,6 +116,7 @@
 /* Regla de descanso: Se descansa ganando puntos de vida si estamos en una habitacion sin
  * enemigos. Tiene que ser habitacion clara */
 /* Regla de retorno a nivel: Si en un nivel quedan enemigos, se cierran todas las puertas, si no se abren todas */
+/* Regla de fantasma: Se han de sacar una cierta cantidad de unos de un dado de 20, en ese momento aparecera el fantasma */
 
 /* Clasificacion de memoria de huesos:
  *  1. Sale con anillo

@@ -186,19 +186,40 @@ static void artoti() {
 
 static int seltip() {
     /* selecciona el tipo de arma */
-    const int NUMTIPS=4;
-    const uint DADIN=NFI-NIN+1;
-    int k=NUMTIPS-1;
-    for(;k>=1;k--) {
-        uint ndad=DADIN/(NUMTIPS-k);
-        ndad=(ndad==0)?1:ndad;
-        Bool find=TRUE;
-        for(int n=0;n<ndad && find;n++) {
-            if(DDA!=1) find=FALSE;
+    static int prop[]={4,3,2,1};
+    static int nivel=-1;
+    if(num_nivel!=nivel) {
+        nivel=num_nivel;
+        switch(nivel) {
+            case 3:
+                prop[0]=3;
+                break;
+            case 5:
+                prop[1]=2;
+                break;
+            case 7:
+                prop[0]=2;
+                break;
+            case 9:
+                prop[3]=1;
+                break;
+            case 12:
+                prop[1]=1;
+                break;
+            case 15:
+                prop[0]=1;
+                break;
         }
-        if(find) break;
     }
-    return k;
+    int res=-1;
+    while(res==-1) {
+        for(int k=0;k<4 && res==-1;k++) {
+            for(int t=0;t<prop[k] && res==-1;t++) {
+                if(DAI==1) res=k;
+            }
+        }
+    }
+    return res;
 }
 
 static arma_t* seltipar() {

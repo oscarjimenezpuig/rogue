@@ -286,33 +286,24 @@ static int chkkey() {
 	return -1;
 }
 
-static Bool jugmov(int ckey) {
-	/* funcion que mueve el jugador si se puede */
-	const int DR[]={-1,1,0,0};
-	const int DC[]={0,0,-1,1};
-	int dr=DR[ckey];
-	int dc=DC[ckey];
-	if(objmov(jugador,dr,dc)) {
-		visset();
-		return TRUE;
-	}
-	return FALSE;
+static Bool isnpcvec(objeto_t* o) {
+	return (o->npc && o->vid>0 && objdis(o,jugador)==1);
 }
 
-static Bool jugdsc() {
-	/* busca las celdas vecinas y descubre las puertas ocultas */
-	localidad_t* n[4];
-	mapngh(jugador->r,jugador->c,n);
-	localidad_t* pe=NULL;
-	for(int k=0;k<4 && !pe;k++) {
-		pe=n[k];
-		if(pe && (pe->obs==1 || pe->trs!=3)) pe=NULL;
-	}
-	if(pe && CDP) {
-		menin("Has descubierto una puerta oculta...");
-		pe->trs=1;
-		return TRUE;
-	}
+static Bool jugata() {
+	/* funcion de ataque de jugador */
+	objeto_t* vcn[4];
+	int vcns=objfnd(vcn,isnpcvec);
+	if(vcns==1) {
+		return objata(jugador,vcn[0]);
+	} else if(vcns){
+		char* enenom[vcns];
+		for(int k=0;k<vcns;k++) {
+			enenom[k]=vcn[k]->nom;
+		}
+		uint nene=menu("A quien atacas?",vcns,enenom);
+		if(nene<vcns) return objata(jugador,vcn[nene]);
+	} else menin("Nadie a quien puedas atacar aqui cerca...");
 	return FALSE;
 }
 
@@ -334,6 +325,50 @@ static Bool jugfrp() {
 	} else menin("No veo cerca ninguna puerta para forzar...");
 	return FALSE;
 }
+
+static Bool jugmov(int ckey) {
+	/* funcion que mueve el jugador si se puede */
+	const int DR[]={-1,1,0,0};
+	const int DC[]={0,0,-1,1};
+	int dr=DR[ckey];
+	int dc=DC[ckey];
+	if(objmov(jugador,dr,dc)) {
+		visset();
+		return TRUE;
+	} else {
+        localidad_t* l=mapget(jugador->r+dr,jugador->c+dc);
+        if(l->trs==2) return jugfrp();
+        else {
+            objeto_t* npc[objsiz()];
+            uint npcs=objfnd(npc,isnpcvec);
+            for(int k=0;k<npcs;k++) {
+                objeto_t* npce=npc[k];
+                if(npce->r==jugador->r+dr && npce->c==jugador->c+dc) {
+                    return objata(jugador,npce);
+                }
+            }
+        }
+    }
+	return FALSE;
+}
+
+static Bool jugdsc() {
+	/* busca las celdas vecinas y descubre las puertas ocultas */
+	localidad_t* n[4];
+	mapngh(jugador->r,jugador->c,n);
+	localidad_t* pe=NULL;
+	for(int k=0;k<4 && !pe;k++) {
+		pe=n[k];
+		if(pe && (pe->obs==1 || pe->trs!=3)) pe=NULL;
+	}
+	if(pe && CDP) {
+		menin("Has descubierto una puerta oculta...");
+		pe->trs=1;
+		return TRUE;
+	}
+	return FALSE;
+}
+
 
 static Bool isjugvis(objeto_t* o) {
 	/* dice si el objeto es visible */
@@ -520,26 +555,6 @@ static Bool jugues() {
 	return FALSE;
 }
 
-static Bool isnpcvec(objeto_t* o) {
-	return (o->npc && o->vid>0 && objdis(o,jugador)==1);
-}
-
-static Bool jugata() {
-	/* funcion de ataque de jugador */
-	objeto_t* vcn[4];
-	int vcns=objfnd(vcn,isnpcvec);
-	if(vcns==1) {
-		return objata(jugador,vcn[0]);
-	} else if(vcns){
-		char* enenom[vcns];
-		for(int k=0;k<vcns;k++) {
-			enenom[k]=vcn[k]->nom;
-		}
-		uint nene=menu("A quien atacas?",vcns,enenom);
-		if(nene<vcns) return objata(jugador,vcn[nene]);
-	} else menin("Nadie a quien puedas atacar aqui cerca...");
-	return FALSE;
-}
 
 static Bool jugrst() {
 	/* orden que hace descansar al jugador no haciendo nada, gana un punto de vida siempre y cuando no haya enemigos visibles */
