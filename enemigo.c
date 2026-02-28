@@ -157,8 +157,9 @@ static int razesp() {
 	int res=0;
 	if(num_nivel==posdragon && (!dragon || dragon->vid>0)) {
 		if(!dragon) {
-			raza_t drg=rf("dragon",0,15,13,13,15,RED);
+			raza_t drg=rf("drako",0,15,13,13,15,RED);
 			dragon=enenew(drg);
+            dragon->esp=1;
 		}
 		res+=enepos(dragon);
 		posdragon=rnd(NIN,posdragon);
@@ -167,6 +168,7 @@ static int razesp() {
 		if(!sauron) {
 			raza_t sau=rf("sauron",0,15,15,15,15,RED);
 			sauron=enenew(sau);
+            sauron->esp=1;
 		}
 		res+=enepos(sauron);
 		possauron=rnd(NIN,possauron);

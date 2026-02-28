@@ -33,6 +33,7 @@ static void npcsact() {
 }
 
 void curse() {
+    portada();
 	nivprm();
     memini();
 	static Bool first=TRUE;
@@ -45,6 +46,8 @@ void curse() {
 		fanset(); /* conexion de fantasma si no esta conectado */
 	}
     if(end_game!=-1) {
+        if(end_game==1) final_perder();
+        else if(end_game==2) final_ganar();
         memend();
         while(listen(INKEY)==0 || !inkey('Q'));
     }

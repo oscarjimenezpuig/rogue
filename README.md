@@ -1,6 +1,6 @@
 # rogue
 Una aplicacion de curse.
-26/1/26: Programar mensajes de muerte y victoria del jugador
-14/2/26: Rutina de rotura es lenta. Revisarla.
-19/2/26: Matar jefes es demasiado facil, quizas el motivo es el numero de objetos por nivel.
-25/2/26: Podriamos definir el tipo ncp especial dentro de objetos (DRAGON Y SAURON) este tipo siempre ataca y no contempla huida 
+28/2/26: El fantasma deberia aparecer una vez por nivel pero no lo hace.
+28/2/26: Generar la orden mensaje importante, que solo se quita pulsando tecla concreta.
+28/2/26: Poner las teclas de movimiento y seleccion de menu, quizas cambiarla por la introduccion del numero.
+

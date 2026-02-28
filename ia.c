@@ -311,7 +311,7 @@ static Bool iaatc(vismap_t vm,objeto_t* e) {
     int res=0;
     if(vm.jug) {
         uint dje=objdis(e,jugador);
-        if(e->anm) {
+        if(e->anm || e->esp) {
             if(dje==1) res=3;
             else res=1;
         } else {

@@ -9,21 +9,34 @@ objeto_t* fantasma=NULL;
 #define par rnd(0,MAPAR-1)
 #define pac rnd(0,MAPAC-1)
 
+static Bool isfan(objeto_t* o) {
+    return (o->npc && o->fan);
+}
+
+static Bool fanalrdef() {
+    /* mira si en el nivel el fantasma ya ha sido definido alguna vez, en ese caso, no aparecera mas */
+    objeto_t* fan[objsiz()];
+    if(objfnd(fan,isfan)>0) return TRUE;
+    return FALSE;
+}
+
 static void fannew() {
 	/* define el fantasma como objeto del nivel */
-	fantasma=objnew("fantasma",ATRFAN,TRUE,FALSE);
-	if(fantasma) {
-		fantasma->fan=1;
-		int r,c;
-		localidad_t* l=NULL;
-		do {
-			r=par;
-			c=pac;
-			l=mapget(r,c);
-		}while((l->obs+l->trs+l->vis+l->osc)==0);
-		fantasma->r=fantasma->dr=r;
-		fantasma->c=fantasma->dc=c;
-	}
+    if(!fanalrdef()) {
+        fantasma=objnew("fantasma",ATRFAN,TRUE,FALSE);
+        if(fantasma) {
+            fantasma->fan=1;
+            int r,c;
+            localidad_t* l=NULL;
+            do {
+                r=par;
+                c=pac;
+                l=mapget(r,c);
+            }while((l->obs+l->trs+l->vis+l->osc)==0);
+            fantasma->r=fantasma->dr=r;
+            fantasma->c=fantasma->dc=c;
+        }
+    }
 }
 
 static Bool fancanmov(int* dir) {
@@ -44,15 +57,16 @@ another:
 	return FALSE;
 }
 
-static Bool isespecial(objeto_t* o) {
-	/* se comprueba si el enemigo es especial o no*/
-	/* especiales son el dragon y sauron */
-	return (o->atr.chr=='S' || o->atr.chr=='D');
-}
-
 static Bool cnpcvis(objeto_t* o) {
 	/* condicion para detectar un npc vivo cercano al fantasma */
-	return (o && o->npc && o->vid>0 && objdis(fantasma,o)<=SQV && !isespecial(o));
+	return (o && o->npc && o->vid>0 && o->esp==0 && o->fan==0 && objdis(fantasma,o)<=SQV);
+}
+
+static void fandes() {
+    /* funcion que hace que el fantasma desaparezca */
+    fantasma->r=fantasma->c=-1;
+    fantasma->vid=0;
+    fantasma=NULL;
 }
 
 static Bool fanchk() {
@@ -73,10 +87,8 @@ static Bool fanchk() {
 		if(dnpcs==0) {
 			localidad_t* l=mapget(fantasma->r,fantasma->c);
 			if(l->vis==2) menin("El fantasma arranca el alma a %s...",npcs->nom);
-			else {
-				menin("La presencia malefica se ha desvanecido...");
-				fantasma->vid=0;
-			}
+			menin("La presencia malefica se ha desvanecido...");
+			fandes();
 			objmue(npcs);
 		} else {
 			fantasma->dr=npcs->r;
@@ -101,15 +113,14 @@ static void fanmov() {
 }
 
 void fanset() {
-	if(!fantasma || fantasma->vid==0) {
+	if(!fantasma) {
 		if(regla_fantasma()) {
 			menin("Una presencia malefica aparece en el nivel...");
-			if(!fantasma) fannew();
-			else fantasma->vid=VMC;
+			fannew();
 		}
 	}
 }
 
 void fanact() {
-	fanmov();
+    if(fantasma) fanmov();
 }

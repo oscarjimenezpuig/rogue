@@ -39,6 +39,7 @@ objeto_t* objnew(char* n,atributo_t a,Bool npc,Bool jug) {
 		if(npc) {
 			new->npc=1;
 			new->fan=0;
+            new->esp=0;
 			new->anm=0;
             new->jug=0;
             new->dr=new->dc=0;

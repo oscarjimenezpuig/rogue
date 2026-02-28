@@ -160,6 +160,7 @@ struct objeto_s {
 			uint jug : 1; /* 1: es jugador */
 			uint anm : 1; /* 1: es animal */
 			uint fan : 1; /* 1: es fantasma */
+            uint esp : 1; /* 1: es enemigo especial */
 			uint fue : 4; /* fuerza */
 			uint hab : 4; /* habilidad */
 			uint vel : 4; /* velocidad */
@@ -450,6 +451,17 @@ Bool iaanm(objeto_t* e);
 
 Bool iahum(objeto_t* e);
 /* ia humano */
+
+/* portada.c */
+
+void portada();
+/* funcion que muiestra la portada y la introduccion del juego */
+
+void final_perder();
+/* pantalla final en el caso de que pierda el jugador */
+
+void final_ganar();
+/* pantalla final en el caso que gane el jugador */
 
 /* rogue.c */
 
