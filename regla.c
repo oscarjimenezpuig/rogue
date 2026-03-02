@@ -99,7 +99,7 @@ int regla_descanso() {
 }
 
 Bool regla_fantasma() {
-    const int UNOS=1000;
+    const int UNOS=10;
     static int unos=0;
     static int nivel=-1;
     if(nivel!=num_nivel) {

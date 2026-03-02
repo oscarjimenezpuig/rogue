@@ -22,12 +22,11 @@
 #define TDSC 'r' /* descansar 13 */
 #define TCMP 'C' /* compra de una caracteristica 14 */
 #define TVES 'v' /* vestir un arma 15 */
-#define TDVS 'V' /* quitarte un arma 16 */
-#define THLP 'H' /* ayuda, un resumen de todas las teclas 17 */
+#define THLP 'H' /* ayuda, un resumen de todas las teclas 16 */
 
-#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR,TESC,TATQ,TDSC,TCMP,TVES,TDVS,THLP};
-#define KEXP {"Norte","Sur","Oeste","Este","Coger","Dejar","Inventario","Abrir","Forzar","Finalizar juego","Examinar","Subir/Bajar","Atacar","Descansar","Comprar","Vestir","Desvestir","Ayuda"};
-#define KEYS 18
+#define KEYN {TARR,TABJ,TIZQ,TDER,TCOG,TDEJ,TINV,TABR,TFRZ,TQUT,TMIR,TESC,TATQ,TDSC,TCMP,TVES,THLP};
+#define KEXP {"Norte","Sur","Oeste","Este","Coger","Dejar","Inventario","Abrir","Forzar","Finalizar juego","Examinar","Subir/Bajar","Atacar","Descansar","Comprar","Vestir","Ayuda"};
+#define KEYS 17
 
 
 /* posicion inicial pantalla */
@@ -649,49 +648,38 @@ static Bool objinvarm(objeto_t* o) {
 	return (o && o->npc==0 && o->arm && o->con==jugador);
 }
 
-static Bool jugves() {
-	/* funcion de vestir objeto */
-	objeto_t* inv[objsiz()];
-	uint invs=objfnd(inv,objinvarm);
-	if(invs) {
-		char* nom[invs];
-		uint noms=0;
-		for(int k=0;k<invs;k++) {
-			objeto_t* oe=inv[k];
-			if(oe->ves) {
-				menin("Ya llevas puesto %s",oe->nom);
-				return FALSE;
-			} else {
-				nom[noms++]=oe->nom;
-			}
-		}
-		if(noms==1) {
-			return objves(jugador,inv[0]);
-		} else if(noms>1) {
-			uint sel=menu("Que te quieres poner?",invs,nom);
-			if(sel<invs) return objves(jugador,inv[sel]);
-		} else menin("No tienes nada que te puedas poner...");
-	}
-	return FALSE;
-}
-
 static Bool objinvarmves(objeto_t* o) {
 	/* busca objeto arma,vestido */
 	return (o && o->npc==0 && o->arm && o->ves && o->con==jugador);
 }
 
-static Bool jugdvs() {
-    /* funcion desvestir */
-	objeto_t* ves[1];
-	uint vess=objfnd(ves,objinvarmves);
-	if(vess) {
-		return objdes(jugador,ves[0]);
-	} else {
-		menin("No llevas nada puesto...");
+static Bool jugves() {
+    /* funcion que viste/desviste al jugador */
+    objeto_t* ves[1];
+    uint vess=objfnd(ves,objinvarmves);
+    if(vess) {
+        return objdes(jugador,ves[0]);
+    } else {
+        objeto_t* inv[objsiz()];
+	    uint invs=objfnd(inv,objinvarm);
+	    if(invs) {
+		    char* nom[invs];
+		    uint noms=0;
+		    for(int k=0;k<invs;k++) {
+			    objeto_t* oe=inv[k];
+				nom[noms++]=oe->nom;
+            }
+		    if(noms==1) {
+			    return objves(jugador,inv[0]);
+		    } else if(noms>1) {
+			    uint sel=menu("Que te quieres poner?",invs,nom);
+			    if(sel<invs) return objves(jugador,inv[sel]);
+		    } else menin("No tienes nada que te puedas poner...");
+        }
+        return FALSE;
 	}
-	return FALSE;
 }
-
+        
 static Bool jughlp() {
     const char TEC[]=KEYN;
     const char* EXP[]=KEXP;
@@ -758,9 +746,7 @@ Bool jugact() {
 				return jugcmp();
 			case 15:
 				return jugves();
-			case 16:
-				return jugdvs();
-            case 17:
+            case 16:
                 return jughlp();
 			default:
 				return jugidk();

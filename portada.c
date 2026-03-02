@@ -109,7 +109,7 @@ static void tutoblack() {
             at(r,c);
             prints(" ");
             show();
-            pause(0.01);
+            pause(0.005);
         }
     }
 }
