@@ -103,14 +103,25 @@ void portada() {
 }
 
 static void tutoblack() {
-    atr(BLACK,BLACK,NONE);
-    for(int c=0;c<COLS;c++) {
-        for(int r=0;r<ROWS;r++) {
-            at(r,c);
-            prints(" ");
-            show();
-            pause(0.005);
-        }
+    int SCRA=ROWS*COLS; 
+    Bool pib[SCRA];
+    Bool *p=pib;
+    while(p!=pib+SCRA) *p++=FALSE;
+    uint ocup=0;
+    while(ocup!=SCRA) {
+        int c,r;
+        do {
+            c=rnd(0,COLS-1);
+            r=rnd(0,ROWS-1);
+            if(pib[c+r*COLS]) c=-1;
+        }while(c==-1);
+        pib[c+r*COLS]=TRUE;
+        ocup++;
+        atr(BLACK,BLACK,NONE);
+        at(r,c);
+        printc(' ');
+        show();
+        pause(0.005);
     }
 }
 
@@ -122,7 +133,7 @@ void final_perder() {
         atr(ink,BLACK,BOLD);
         prints(frase);
         show();
-        pause(1);
+        pause(0.5);
     }
     pause(2);
     cls();
