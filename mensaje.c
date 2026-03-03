@@ -28,6 +28,11 @@ void menin(const char* im,...) {
 
 static Bool onemenout() {
 	if(*pmensaje!=EOS) {
+        Bool isimp=FALSE;
+        if(*pmensaje==CMI) {
+            isimp=TRUE;
+            ++pmensaje;
+        }
 		while(*pmensaje!=EOS) {
 			ROW=COL=0;
 			while((COL<COLS-10 || *pmensaje!=' ') && *pmensaje!=EOS) {
@@ -38,7 +43,9 @@ static Bool onemenout() {
 				COL=COL+3;
 				prints("MAS");
 			}
-			while(listen(INKEY)==0);
+            do {
+                listen(DELAY);
+            } while(isimp && inkey(TMI)==0);
 			ATR=NONE;
 			ROW=COL=0;
 			for(;COL<COLS;) printc(' ');

@@ -272,7 +272,7 @@ Bool objata(objeto_t* o,objeto_t* ene) {
 			menin("%s da un golpe de %i puntos a %s...",o->nom,dano,ene->nom);
 			jugshw(jugador);
 			if(odef && DRP(odef)) {
-				menin("A %s se le rompe %s...",ene->nom,odef->nom);
+				menin("*A %s se le rompe %s...",ene->nom,odef->nom);
 				itmrmp(odef);
 			}
 			if(dano>=ene->vid) {
@@ -286,7 +286,7 @@ Bool objata(objeto_t* o,objeto_t* ene) {
 			if(odef) menin("%s lleva puesta %s, que le protege del ataque...",ene->nom,odef->nom);
 			else menin("%s repele el ataque...",ene->nom);
 			if(oata && DRA(oata)) {
-				menin("A %s se le rompe %s...",o->nom,oata->nom);
+				menin("*A %s se le rompe %s...",o->nom,oata->nom);
 				itmrmp(oata);
 			}
 			jugshw(jugador);
@@ -353,9 +353,10 @@ static void reporo(int r,int c,int oro) {
 Bool objmue(objeto_t* o) {
 	if(o && o->npc && o->vid>0 && o->r!=-1 && o->c!=-1) {
 		localidad_t* l=mapget(o->r,o->c);
-		if(l->vis==2) menin("%s ha muerto...",o->nom);
+		if(l->vis==2 && o->jug==0) menin("*%s ha muerto...",o->nom);
 		o->vid=0;
 		if(o->jug) {
+            menin("*Aaaaaaaagh!!!");
             if(mode_debug) o->vid=VMC;
             else end_game=1;
 		} else {

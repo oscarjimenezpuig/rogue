@@ -75,8 +75,8 @@ static Bool fanchk() {
 	if(npcs) {
 		if(dnpcs==0) {
 			localidad_t* l=mapget(fantasma->r,fantasma->c);
-			if(l->vis==2) menin("El fantasma arranca el alma a %s...",npcs->nom);
-			menin("La presencia malefica se ha desvanecido...");
+			if(l->vis==2) menin("*El fantasma arranca el alma a %s...",npcs->nom);
+			menin("*La presencia malefica se ha desvanecido...");
 			fandes();
 			objmue(npcs);
 		} else {
@@ -125,7 +125,7 @@ void fanset() {
 	if(!fantasma && !fanalrdef()) {
 		if(regla_fantasma()) {
             if(fannew()) {
-			    menin("Una presencia malefica aparece en el nivel...");
+			    menin("*Una presencia malefica aparece en el nivel...");
             }
 		}
 	}

@@ -75,6 +75,10 @@
 #define JDN "NONAMED" /* nombre por defecto del jugador */
 #define JMD "OJPDEBUG" /* con este nombre en el jugador se activa el mode debug */
 
+/* mensaje */
+#define CMI '*' /* caracter a principio del mensaje que denota que es importante */
+#define TMI 's' /* tecla para pulsar mensajes importantes */
+
 /* memoria */
 #define MSIZ 10 /* numero maximo de memorias aceptado */
 #define MNAM ".archhues.mem" /* nombre del archivo de memoria */
@@ -281,7 +285,7 @@ void panshw(int mri,int mci,int mrs,int mcs,int ro,int co);
 /* mensaje.c */
 
 void menin(const char* men,...);
-/* se introduce un mensaje */
+/* se introduce un mensaje, si el mensaje lleva un asterisco delante, tendra una pausa de un tiempo TMI */
 
 void menout();
 /* se obtienen y imprimen por pantalla todos los mensajes guardados */

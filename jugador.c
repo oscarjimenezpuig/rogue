@@ -518,7 +518,7 @@ static Bool jugabr() {
 			menin("Abres la puerta...");
 			p->trs=1;
 			if(CRL) {
-				menin("... pero la llave se ha roto...");
+				menin("*... pero la llave se ha roto...");
 				itmrmp(ll);
 			}
 			return TRUE;
@@ -539,15 +539,15 @@ static Bool jugues() {
         if(num_nivel==1 && dir==-1) {
             objeto_t* ani[1];
             if(objfnd(ani,jughasani)) {
-                menin("VICTORIA!!!");
+                menin("*Uoooooooooooooooo!!!");
                 end_game=2;
                 return TRUE;
             } else {
                 menin("No puedes salir por esta escalera a menos que consigas el ANILLO UNICO...");
             }
         } else {
-		    if(dir==1) menin("Bajaras por la escalera...");
-		    else menin("Subiras por la escalera...");
+		    if(dir==1) menin("*Bajaras por la escalera...");
+		    else menin("*Subiras por la escalera...");
 		    return nivchg(dir);
         }
 	} else menin("No veo aqui ninguna escalera...");

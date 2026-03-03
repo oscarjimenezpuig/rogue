@@ -11,7 +11,10 @@ uint menu(char* c,uint os,char* o[]) {
     for(int k=0;k<os;k++) {
         COL=2;
         ROW=k+2;
-        prints("%c. %s",'a'+k,o[k]);
+        ATR=BOLD;
+        prints("%c. ",'a'+k);
+        ATR=NONE;
+        prints("%s",o[k]);
     }
     INK=YELLOW;
     ATR=BOLD;
