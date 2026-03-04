@@ -140,14 +140,26 @@ void final_perder() {
 }
 
 static void tutocolo() {
-    for(int r=0;r<ROWS;r++) {
-        for(int c=0;c<COLS;c++) {
-            at(r,c);
-            atr(rnd(BLACK,WHITE),BLACK,BOLD);
-            prints(" ");
-            show();
-            pause(0.01);
-        }
+    int SCRA=ROWS*COLS; 
+    Bool pib[SCRA];
+    Bool *p=pib;
+    while(p!=pib+SCRA) *p++=FALSE;
+    uint ocup=0;
+    while(ocup!=SCRA) {
+        int c,r;
+        do {
+            c=rnd(0,COLS-1);
+            r=rnd(0,ROWS-1);
+            if(pib[c+r*COLS]) c=-1;
+        }while(c==-1);
+        pib[c+r*COLS]=TRUE;
+        ocup++;
+        int colo=rnd(WHITE,BLACK);
+        atr(colo,colo,NONE);
+        at(r,c);
+        printc(' ');
+        show();
+        pause(0.005);
     }
 }
 

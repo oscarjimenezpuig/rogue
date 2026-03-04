@@ -460,7 +460,9 @@ static Bool jugcog() {
 static Bool jugdej() {
 	objeto_t* inv[objsiz()];
 	uint invs=objinv(jugador,inv);
-	if(invs) {
+    if(invs==1) {
+        return objdej(jugador,*inv);
+    } else if(invs>1) {
 		char* inno[invs];
 		for(int k=0;k<invs;k++) {
 			inno[k]=inv[k]->nom;
@@ -586,12 +588,9 @@ static Bool jugcmp() {
     }
     uint op=menu(CABECERA,CRS,popc);
     if(op<CRS) {
-        ROW++;
-        COL=0;
         if(crj[op]<VMC) {
             if(jugador->oro>=prc[op]) {
-                INK=YELLOW;
-                prints("Aumentas %s en +1",nom[op]);
+                menin("Aumentas %s en +1",nom[op]);
                 jugador->oro-=prc[op];
                 prc[op]+=PAC;
                 switch(op) {
@@ -610,12 +609,10 @@ static Bool jugcmp() {
                 }
                 ret=TRUE;
             } else {
-                INK=RED;
-                prints("No tienes suficiente oro...");
+                menin("No tienes suficiente oro...");
             }
         } else {
-            INK=RED;
-            prints("Esta caracteristica ya tiene el maximo valor permitido");
+            menin("Esta caracteristica ya tiene el maximo valor permitido");
         }
         listen(DELAY);
     }

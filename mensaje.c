@@ -43,6 +43,13 @@ static Bool onemenout() {
 				COL=COL+3;
 				prints("MAS");
 			}
+            if(isimp) {
+                ROW++;
+                COL=0;
+                INK=YELLOW;
+                ATR=BLINK;
+                prints("Pulsa %c para continuar...",TMI);
+            }
             do {
                 listen(DELAY);
             } while(isimp && inkey(TMI)==0);
