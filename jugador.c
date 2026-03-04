@@ -33,6 +33,8 @@
 #define RO 0
 #define CO 0
 
+typedef char strcar_t[SLEN];
+
 int end_game=0;
 
 Bool mode_debug=FALSE;
@@ -568,80 +570,59 @@ static Bool jugrst() {
 	return TRUE;
 }
 
-#define chkm(A,C) (res==(A) && jugador->C<VMC)
+#define CRS 4
 
 static Bool jugcmp() {
-	/* funcion de compra de caracteristicas */
-	const int CRS=4;
+    /* funcion de compra de las caracteristicas */
 	char* nom[]={"FUE","HAB","VEL","CAP"};
 	static int prc[]={PIC,PIC,PIC,PIC};
-	Bool ret=FALSE;
-	cls();
-	INK=WHITE;
-	ATR=BOLD;
-	ROW=COL=0;
-	prints("PRECIO CARACTERISTICAS");
-	for(int k=0;k<CRS;k++) {
-		ROW++;
-		COL=0;
-		ATR=NONE;
-		prints("  %i. ",k+1);
-		ATR=BOLD;
-		prints("%s",nom[k]);
-		ATR=NONE;
-		prints(": %i oros",prc[k]);
-	}
-	ROW+=2;
-	COL=0;
-	prints("Tienes %i oros.",jugador->oro);
-	ATR=REVERSE;
-	ROW++;
-	COL=0;
-	prints("Pulsa el numero de caracteristica, o 0");
-	ATR=NONE;
-	listen(DELAY);
-	char sres[2];
-	bufget(1,sres);
-	int res=0;
-	sscanf(sres,"%i",&res);
-	res--;
-	INK=YELLOW;
-	ATR=NONE;
-	COL=0;
-	ROW+=2;
-	if(res<CRS && res>=0) {
-		if(chkm(0,fue) || chkm(1,hab) || chkm(2,vel) || chkm(3,cap)) {
-			if(jugador->oro>=prc[res]) {
-				jugador->oro-=prc[res];
-				prints("Aumentas +1 en %s",nom[res]);
-				switch(res) {
-					case 0:
-						jugador->fue++;
-						break;
-					case 1:
-						jugador->hab++;
-						break;
-					case 2:
-						jugador->vel++;
-						break;
-					case 3:
-						jugador->cap++;
-						break;
-				}
-				prc[res]+=PAC;
-				ret=TRUE;
-			} else {
-				prints("No tienes suficiente oro...");
-			}
-		} else {
-			prints("Ya tienes el maximo de valor en %s...",nom[res]);
-		}
-	}
-	while(listen(INKEY)==0);
-	return ret;
-}
+    static strcar_t opc[CRS];
+    char* popc[]={opc[0],opc[1],opc[2],opc[3]};
+    uint crj[]={jugador->fue,jugador->hab,jugador->vel,jugador->cap};
+    Bool ret=FALSE;
+   	char* const CABECERA="PRECIO CARACTERISTICAS";
+     for(int k=0;k<CRS;k++) {
+        sprintf(opc[k],"%s: %i oros",nom[k],prc[k]);
+    }
+    uint op=menu(CABECERA,CRS,popc);
+    if(op<CRS) {
+        ROW++;
+        COL=0;
+        if(crj[op]<VMC) {
+            if(jugador->oro>=prc[op]) {
+                INK=YELLOW;
+                prints("Aumentas %s en +1",nom[op]);
+                jugador->oro-=prc[op];
+                prc[op]+=PAC;
+                switch(op) {
+                    case 0:
+                        jugador->fue++;
+                        break;
+                    case 1:
+                        jugador->hab++;
+                        break;
+                    case 2:
+                        jugador->vel++;
+                        break;
+                    case 3:
+                        jugador->cap++;
+                        break;
+                }
+                ret=TRUE;
+            } else {
+                INK=RED;
+                prints("No tienes suficiente oro...");
+            }
+        } else {
+            INK=RED;
+            prints("Esta caracteristica ya tiene el maximo valor permitido");
+        }
+        listen(DELAY);
+    }
+    return ret;
+}  
 
-#undef chkm
+#undef CRS
 
 static Bool objinvarm(objeto_t* o) {
 	/* condicion para que un objeto sea del jugador y arma */

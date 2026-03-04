@@ -293,8 +293,8 @@ void menout();
 /* menu.c */
 
 uint menu(char* cabecera,uint opciones,char* opcion[]);
-/* se crea un menu, funciona con las teclas i: subir j: bajar q: quitar s: seleccionar.
- * Devuelve la opcion selecconada o opciones en caso de no selecionar nada */
+/* se crea un menu */
+/* Devuelve la opcion selecconada o opciones en caso de no selecionar nada */
 
 /* objeto.c */
 

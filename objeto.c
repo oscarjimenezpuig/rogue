@@ -353,7 +353,7 @@ static void reporo(int r,int c,int oro) {
 Bool objmue(objeto_t* o) {
 	if(o && o->npc && o->vid>0 && o->r!=-1 && o->c!=-1) {
 		localidad_t* l=mapget(o->r,o->c);
-		if(l->vis==2 && o->jug==0) menin("*%s ha muerto...",o->nom);
+		if(l->vis==2 && o->jug==0) menin("%s ha muerto...",o->nom);
 		o->vid=0;
 		if(o->jug) {
             menin("*Aaaaaaaagh!!!");
