@@ -398,27 +398,29 @@ Bool objcanact(objeto_t* o) {
 
 Bool objdsc(objeto_t* obj) {
 	if(obj) {
-		COL=0;
 		prints("%s ",obj->nom);
 		if(obj->npc && obj->jug==0) {
 			if(obj->vid>0) {
 				if(obj->anm) prints("(animal)");
 				prints("F:%i H:%i V:%i",obj->fue,obj->hab,obj->vel);
 				objeto_t* aa=objisves(obj);
+				objeto_t* dd=objisprt(obj);
+                if(aa || dd) {
+                    prints(", lleva puesto:");
+                }
 				if(aa) {
 					COL=2;
 					ROW++;
-					prints("Arma de ataque: ");
+					prints("-");
 					objdsc(aa);
 				}
-				objeto_t* dd=objisprt(obj);
 				if(dd) {
 					COL=2;
 					ROW++;
-					prints("Arma de defensa: ");
+					prints("-");
 					objdsc(dd);
 				}
-			} else prints("seco como la mojama...");
+			}
 		} else if(obj->npc==0) {
 			if(obj->ior) {
 				prints("contiene %i monedas de oro...",obj->cor);
@@ -433,7 +435,9 @@ Bool objdsc(objeto_t* obj) {
 				prints("arma de defensa E:+%i",obj->nar);
 			} else if(obj->ani) {
 				prints("EL ANILLO UNICO!!!");
-			}
+			} else {
+                prints("seco como la mojama...");
+            }
 		}
 		return TRUE;
 	}

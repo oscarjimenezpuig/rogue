@@ -614,7 +614,6 @@ static Bool jugcmp() {
         } else {
             menin("Esta caracteristica ya tiene el maximo valor permitido");
         }
-        listen(DELAY);
     }
     return ret;
 }  

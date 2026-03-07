@@ -27,7 +27,8 @@ repregunta:
     listen(DELAY);
     if(inkey('0')) return os;
     for(char c='a';c<'a'+os;c++) {
-        if(inkey(c) || inkey(c-'a'+'A')) return c-'a';
+        if(inkey(c)) return c-'a';
+        else if(inkey(c-'a'+'A')) return c-'A';
     }
     goto repregunta;
 }
